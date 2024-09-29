@@ -1,0 +1,91 @@
+import NextAuth, { NextAuthOptions } from "next-auth";
+import GoogleProvider from "next-auth/providers/google";
+
+export const authOptions: NextAuthOptions = {
+  providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID ?? "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code",
+          scope: "openid profile email",
+        },
+      },
+    }),
+  ],
+  secret: process.env.NEXTAUTH_SECRET,
+  session: {
+    strategy: "jwt",
+    maxAge: 60 * 60, // 1 hour
+  },
+  pages: {
+    signIn: "/auth/signin",
+  },
+  callbacks: {
+    async signIn({ user, account }) {
+      const formData = new FormData();
+      formData.append("name", user.name as string);
+      formData.append("email", user.email as string);
+      formData.append("profile_url", user.image as string);
+      formData.append("access_token", account?.access_token as string);
+
+      try {
+        const response = await fetch(process.env.API_URL + "/login", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          console.error("Failed to validate user with backend");
+          console.error("Status code:", response.status);
+          const responseBody = await response.text();
+          console.error("Response body:", responseBody);
+          return false;
+        }
+
+        if (account) {
+          try {
+            const data = await response.json();
+            account.role = data.role;
+            account.role_permissions = data.role_permissions;
+            account.token = data.token;
+            account.department = data.department;
+          } catch (error) {
+            console.error("Error during signIn callback", error);
+            return false;
+          }
+        }
+      } catch (error) {
+        console.error("Error during signIn callback", error);
+        return false;
+      }
+
+      return true;
+    },
+    async jwt({ token, account }) {
+      if (account) {
+        token.role = account.role;
+        token.role_permissions = account.role_permissions;
+        token.token = account.token;
+        token.department = account.department;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.role = token.role;
+        session.user.role_permissions = token.role_permissions;
+        session.user.token = token.token;
+        session.user.department = token.department;
+      }
+      return session;
+    },
+  },
+};
+
+const handler = NextAuth(authOptions);
+
+export { handler as GET, handler as POST, authOptions };
