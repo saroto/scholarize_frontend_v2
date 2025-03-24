@@ -15,79 +15,85 @@ import DashboardButton from "@/components/navbar/DashboardButton";
 
 export default function Navbar() {
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar color="inherit" component="nav" position="fixed">
-        <Toolbar>
+    <AppBar
+      component="nav"
+      position="fixed"
+      sx={{
+        backgroundColor: "transparent",
+        boxShadow: "none",
+        paddingInline: "100px",
+      }}
+    >
+      <Toolbar>
+        <Stack
+          title="Scholarize"
+          direction={"row"}
+          alignItems={"center"}
+          sx={{ flexGrow: 1 }}
+        >
           <Stack
-            title="Scholarize"
             direction={"row"}
             alignItems={"center"}
-            sx={{ flexGrow: 1 }}
+            spacing={1}
+            onClick={() => {
+              window.location.href = "/";
+            }}
+            sx={{
+              "&:hover": {
+                cursor: "pointer",
+                backgroundColor: "rgba(0, 0, 0, 0.1)",
+                borderRadius: "1rem",
+              },
+              padding: "0.5rem",
+            }}
           >
-            <Stack
-              direction={"row"}
-              alignItems={"center"}
-              spacing={1}
-              onClick={() => {
-                window.location.href = "/";
-              }}
-              sx={{
-                "&:hover": {
-                  cursor: "pointer",
-                  backgroundColor: "rgba(0, 0, 0, 0.1)",
-                  borderRadius: "1rem",
-                },
-                padding: "0.5rem",
-              }}
-            >
-              <img src="/logo.png" alt="Scholarize" width={30} height={30} />
+            <img src="/logo.png" alt="Scholarize" width={30} height={30} />
 
-              <Typography
-                variant="h5"
-                component="h5"
-                sx={{
-                  color: "black",
-                  fontWeight: "500",
-                  fontFamily: "poppins, -apple-system",
-                }}
-              >
-                Scholarize
-              </Typography>
-            </Stack>
-          </Stack>
-          <Tooltip title="About Scholarize" placement="bottom">
-            <IconButton
+            <Typography
+              variant="h5"
+              component="h5"
               sx={{
                 color: "black",
-                mr: 1,
-                ":hover": {
-                  backgroundColor: "rgba(0, 0, 0, 0.1)",
-                  borderRadius: "1rem",
-                  color: "blue",
-                },
+                fontWeight: "500",
+                fontFamily: "poppins, -apple-system",
               }}
-              onClick={() => {
-                window.location.href = "/about";
-              }}
-
-              // onClick={() => {
-              //   // Open in new window
-              //   const aboutPage =
-              //     "https://sites.google.com/paragoniu.edu.kh/scholarize/about";
-              //   const newWindow = window.open(
-              //     aboutPage,
-              //     "_blank",
-              //     "noopener,noreferrer"
-              //   );
-              //   if (newWindow) newWindow.opener = null;
-              // }}
             >
-              <InfoIcon />
-            </IconButton>
-          </Tooltip>
-          <DashboardButton />
-        </Toolbar>
-      </AppBar>
-    </Box>
+              Scholarize
+            </Typography>
+          </Stack>
+        </Stack>
+        <Tooltip title="About Scholarize" placement="bottom">
+          <IconButton
+            sx={{
+              color: "black",
+              mr: 1,
+              // ":hover": {
+              //   backgroundColor: "rgba(0, 0, 0, 0.1)",
+              //   borderRadius: "1rem",
+              //   color: "blue",
+              // },
+            }}
+            onClick={() => {
+              window.location.href = "/about";
+            }}
+
+            // onClick={() => {
+            //   // Open in new window
+            //   const aboutPage =
+            //     "https://sites.google.com/paragoniu.edu.kh/scholarize/about";
+            //   const newWindow = window.open(
+            //     aboutPage,
+            //     "_blank",
+            //     "noopener,noreferrer"
+            //   );
+            //   if (newWindow) newWindow.opener = null;
+            // }}
+          >
+            <InfoIcon />
+          </IconButton>
+        </Tooltip>
+        <DashboardButton />
+      </Toolbar>
+    </AppBar>
   );
 }
