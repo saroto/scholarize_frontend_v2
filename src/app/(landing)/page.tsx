@@ -69,8 +69,8 @@ export default function Home() {
                 variant="h6"
                 component="h6"
                 mt={3}
-                fontWeight={"400"}
                 sx={{
+                  fontWeight: 400,
                   maxWidth: "50rem",
                   fontSize: {
                     xs: "0.75rem",

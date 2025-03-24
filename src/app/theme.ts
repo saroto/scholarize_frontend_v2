@@ -2,6 +2,14 @@
 
 "use client";
 import { createTheme } from "@mui/material";
+import { Roboto, Inter } from "next/font/google";
+
+// Configure the Roboto font
+const roboto = Roboto({
+  subsets: ["latin"],
+  weight: ["100", "300", "400", "500", "700", "900"], // Roboto weights
+  display: "swap",
+});
 
 // MUI theme configuration
 export const theme = createTheme({
@@ -15,20 +23,11 @@ export const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: [
-      "Roboto",
-      "Lato",
-      "-apple-system",
-      "BlinkMacSystemFont",
-      '"Segoe UI"',
-      '"Helvetica Neue"',
-      "Arial",
-      "sans-serif",
-      '"Apple Color Emoji"',
-      '"Segoe UI Emoji"',
-      '"Segoe UI Symbol"',
-      '"Poppins, sans-serif"',
-    ].join(","),
+    fontFamily: [roboto.style.fontFamily].join(","),
+    fontWeightLight: 300,
+    fontWeightRegular: 400,
+    fontWeightMedium: 500,
+    fontWeightBold: 700,
   },
 
   components: {
@@ -36,7 +35,7 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           fontFamily: [
-            "Roboto",
+            // "Roboto",
             "Open Sans",
             "Lato",
             "-apple-system",
@@ -57,7 +56,7 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           fontFamily: [
-            "Roboto",
+            // "Roboto",
             "Open Sans",
             "Lato",
             "-apple-system",
