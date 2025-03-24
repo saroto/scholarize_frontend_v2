@@ -21,6 +21,23 @@ export const theme = createTheme({
     secondary: {
       main: "#FAFAFA",
     },
+    error: {
+      main: "#D3180C",
+      light: "#FFE5E5",
+    },
+    success: {
+      main: "#0DB583",
+      light: "#5BD56C",
+    },
+    background: {
+      default: "#f5f6fa",
+      paper: "#fff",
+    },
+    text: {
+      primary: "#34322D",
+      secondary: "#707070",
+      disabled: "#e0e0e0",
+    },
   },
   typography: {
     fontFamily: [roboto.style.fontFamily].join(","),
@@ -28,6 +45,24 @@ export const theme = createTheme({
     fontWeightRegular: 400,
     fontWeightMedium: 500,
     fontWeightBold: 700,
+    h1: {
+      fontSize: "2rem",
+    },
+    h2: {
+      fontSize: "1.5rem",
+    },
+    h3: {
+      fontSize: "1.17rem",
+    },
+    h4: {
+      fontSize: "1rem",
+    },
+    h5: {
+      fontSize: "0.83rem",
+    },
+    h6: {
+      fontSize: "0.75rem",
+    },
   },
 
   components: {

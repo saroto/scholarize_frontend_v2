@@ -35,19 +35,21 @@ const DashboardButton = () => {
 
   return (
     <Button
-      variant="outlined"
+      variant="contained"
       onClick={handleAuthClick}
       sx={{
-        "&:hover": {
-          cursor: "pointer",
-          border: "1px solid blue",
-          color: "blue",
-        },
+        // "&:hover": {
+        //   cursor: "pointer",
+        //   border: "1px solid blue",
+        //   color: "blue",
+        // },
         px: "1rem",
         borderRadius: "1rem",
+        textTransform: "none",
+        boxShadow: "none",
       }}
     >
-      {session ? "View Dashboard" : "Sign In"}
+      {session ? "View Dashboard" : "Get Started"}
     </Button>
   );
 };
