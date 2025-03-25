@@ -9,21 +9,26 @@ import {
   styled,
   Typography,
   CircularProgress,
+  Container,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import React, { useCallback, useState } from "react";
 import { getBrowserPaper } from "@/app/api/service/browser-paper";
 import { Paper } from "@/types";
 import BrowserPaperCard from "./browser_paper_card";
+import { mockResearchPapers } from "@/constants/research";
+import Promotion from "./promotion";
 
 import Image from "next/image";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
-  border: "1px solid black",
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
+  border: "1px solid",
+  borderColor: "#CFCFCF",
+  height: "50px",
+  backgroundColor: "white",
   "&:hover": {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
+    backgroundColor: "white",
   },
 
   width: "100%",
@@ -65,6 +70,7 @@ export default function BrowserPaper() {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResult, setSearchResult] = useState<Paper[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isTryNow, setIsTryNow] = useState(true);
   const fetchPapers = async (term: string) => {
     if (term === "") {
       setSearchResult([]);
@@ -76,9 +82,6 @@ export default function BrowserPaper() {
     setSearchResult(res.papers);
     setIsLoading(false);
   };
-
-  // Use useCallback to memoize the debounced function
-  // const debouncedFetchPapers = useCallback(debounce(fetchPapers, 300), []);
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
@@ -108,7 +111,11 @@ export default function BrowserPaper() {
     );
   } else if (searchResult && searchResult !== null) {
     content = searchResult.map((paper) => (
-      <BrowserPaperCard key={paper.research_paper_id} paper={paper} />
+      // <BrowserPaperCard key={paper.research_paper_id} paper={paper} />
+      <BrowserPaperCard
+        key={paper.research_paper_id}
+        paper={mockResearchPapers}
+      />
     ));
   } else {
     content = (
@@ -135,15 +142,13 @@ export default function BrowserPaper() {
         sx={{
           display: "flex",
           justifyContent: "center",
-          backgroundColor: "#ECECEC",
           minHeight: "100vh",
         }}
       >
         <Box
           sx={{
-            width: "60%",
+            width: { xs: "100%", sm: "100%", md: "60%", lg: "60%" },
             justifyContent: "center",
-            backgroundColor: "#ECECEC",
             minHeight: "100vh",
             px: "1rem",
           }}
@@ -165,13 +170,10 @@ export default function BrowserPaper() {
                 alignItems: "center",
               }}
             >
-              <Image
-                src="/logo.png"
-                alt="Scholarize"
-                width={100}
-                height={100}
-              />
-              <Typography variant="h3" sx={{ textAlign: "center" }}>
+              <Typography
+                variant="h1"
+                sx={{ textAlign: "center", fontWeight: 500 }}
+              >
                 Scholarize Repository
               </Typography>
             </Box>
@@ -194,17 +196,24 @@ export default function BrowserPaper() {
               onSubmit={handleSearchClick}
               className="flex m-0 p-0 w-[100%] justify-center"
             >
-              <Search sx={{ borderRadius: "0.8rem", display: "flex" }}>
-                <Box sx={{ width: "100%" }}>
-                  <SearchIconWrapper sx={{ padding: "0.5rem" }}>
-                    <SearchIcon sx={{ color: "black", scale: "1.2" }} />
+              <Search
+                sx={{
+                  borderRadius: "0.8rem",
+                  display: "flex",
+                }}
+              >
+                <Box
+                  sx={{ width: "100%", display: "flex", alignItems: "center" }}
+                >
+                  <SearchIconWrapper>
+                    <SearchIcon sx={{ color: "#707070", scale: "1.2" }} />
                   </SearchIconWrapper>
                   <StyledInputBase
                     placeholder="Explore research papers..."
                     inputProps={{ "aria-label": "search" }}
                     onChange={handleSearchChange}
                     value={searchTerm}
-                    sx={{ width: "100%" }}
+                    sx={{ width: "100%", color: "#34322D" }}
                   />
                 </Box>
               </Search>
@@ -212,6 +221,40 @@ export default function BrowserPaper() {
           </div>
 
           <div className="mt-4">{content}</div>
+          {!isTryNow ? (
+            <BrowserPaperCard
+              key={mockResearchPapers.public_id}
+              paper={mockResearchPapers}
+            />
+          ) : (
+            <Container
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                paddingBlock: "10px",
+                paddingInline: 0,
+              }}
+            >
+              <Box
+                sx={{
+                  width: {
+                    xs: "100%",
+                    sm: "100%",
+                    md: "100%",
+                    lg: "80%",
+                  },
+                  height: {
+                    xs: "100%",
+                    sm: "100%",
+                    md: "100%",
+                    lg: "80%",
+                  },
+                }}
+              >
+                <Promotion setIsOpen={setIsTryNow} open={isTryNow} />
+              </Box>
+            </Container>
+          )}
         </Box>
       </Box>
     </>

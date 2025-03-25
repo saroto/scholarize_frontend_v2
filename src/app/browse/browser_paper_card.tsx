@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import ArticleIcon from "@mui/icons-material/Article";
-import PermIdentityIcon from "@mui/icons-material/PermIdentity";
+import PersonIcon from "@mui/icons-material/Person";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -46,9 +46,10 @@ BrowserPaperCardProps) {
           <Card
             sx={{
               marginBottom: 2,
-              borderRadius: "0.5rem",
+              borderRadius: "16px",
               width: "100%",
-              bgcolor: "#f9f9f9",
+              // bgcolor: "#f9f9f9",
+              boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.05)",
             }}
             key={paper.research_paper_id}
           >
@@ -111,6 +112,7 @@ BrowserPaperCardProps) {
                                 color: "#fff",
                                 fontWeight: "575",
                                 p: "0.25rem",
+                                border: "none",
                               }}
                             />
                           </Tooltip>
@@ -150,16 +152,15 @@ BrowserPaperCardProps) {
                   }}
                 >
                   <Typography
-                    variant="h5"
+                    variant="h3"
                     className="research-title"
                     sx={{
                       textDecoration: "none",
                       cursor: "pointer",
-                      textTransform: "capitalize",
+                      // textTransform: "capitalize",
                       // color: "#2F2F85",
-                      color: "#708090",
-
-                      // fontWeight: "550",
+                      color: "text.primary",
+                      fontWeight: 500,
                       ":hover": {
                         textDecoration: "underline",
                       },
@@ -174,8 +175,8 @@ BrowserPaperCardProps) {
                 <Box display={"flex"} flexDirection="row" width={"100%"}>
                   <Typography
                     variant="body2"
-                    color="#333333"
                     sx={{
+                      color: "text.primary",
                       textJustify: "inter-word",
                       overflow: "hidden",
                       display: "-webkit-box",
@@ -183,52 +184,41 @@ BrowserPaperCardProps) {
                       WebkitLineClamp: showFullAbstract ? undefined : 20,
                     }}
                   >
-                    {showFullAbstract || paper.abstract.length <= 300
+                    {showFullAbstract || paper.abstract.length <= 200
                       ? paper.abstract
-                      : `${paper.abstract.substring(0, 300)}`}
-                    {paper.abstract && paper.abstract.length > 300 && (
-                      <span
+                      : `${paper.abstract.substring(0, 200)}`}
+                    {paper.abstract && paper.abstract.length > 200 && (
+                      <Typography
+                        component={"span"}
+                        variant="body2"
                         onClick={() => setShowFullAbstract(!showFullAbstract)}
-                        style={{
+                        sx={{
+                          color: "text.primary",
                           opacity: 0.6,
                           cursor: "pointer",
                         }}
                       >
                         {showFullAbstract ? " less" : "... more"}
-                      </span>
+                      </Typography>
                     )}
                   </Typography>
                 </Box>
               </Grid>
               {/* Research Type, Author, Published Date */}
-              <Grid
-                item
-                xs={12}
-                container
-                alignItems="center"
-                sx={{
-                  gap: "1.5rem",
-                  width: "100%",
-                }}
-              >
+              <Grid item xs={6} container alignItems="center" gap={2}>
                 <Tooltip
                   title={`Research Type: ${paper.research_type?.ResearchTypeName}`}
                 >
                   <Box
                     display={"flex"}
-                    maxWidth={"20%"}
                     sx={{
-                      gap: "0.2rem",
+                      gap: "10px",
                       justifyContent: "space-between",
                       alignItems: "center",
                     }}
                   >
                     <ArticleIcon />
                     <Typography variant="body2">
-                      {/* {paper.research_type?.ResearchTypeName.slice(0, 20) +
-                      (paper.research_type?.ResearchTypeName.length > 20
-                        ? "..."
-                        : "")} */}
                       {paper.research_type?.ResearchTypeName}
                     </Typography>
                   </Box>
@@ -236,14 +226,13 @@ BrowserPaperCardProps) {
                 <Tooltip title={`Author: ${paper.author}`}>
                   <Box
                     display={"flex"}
-                    maxWidth={"40%"}
                     sx={{
-                      gap: "0.2rem",
+                      gap: "10px",
                       justifyContent: "space-between",
                       alignItems: "center",
                     }}
                   >
-                    <PermIdentityIcon />
+                    <PersonIcon />
                     <Typography
                       variant="body2"
                       sx={{ maxWidth: "10rem" }}
@@ -256,9 +245,8 @@ BrowserPaperCardProps) {
                 <Tooltip title={`Published Date: ${paper.published_at}`}>
                   <Box
                     display={"flex"}
-                    maxWidth={"40%"}
                     sx={{
-                      gap: "0.2rem",
+                      gap: "10px",
                       justifyContent: "space-between",
                       alignItems: "center",
                     }}
