@@ -69,7 +69,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body>
-        <div id="back-to-top-anchor" />
+        <div id="back-to-top-anchor " />
         <AppRouterCacheProvider>
           <ThemeProvider theme={theme}>
             <SessionProviderWrapper session={session}>

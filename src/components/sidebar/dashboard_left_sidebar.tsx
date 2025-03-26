@@ -15,12 +15,15 @@ export default function DashboardLeftSideBar({
 
   const Sections = sectionLists.map((sectionList, index) => {
     return (
-      <Section
-        selected={select}
-        setSelected={setSelect}
-        sectionList={sectionList}
-        key={sectionList.title}
-      />
+      <>
+        <Section
+          selected={select}
+          setSelected={setSelect}
+          sectionList={sectionList}
+          key={sectionList.title}
+        />
+        {index < sectionLists.length - 1 && <Divider />}
+      </>
     );
   });
 
@@ -32,6 +35,7 @@ export default function DashboardLeftSideBar({
           flexDirection: "column",
           justifyContent: "space-between",
           height: "100%",
+          width: "100%",
         }}
       >
         <Box>

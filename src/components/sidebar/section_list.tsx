@@ -3,11 +3,13 @@
 "use client";
 import {
   Collapse,
+  Divider,
   IconButton,
   List,
   ListItem,
   ListItemButton,
   ListItemText,
+  Typography,
 } from "@mui/material";
 import Link from "next/link";
 import React, { useEffect } from "react";
@@ -81,14 +83,24 @@ export function Section({
           selected={isSelected}
           onClick={sectionList.isCollapsible ? handleClick : undefined}
           sx={{
-            pl: paddingLeft,
-            textWrap: "nowrap",
-            overflow: "hidden",
+            // pl: paddingLeft,
+            // textWrap: "nowrap",
+            // overflow: "hidden",
             textOverflow: "ellipsis",
+            // backgroundColor: "black",
+            borderRadius: "16px",
+            margin: "5px",
+            display: "flex",
+            flexDirection: "row",
+            gap: "10px",
+            width: "100%",
           }}
         >
-          <IconButton color="inherit">{sectionList.Icon}</IconButton>
-          <ListItemText primary={sectionList.title} />
+          <IconButton color="inherit" size="small">
+            {sectionList.Icon}
+          </IconButton>
+
+          <Typography variant="h5">{sectionList.title}</Typography>
           {sectionList.isCollapsible && (
             <ExpandMoreRotate
               expand={open}
