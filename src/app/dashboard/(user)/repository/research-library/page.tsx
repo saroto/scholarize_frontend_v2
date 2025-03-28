@@ -13,48 +13,35 @@ export default function RepositoryResearchLibrary() {
   return (
     <Container
       sx={{
-        height: "100vh",
+        height: "100%",
         display: "flex",
-        flexDirection: "row",
+        flexDirection: "column",
         width: "100%",
+        overflow: "hidden",
+        gap: "10px",
       }}
     >
       <Box
         sx={{
-          display: "flex",
-          flexDirection: "column",
           width: "100%",
+          overflow: "hidden",
+          paddingBlock: "10px",
         }}
       >
         <SearchBar />
-        {/* <ResearchPaperCard fetchType="all" /> */}
       </Box>
-      {/* <Box width="20%">
-        <ResearchRightSideBar />
-      </Box> */}
-    </Container>
-  );
-}
-{
-  /* <Grid container minHeight={"100vh"}>
-<Grid container item xs={12}>
-  <Grid item xs={10} sm={9.5}>
-    <SearchBar />
-    <Grid container sx={{ margin: "auto" }}>
       <Box
         sx={{
-          padding: 2,
-          pt: 0,
-          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "auto",
+          height: "100%",
+          marginBottom: "80px",
+          gap: "10px",
         }}
       >
         <ResearchPaperCard fetchType="all" />
       </Box>
-    </Grid>
-  </Grid>
-  <Grid item xs={3} sm={2.5}>
-    <ResearchRightSideBar />
-  </Grid>
-</Grid>
-</Grid> */
+    </Container>
+  );
 }

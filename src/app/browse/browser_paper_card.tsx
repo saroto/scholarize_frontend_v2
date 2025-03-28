@@ -48,8 +48,10 @@ BrowserPaperCardProps) {
               marginBottom: 2,
               borderRadius: "16px",
               width: "100%",
-              // bgcolor: "#f9f9f9",
-              boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.05)",
+              border: "1px solid",
+              borderColor: "#ddd",
+              boxShadow: 0,
+              backgroundColor: "secondary.main",
             }}
             key={paper.research_paper_id}
           >

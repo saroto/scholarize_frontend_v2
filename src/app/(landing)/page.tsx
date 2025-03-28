@@ -74,7 +74,7 @@ export default function Home() {
             router.push("/browse");
           }}
         >
-          Try Scholarize
+          Find A Research
         </Button>
         <LandingFooter />
       </Container>

@@ -23,7 +23,7 @@ import useSearchStore from "@/stores/useSearchStore";
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
   border: "1px solid",
-  borderColor: "#CFCFCF",
+  borderColor: "#ddd",
   height: "40px",
   backgroundColor: "white",
   "&:hover": {
@@ -155,6 +155,7 @@ export default function PrimarySearchAppBar() {
           paddingInline: "16px",
           alignItems: "center",
           display: "flex",
+          backgroundColor: "background.paper",
         }}
         disableUnderline
         variant="standard"

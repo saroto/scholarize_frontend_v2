@@ -21,6 +21,7 @@ import { usePublicationPaperStore } from "@/stores/StorePublicationPaper";
 import { useSubmissionPaperStore } from "@/stores/StoreSubmissionPaper";
 import { toast } from "react-toastify";
 import downloadResearchFiles from "@/app/api/service/downloadFiles";
+import { mockResearchPapers } from "@/constants/research";
 
 type FetchType = "all" | "user-specific" | "submitted";
 
@@ -99,6 +100,8 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
         }
       };
       fetchPapers();
+      setAllPapers(mockResearchPapers);
+      setPapers(mockResearchPapers);
     }
   }, [session?.user.token, fetchType]);
 
@@ -176,12 +179,18 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
       {fetchType === "all" &&
         (allPapers && allPapers !== null ? (
           allPapers.map((allPapers) => (
-            <PaperCardComponent
-              key={allPapers.research_paper_id}
-              paper={allPapers}
-              handleClick={handleClick}
-              handleDownload={handleDownload}
-            />
+            <Box
+              sx={{
+                display: "flex",
+              }}
+            >
+              <PaperCardComponent
+                key={allPapers.research_paper_id}
+                paper={allPapers}
+                handleClick={handleClick}
+                handleDownload={handleDownload}
+              />
+            </Box>
           ))
         ) : (
           <Box sx={{ justifyContent: "center", textAlign: "center" }}>

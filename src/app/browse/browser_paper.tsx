@@ -96,6 +96,7 @@ export default function BrowserPaper() {
 
   // Extract the nested ternary operation into an independent statement
   let content;
+  const firstPaper = mockResearchPapers[0];
   if (isLoading) {
     content = (
       <Box
@@ -114,7 +115,7 @@ export default function BrowserPaper() {
       // <BrowserPaperCard key={paper.research_paper_id} paper={paper} />
       <BrowserPaperCard
         key={paper.research_paper_id}
-        paper={mockResearchPapers}
+        paper={mockResearchPapers[0]}
       />
     ));
   } else {
@@ -223,8 +224,8 @@ export default function BrowserPaper() {
           <div className="mt-4">{content}</div>
           {!isTryNow ? (
             <BrowserPaperCard
-              key={mockResearchPapers.public_id}
-              paper={mockResearchPapers}
+              key={mockResearchPapers[0].public_id}
+              paper={mockResearchPapers[0]}
             />
           ) : (
             <Container

@@ -162,7 +162,13 @@ export default function DashboardNavbar({
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
 
   return (
-    <Box sx={{ paddingInline: { lg: "100px" } }}>
+    <Box
+      sx={{
+        paddingInline: { lg: "100px" },
+        overflow: "hidden",
+        height: "100%",
+      }}
+    >
       <AppBar
         position="fixed"
         color="transparent"
@@ -188,9 +194,12 @@ export default function DashboardNavbar({
         <Toolbar>
           <Stack sx={{ flexGrow: 1 }} justifyContent={"center"}>
             <Stack
-              direction={"row"}
-              alignItems={"center"}
-              justifyContent={"space-between"}
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
             >
               {/* Start section */}
               <Stack direction={"row"} alignItems={"center"} spacing={1}>
@@ -239,7 +248,29 @@ export default function DashboardNavbar({
                     Scholarize
                   </Typography>
                 </Stack>
-                <Stack alignItems={"center"} fontWeight={"bold"}>
+                {!isSmallScreen && (
+                  <Stack alignItems={"center"} fontWeight={"bold"}>
+                    {session?.user?.role.RoleName === "User" && (
+                      <Chip
+                        label={session.user.role.RoleName}
+                        sx={{ backgroundColor: session.user.role.RoleColor }}
+                      />
+                    )}
+                    {session?.user?.role.RoleName === "HOD" && (
+                      <Chip
+                        label={session.user.role.RoleName}
+                        sx={{ backgroundColor: session.user.role.RoleColor }}
+                      />
+                    )}
+                    {session?.user?.role.RoleName === "Advisor" && (
+                      <Chip
+                        label={session.user.role.RoleName}
+                        sx={{ backgroundColor: session.user.role.RoleColor }}
+                      />
+                    )}
+                  </Stack>
+                )}
+                {/* <Stack alignItems={"center"} fontWeight={"bold"}>
                   {session?.user?.role.RoleName === "User" && (
                     <Chip
                       label={session.user.role.RoleName}
@@ -258,7 +289,7 @@ export default function DashboardNavbar({
                       sx={{ backgroundColor: session.user.role.RoleColor }}
                     />
                   )}
-                </Stack>
+                </Stack> */}
                 {session?.user?.department && (
                   <>
                     {session?.user?.department.DepartmentName.length > 0 && (
@@ -311,6 +342,7 @@ export default function DashboardNavbar({
                     }}
                   >
                     <Typography
+                      variant="h5"
                       sx={{
                         textTransform: "none",
                         color: "text.primary",
@@ -338,6 +370,7 @@ export default function DashboardNavbar({
                     }}
                   >
                     <Typography
+                      variant="h5"
                       sx={{
                         textTransform: "none",
                         color: "text.primary",
@@ -362,6 +395,7 @@ export default function DashboardNavbar({
                     }}
                   >
                     <Typography
+                      variant="h5"
                       sx={{
                         textTransform: "none",
                         color: "text.primary",
@@ -375,7 +409,16 @@ export default function DashboardNavbar({
               </Stack>
 
               {/* User section */}
-              <Stack direction={"row"} alignItems={"center"} gap={2}>
+              <Stack
+                direction={"row"}
+                alignItems={"center"}
+                gap={2}
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
                 <NotificationMenu />
 
                 <Tooltip
@@ -384,22 +427,14 @@ export default function DashboardNavbar({
                     display: {
                       xs: "none",
                       sm: "none",
-                      md: "block",
-                      lg: "block",
+                      md: "flex",
+                      lg: "flex",
+                      xl: "flex",
                     },
                   }}
                 >
                   <IconButton onClick={handleOpenCredits}>
-                    <InfoIcon
-                      sx={{
-                        // color: "red",
-                        fontSize: "1rem",
-                        ":hover": {
-                          cursor: "pointer",
-                          // color: "red",
-                        },
-                      }}
-                    />
+                    <InfoIcon fontSize="small" />
                   </IconButton>
                 </Tooltip>
                 <Credits open={openCredits} onClose={handleCloseCredits} />
@@ -571,7 +606,10 @@ export default function DashboardNavbar({
       <Main
         open={drawer}
         sx={{
-          paddingBlock: "20px",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+          height: "100%",
         }}
       >
         {children}
