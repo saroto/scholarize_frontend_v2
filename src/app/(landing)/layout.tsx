@@ -28,7 +28,7 @@ export default function LandingLayout({
             overflowY: "auto",
             paddingTop: "64px",
             paddingInline: { xs: "16px", md: "24px" },
-            width: "60%",
+            width: { md: "60%", lg: "60%" },
             maxWidth: "1200px",
             marginInline: "auto",
             paddingBottom: "10px",

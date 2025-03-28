@@ -21,7 +21,9 @@ export default function Navbar() {
       sx={{
         backgroundColor: "transparent",
         boxShadow: "none",
-        paddingInline: "100px",
+        paddingInline: {
+          lg: "100px",
+        },
       }}
     >
       <Toolbar>

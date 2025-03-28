@@ -5,8 +5,9 @@ import { Box, Button, Container, Stack, Typography } from "@mui/material";
 
 import VideoFrame from "@/components/VideoFrame";
 import LandingFooter from "./footer";
-
+import { useRouter } from "next/navigation";
 export default function Home() {
+  const router = useRouter();
   const youtubeSrc =
     "https://www.youtube.com/embed/K27diMbCsuw?si=8IeU36V7y6RmhaQl";
   return (
@@ -32,7 +33,13 @@ export default function Home() {
         >
           <Typography
             sx={{
-              fontSize: "3rem",
+              fontSize: {
+                lg: "3rem",
+                md: "3rem",
+                sm: "2rem",
+                xs: "2rem",
+              },
+
               fontWeight: 500,
             }}
           >
@@ -63,8 +70,11 @@ export default function Home() {
             boxShadow: 0,
             textTransform: "none",
           }}
+          onClick={() => {
+            router.push("/browse");
+          }}
         >
-          Try Scholarize
+          Find A Research
         </Button>
         <LandingFooter />
       </Container>

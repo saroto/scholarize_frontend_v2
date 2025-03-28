@@ -2,7 +2,7 @@
 
 import type { Metadata } from "next";
 import "./globals.css";
-import { ThemeProvider } from "@mui/material";
+import { Box, ThemeProvider } from "@mui/material";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v13-appRouter";
 import { theme } from "./theme";
 import { authOptions } from "@/utils/authOptions";
@@ -67,9 +67,21 @@ export default async function RootLayout({
 }) {
   const session = await getServerSession(authOptions);
   return (
-    <html lang="en">
-      <body>
-        <div id="back-to-top-anchor" />
+    <html
+      lang="en"
+      style={{
+        overflow: "hidden",
+        height: "100%",
+      }}
+    >
+      <body
+        style={{
+          overflow: "auto",
+          height: "100%",
+          backgroundColor: "#FAFAFA",
+        }}
+      >
+        <div id="back-to-top-anchor " />
         <AppRouterCacheProvider>
           <ThemeProvider theme={theme}>
             <SessionProviderWrapper session={session}>
@@ -82,6 +94,7 @@ export default async function RootLayout({
                 draggable={false}
                 pauseOnFocusLoss={false}
               />
+
               {children}
             </SessionProviderWrapper>
           </ThemeProvider>

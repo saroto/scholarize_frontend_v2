@@ -92,9 +92,10 @@ export default function DashboardRightSideBar() {
     <Box
       sx={{
         height: "100%",
-        borderLeft: "1px solid #e0e0e0",
-        overflowY: "auto",
-        px: 2,
+        // overflowY: "auto",
+        // px: 2,
+        // position: "fixed",
+        width: "100%",
       }}
     >
       <Typography
@@ -106,7 +107,7 @@ export default function DashboardRightSideBar() {
           pb: "0.7rem",
           borderBottom: "1px solid #000",
           // drop shadow border
-          boxShadow: "0 1px 0 0 rgba(0,0,0,0.2)",
+          // boxShadow: "0 1px 0 0 rgba(0,0,0,0.2)",
         }}
       >
         APPLY FILTER
