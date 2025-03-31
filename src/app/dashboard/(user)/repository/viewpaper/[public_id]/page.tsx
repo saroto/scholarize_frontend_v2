@@ -24,6 +24,10 @@ import ScrollTop from "@/components/scroll-to-top";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import RichTextViewPaper from "@/components/rich-text/rich-text-view-paper";
+import {
+  mockEachResearchPaper,
+  mockResearchPapers,
+} from "@/constants/research";
 interface ViewPaperParams {
   public_id: string;
 }
@@ -31,6 +35,13 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
   const { data: session } = useSession();
 
   const [eachPaper, setEachPaper] = useState<Eachpaper>();
+
+  // const eachPaper = mockEachResearchPaper;
+
+  useEffect(() => {
+    setEachPaper(mockEachResearchPaper);
+  }),
+    [];
 
   const id = params.public_id;
   const [isLoading, setIsLoading] = useState(false);
@@ -63,25 +74,25 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
 
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchPaper = async () => {
-      if (session?.user.token && id) {
-        try {
-          const data = await GetPaperById(session, String(id));
-          if (data?.error) {
-            router.replace("/dashboard/repository/research-library");
-            toast.error(data.error.error);
-            return;
-          }
-          setEachPaper(data?.data);
-        } catch (error) {
-          console.error("Failed to load research paper", error);
-        }
-      }
-    };
+  // useEffect(() => {
+  //   const fetchPaper = async () => {
+  //     if (session?.user.token && id) {
+  //       try {
+  //         const data = await GetPaperById(session, String(id));
+  //         if (data?.error) {
+  //           router.replace("/dashboard/repository/research-library");
+  //           toast.error(data.error.error);
+  //           return;
+  //         }
+  //         setEachPaper(data?.data);
+  //       } catch (error) {
+  //         console.error("Failed to load research paper", error);
+  //       }
+  //     }
+  //   };
 
-    fetchPaper();
-  }, [session?.user.token, id]);
+  //   fetchPaper();
+  // }, [session?.user.token, id]);
   // if (!eachPaper)
   // return (
   //   <div className="p-5 flex justify-center">

@@ -83,23 +83,22 @@ export function Section({
           selected={isSelected}
           onClick={sectionList.isCollapsible ? handleClick : undefined}
           sx={{
-            // pl: paddingLeft,
-            // textWrap: "nowrap",
-            // overflow: "hidden",
             textOverflow: "ellipsis",
-            // backgroundColor: "black",
             borderRadius: "16px",
-            margin: "5px",
             display: "flex",
             flexDirection: "row",
             gap: "10px",
             width: "100%",
+            marginBlock: "4px",
+            paddingInline: "8px",
+            paddingBlock: "2px",
+            // justifyContent: "space-between",
           }}
         >
+          {/* <Typography variant="h5">{sectionList.title}</Typography> */}
           <IconButton color="inherit" size="small">
             {sectionList.Icon}
           </IconButton>
-
           <Typography variant="h5">{sectionList.title}</Typography>
           {sectionList.isCollapsible && (
             <ExpandMoreRotate

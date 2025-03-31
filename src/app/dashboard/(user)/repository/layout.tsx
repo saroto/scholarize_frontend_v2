@@ -60,7 +60,9 @@ export default function RepositoryLayout({
         </ScrollTop>
         <DashboardNavbar
           leftSideBar={
-            <DashboardLeftSideBar sectionLists={repositorySideBarLists} />
+            <>
+              <DashboardLeftSideBar sectionLists={repositorySideBarLists} />
+            </>
           }
           openDrawer={true}
         >

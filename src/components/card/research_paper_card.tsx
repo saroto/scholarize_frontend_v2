@@ -55,8 +55,9 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
               const fetchPapers = await getResearchPapers(session);
 
               if (fetchPapers?.data.papers === null) {
-                setAllPapers([]);
-                setPapers([]);
+                // setAllPapers([]);
+                // setPapers([]);
+                setAllPapers(mockResearchPapers);
                 return;
               }
 
@@ -153,26 +154,26 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
     window.scrollTo(0, 0);
   }, []);
 
-  useEffect(() => {
-    if (session?.user.token) {
-      const fetchPapers = async () => {
-        try {
-          const fetchedPapers = await getResearchPaperBySearch(
-            session,
-            filters
-          );
-          setAllPapers(fetchedPapers); // Assuming you have a state called papers
-        } catch (error) {
-          console.error("Error fetching papers:", error);
-        }
-      };
-      try {
-        fetchPapers();
-      } catch (error) {
-        throw new Error("Failed to fetch data" + error);
-      }
-    }
-  }, [filters]);
+  // useEffect(() => {
+  //   if (session?.user.token) {
+  //     const fetchPapers = async () => {
+  //       try {
+  //         const fetchedPapers = await getResearchPaperBySearch(
+  //           session,
+  //           filters
+  //         );
+  //         setAllPapers(fetchedPapers); // Assuming you have a state called papers
+  //       } catch (error) {
+  //         console.error("Error fetching papers:", error);
+  //       }
+  //     };
+  //     try {
+  //       fetchPapers();
+  //     } catch (error) {
+  //       throw new Error("Failed to fetch data" + error);
+  //     }
+  //   }
+  // }, [filters]);
 
   return (
     <>

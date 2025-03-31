@@ -1,11 +1,12 @@
 /** @format */
 
 "use client";
-import { Box, Divider, List } from "@mui/material";
+import { Box, Divider, List, Typography } from "@mui/material";
 import { Section, SectionList } from "./section_list";
 import { useState } from "react";
 import { Button } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
+import ResearchRightSideBar from "./research_right_sidebar";
 export default function DashboardLeftSideBar({
   sectionLists,
 }: {
@@ -36,10 +37,17 @@ export default function DashboardLeftSideBar({
           justifyContent: "space-between",
           height: "100%",
           width: "100%",
+          // width: "250px",
         }}
       >
         <Box>
-          <List>{Sections}</List>
+          <List>
+            <HomeSection> {Sections}</HomeSection>
+          </List>
+          <List>
+            {" "}
+            <ResearchRightSideBar />
+          </List>
         </Box>
 
         {/* <Box
@@ -77,3 +85,21 @@ export default function DashboardLeftSideBar({
     </>
   );
 }
+
+export const HomeSection = ({ children }: { children: React.ReactNode }) => (
+  <>
+    <Typography
+      variant="h5"
+      sx={{
+        textAlign: "center",
+        fontWeight: "450",
+        pt: "1.2rem",
+        pb: "0.7rem",
+        borderBottom: "1px solid #000",
+      }}
+    >
+      Home
+    </Typography>
+    {children}
+  </>
+);

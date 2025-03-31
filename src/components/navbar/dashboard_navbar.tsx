@@ -35,6 +35,7 @@ import NotificationMenu from "./notification";
 import Credits from "@/components/dialogs/credited-dialog";
 import InfoIcon from "@mui/icons-material/Info";
 import ResearchRightSideBar from "@/components/sidebar/research_right_sidebar";
+import { usePathname } from "next/navigation";
 const DrawerWidth = 270;
 
 // add margin and transition when opening the drawer
@@ -70,7 +71,10 @@ const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
 
   // Default for larger screens
   marginLeft: open ? `${DrawerWidth}px` : 0,
-  marginRight: open ? `${DrawerWidth}px` : 0,
+  marginRight:
+    open && window.location.pathname === "/dashboard/repository"
+      ? `${DrawerWidth}px`
+      : 0,
 
   [theme.breakpoints.down("sm")]: {
     // On small screens (xs, sm), always remove margins
@@ -101,8 +105,10 @@ export default function DashboardNavbar({
   const [drawer, setDrawer] = useState<boolean>(openDrawer);
   const { data: session } = useSession();
   const [selectedNav, setSelectedNav] = useState<string>("");
-
   const [openCredits, setOpenCredits] = useState(false);
+
+  const pathname = usePathname();
+  const isRepository = pathname === "/dashboard/repository";
 
   useEffect(() => {
     if (window.location.pathname.startsWith("/dashboard/repository")) {
@@ -533,7 +539,8 @@ export default function DashboardNavbar({
                 boxShadow: 0,
                 border: 0,
                 zIndex: 1099,
-                width: `calc(${DrawerWidth} - 100px)`,
+                // width: `calc(${DrawerWidth} - 100px)`,
+                width: DrawerWidth - 20,
                 left: "100px",
                 top: theme.spacing(8),
                 height: `calc(100% - ${theme.spacing(8)})`,
@@ -571,14 +578,11 @@ export default function DashboardNavbar({
           }}
         >
           {leftSideBar}
-          <Box sx={{ paddingInline: "20px" }}>
-            <ResearchRightSideBar />
-          </Box>
         </Drawer>
       )}
 
       {/* right sidebar when not in small screen */}
-      {!isSmallScreen && (
+      {!isSmallScreen && isRepository && (
         <Drawer
           anchor="right"
           open={drawer}
