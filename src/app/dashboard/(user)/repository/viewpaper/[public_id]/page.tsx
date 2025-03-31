@@ -121,7 +121,7 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
               border: "2px solid #e0e0e0",
               borderRadius: 5,
               width: "100%",
-              backgroundColor: "#fff",
+              // backgroundColor: "#fff",
             }}
           >
             <Box sx={{ padding: 3 }}>

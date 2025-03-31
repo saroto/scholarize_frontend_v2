@@ -70,11 +70,12 @@ const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
   }),
 
   // Default for larger screens
-  marginLeft: open ? `${DrawerWidth}px` : 0,
-  marginRight:
-    open && window.location.pathname === "/dashboard/repository"
+  marginLeft:
+    open &&
+    window.location.pathname === "/dashboard/repository/research-library"
       ? `${DrawerWidth}px`
       : 0,
+  // marginRight: open ? `${DrawerWidth}px` : 0,
 
   [theme.breakpoints.down("sm")]: {
     // On small screens (xs, sm), always remove margins
@@ -108,7 +109,13 @@ export default function DashboardNavbar({
   const [openCredits, setOpenCredits] = useState(false);
 
   const pathname = usePathname();
-  const isRepository = pathname === "/dashboard/repository";
+  const isRepository = pathname === "/dashboard/repository/research-library";
+
+  useEffect(() => {
+    if (!isRepository) {
+      setDrawer(false);
+    }
+  }, [isRepository]);
 
   useEffect(() => {
     if (window.location.pathname.startsWith("/dashboard/repository")) {
@@ -165,7 +172,7 @@ export default function DashboardNavbar({
   }
 
   const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
 
   return (
     <Box
@@ -208,16 +215,20 @@ export default function DashboardNavbar({
               }}
             >
               {/* Start section */}
+
               <Stack direction={"row"} alignItems={"center"} spacing={1}>
-                <Stack direction={"row"} alignItems={"center"} spacing={1}>
-                  <IconButton
-                    color="inherit"
-                    onClick={toggleDrawer}
-                    edge="start"
-                  >
-                    <MenuIcon />
-                  </IconButton>
-                </Stack>
+                {(isRepository || isSmallScreen) && (
+                  <Stack direction={"row"} alignItems={"center"} spacing={1}>
+                    <IconButton
+                      color="inherit"
+                      onClick={toggleDrawer}
+                      edge="start"
+                    >
+                      <MenuIcon />
+                    </IconButton>
+                  </Stack>
+                )}
+
                 <Stack
                   direction={"row"}
                   alignItems={"center"}
@@ -443,18 +454,23 @@ export default function DashboardNavbar({
                     <InfoIcon fontSize="small" />
                   </IconButton>
                 </Tooltip>
-                <Credits open={openCredits} onClose={handleCloseCredits} />
-                <Typography
-                  variant="h6"
-                  component="h6"
-                  sx={{
-                    color: "black",
-                    fontWeight: "500",
-                    marginRight: "0.5rem",
-                  }}
-                >
-                  {session?.user?.name ?? <small>Loading...</small>}
-                </Typography>
+                {!isSmallScreen && (
+                  <Credits open={openCredits} onClose={handleCloseCredits} />
+                )}
+                {!isSmallScreen && (
+                  <Typography
+                    variant="h6"
+                    component="h6"
+                    sx={{
+                      color: "black",
+                      fontWeight: "500",
+                      marginRight: "0.5rem",
+                    }}
+                  >
+                    {session?.user?.name ?? <small>Loading...</small>}
+                  </Typography>
+                )}
+
                 <Avatar
                   onClick={openMenu}
                   alt={session?.user.name}
@@ -526,7 +542,7 @@ export default function DashboardNavbar({
       </AppBar>
       {/* </Box> */}
 
-      {!isSmallScreen && (
+      {!isSmallScreen && isRepository && (
         <Drawer
           anchor="left"
           open={drawer}
@@ -582,7 +598,7 @@ export default function DashboardNavbar({
       )}
 
       {/* right sidebar when not in small screen */}
-      {!isSmallScreen && isRepository && (
+      {/* {!isSmallScreen && isRepository && (
         <Drawer
           anchor="right"
           open={drawer}
@@ -605,7 +621,7 @@ export default function DashboardNavbar({
         >
           <ResearchRightSideBar />
         </Drawer>
-      )}
+      )} */}
 
       <Main
         open={drawer}
