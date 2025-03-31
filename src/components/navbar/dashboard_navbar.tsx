@@ -556,7 +556,11 @@ export default function DashboardNavbar({
                 border: 0,
                 zIndex: 1099,
                 // width: `calc(${DrawerWidth} - 100px)`,
-                width: DrawerWidth - 20,
+                width: {
+                  md: `calc(${DrawerWidth} - 100px)`,
+                  lg: DrawerWidth,
+                  xl: DrawerWidth,
+                },
                 left: "100px",
                 top: theme.spacing(8),
                 height: `calc(100% - ${theme.spacing(8)})`,
@@ -630,6 +634,7 @@ export default function DashboardNavbar({
           flexDirection: "column",
           overflow: "hidden",
           height: "100%",
+          paddingInline: "20px",
         }}
       >
         {children}

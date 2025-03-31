@@ -84,8 +84,8 @@ export default function DashboardRightSideBar() {
     updateFilters({ [category]: newValues });
   };
 
-  const [expandResearchType, setExpandResearchType] = useState(true);
-  const [expandDepartment, setExpandDepartment] = useState(true);
+  const [expandResearchType, setExpandResearchType] = useState(false);
+  const [expandDepartment, setExpandDepartment] = useState(false);
   const [expandYear, setExpandYear] = useState(false);
 
   return (

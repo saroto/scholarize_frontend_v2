@@ -7,6 +7,8 @@ import {
   Chip,
   Button,
   Fab,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
 import ArticleIcon from "@mui/icons-material/Article";
@@ -24,10 +26,12 @@ import ScrollTop from "@/components/scroll-to-top";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import RichTextViewPaper from "@/components/rich-text/rich-text-view-paper";
+import ChatIcon from "@mui/icons-material/Chat";
 import {
   mockEachResearchPaper,
   mockResearchPapers,
 } from "@/constants/research";
+import CustomButton from "@/components/customButton";
 interface ViewPaperParams {
   public_id: string;
 }
@@ -112,75 +116,162 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
     }
   };
 
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
+
   return (
     <>
       {eachPaper && eachPaper ? (
         <div className="p-5 flex justify-center">
           <Box
             sx={{
-              border: "2px solid #e0e0e0",
-              borderRadius: 5,
               width: "100%",
-              // backgroundColor: "#fff",
             }}
           >
-            <Box sx={{ padding: 3 }}>
-              <Button
-                // onClick={() => router.back()}
-                onClick={handleBackClick}
-                sx={{
-                  textDecoration: "none",
-                  alignItems: "center",
-                  display: "flex",
-                  height: "auto",
-                  position: "absolute",
-                  fontSize: "1rem",
-                  color: "#777777",
-                  ":hover": {
-                    textDecoration: "none",
-                    color: "black",
-                  },
-                }}
-              >
-                <ArrowBackIcon sx={{ padding: 0, margin: 0 }}></ArrowBackIcon>
-                <Typography sx={{ display: "flex" }}>BACK</Typography>
-              </Button>
-            </Box>
-            <Grid container sx={{ padding: 5 }} spacing={3}>
-              <Grid item container>
-                {eachPaper &&
-                  eachPaper.paper_info?.departments?.map((department) => (
-                    <Chip
-                      label={department.department_tag}
-                      size="medium"
-                      sx={{
-                        marginRight: 1,
-                        display: "flex",
-                        backgroundColor: department.department_color,
-                        color: "#fff",
-                        fontSize: "1.2rem",
-                        my: 0.5,
-                      }}
-                      key={department.department_id}
-                    ></Chip>
-                  ))}
-              </Grid>
-
-              <Grid item container xs={12}>
-                <Box width={"100%"}>
-                  <Typography
-                    variant="h4"
-                    key={eachPaper && eachPaper.paper_info.research_paper_id}
-                    fontWeight={"bold"}
-                    color={"#2F2F85"}
+            <Grid container spacing={3}>
+              <Grid item container xs={12} gap={2}>
+                {/* reponsive button */}
+                {eachPaper && isSmallScreen && (
+                  <Box
                     sx={{
-                      textTransform: "capitalize",
-                      textWrap: "wrap",
-                      wordWrap: "break-word",
+                      display: "flex",
+                      flexDirection: "row",
+                      gap: "10px",
                     }}
                   >
-                    {eachPaper && eachPaper.paper_info.research_title}
-                  </Typography>
+                    <CustomButton
+                      disabled={isLoading}
+                      size="small"
+                      onClick={() =>
+                        handleDownload(
+                          eachPaper.paper_info.pdf_path,
+                          eachPaper
+                          // eachPaper.paper_info.research_title
+                        )
+                      }
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        gap: "5px",
+                        paddingInline: "10px",
+                      }}
+                    >
+                      <Typography variant="h6">
+                        {isLoading ? "Loading..." : "Download"}
+                      </Typography>
+                      <DownloadIcon fontSize="small" />
+                    </CustomButton>
+                    <CustomButton
+                      disabled={isLoading}
+                      size="small"
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        gap: "5px",
+                        paddingInline: "10px",
+                      }}
+                    >
+                      <Typography variant="h6">Chat Now</Typography>
+                      <ChatIcon fontSize="small" />
+                    </CustomButton>
+                  </Box>
+                )}
+
+                {/* title and tag */}
+                <Box
+                  display={"flex"}
+                  sx={{
+                    width: "100%",
+                    alignItems: "center",
+                    gap: "10px",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: "100%",
+                      display: "flex",
+                      flexDirection: "row",
+                      gap: "10px",
+                      // alignItems: "center",
+                    }}
+                  >
+                    <Typography
+                      variant="h3"
+                      key={eachPaper && eachPaper.paper_info.research_paper_id}
+                      fontWeight={"bold"}
+                      sx={{
+                        textTransform: "capitalize",
+                        textWrap: "wrap",
+                        wordWrap: "break-word",
+                        color: "text.primary",
+                        alignSelf: "center",
+                      }}
+                    >
+                      {eachPaper && eachPaper.paper_info.research_title}
+                    </Typography>
+                    {eachPaper &&
+                      eachPaper.paper_info?.departments?.map((department) => (
+                        <Chip
+                          label={department.department_tag}
+                          size="small"
+                          sx={{
+                            marginRight: 1,
+                            display: "flex",
+                            backgroundColor: department.department_color,
+                            color: "#fff",
+                            my: 0.5,
+                            alignSelf: "flex-start",
+                          }}
+                          key={department.department_id}
+                        />
+                      ))}
+                  </Box>
+                  {eachPaper && !isSmallScreen && (
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        gap: "10px",
+                      }}
+                    >
+                      <CustomButton
+                        endIcon={<DownloadIcon />}
+                        disabled={isLoading}
+                        sx={{
+                          display: "flex",
+                          textTransform: "none",
+                          paddingInline: "20px",
+                        }}
+                        onClick={() =>
+                          handleDownload(
+                            eachPaper.paper_info.pdf_path,
+                            eachPaper
+                            // eachPaper.paper_info.research_title
+                          )
+                        }
+                      >
+                        <Typography variant="h5">
+                          {isLoading ? "Loading..." : "Download"}
+                        </Typography>
+                      </CustomButton>
+                      <CustomButton
+                        endIcon={<ChatIcon />}
+                        disabled={isLoading}
+                        sx={{
+                          display: "flex",
+                          textTransform: "none",
+                          paddingInline: "20px",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        <Typography variant="h5">
+                          {/* {isLoading ? "Loading..." : "Download"} */}
+                          Chat Now
+                        </Typography>
+                      </CustomButton>
+                    </Box>
+                  )}
                 </Box>
               </Grid>
 
@@ -189,13 +280,15 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
                 container
                 sx={{ display: "flex", gap: 4, alignItems: "center" }}
               >
-                <Box display={"flex"} sx={{ justifyContent: "center" }}>
+                <Box
+                  display={"flex"}
+                  sx={{ alignItems: "center", gap: "10px" }}
+                >
                   <ArticleIcon sx={{ display: "flex" }} />
                   <Typography
+                    variant="h5"
                     sx={{
-                      marginLeft: 0.7,
-                      fontSize: "1.1rem",
-                      fontWeight: "550",
+                      color: "text.secondary",
                     }}
                   >
                     {eachPaper &&
@@ -205,13 +298,15 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
               </Grid>
 
               <Grid item container>
-                <Box display={"flex"}>
+                <Box
+                  display={"flex"}
+                  sx={{ alignItems: "center", gap: "10px" }}
+                >
                   <PermIdentityIcon sx={{ display: "flex" }} />
                   <Typography
+                    variant="h5"
                     sx={{
-                      marginLeft: 0.7,
-                      fontSize: "1.1rem",
-                      // fontStyle: "italic",
+                      color: "text.secondary",
                     }}
                   >
                     {eachPaper && eachPaper.paper_info.author}
@@ -220,80 +315,70 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
               </Grid>
 
               <Grid item container>
-                <Box display={"flex"}>
+                <Box
+                  display={"flex"}
+                  sx={{ alignItems: "center", gap: "10px" }}
+                >
                   <CalendarMonthIcon sx={{ display: "flex" }} />
-                  <Typography sx={{ marginLeft: 0.7, fontSize: "1.1rem" }}>
+                  <Typography variant="h5" sx={{ color: "text.secondary" }}>
                     {eachPaper && eachPaper.paper_info.published_at}
                   </Typography>
                 </Box>
               </Grid>
               {eachPaper && eachPaper.raw_paper.Advisor !== "None" && (
                 <Grid item container>
-                  <Box component="span" mr={1}>
-                    <Typography sx={{ fontWeight: "bold" }}>
+                  <Box
+                    display={"flex"}
+                    sx={{ alignItems: "center", gap: "10px" }}
+                  >
+                    <Typography
+                      variant="h5"
+                      sx={{ color: "text.primary", fontWeight: 500 }}
+                    >
                       Advisor:{" "}
                     </Typography>
+                    <Typography variant="h5" sx={{ color: "text.secondary" }}>
+                      {eachPaper.raw_paper.Advisor}
+                    </Typography>
                   </Box>
-                  <Typography sx={{ fontSize: "1.1rem" }}>
-                    {eachPaper.raw_paper.Advisor}
-                  </Typography>
                 </Grid>
               )}
 
               <Grid item container>
-                <Box component="span" mr={1}>
-                  <Typography sx={{ fontWeight: "bold" }}>Keyword: </Typography>
-                </Box>
-                <Typography sx={{ fontSize: "1.1rem" }}>
-                  {eachPaper && eachPaper.raw_paper.Tag}
-                </Typography>
-              </Grid>
-              <Grid item container>
-                {eachPaper && (
-                  <Button
-                    sx={{
-                      display: "flex",
-                      borderRadius: 5,
-                      padding: "0.5rem",
-                      paddingLeft: "1.25rem",
-                      paddingRight: "1.25rem",
-                      cursor: "pointer",
-                      backgroundColor: "#3572EF",
-
-                      color: "#fff",
-                      "&:hover": {
-                        backgroundColor: "#050C9C",
-                        color: "#fff",
-                        transition: "all 0.5s",
-                      },
-                    }}
-                    disabled={isLoading}
-                    onClick={() =>
-                      handleDownload(
-                        eachPaper.paper_info.pdf_path,
-                        eachPaper
-                        // eachPaper.paper_info.research_title
-                      )
-                    }
+                <Box
+                  display={"flex"}
+                  sx={{ alignItems: "center", gap: "10px" }}
+                >
+                  <Typography
+                    variant="h5"
+                    sx={{ color: "text.primary", fontWeight: 500 }}
                   >
-                    <DownloadIcon sx={{ display: "flex" }} />
-                    <Typography
-                      sx={{
-                        marginLeft: 0.5,
-                        fontSize: "1.1rem",
-                      }}
-                    >
-                      {isLoading ? "Loading..." : "Download"}
-                    </Typography>
-                  </Button>
-                )}
+                    Keyword:{" "}
+                  </Typography>
+                  <Typography variant="h5" sx={{ color: "text.secondary" }}>
+                    {eachPaper && eachPaper.raw_paper.Tag}
+                  </Typography>
+                </Box>
               </Grid>
+
               <Grid item container mt="1rem">
-                <Box width={"100%"}>
-                  <Typography variant="h4" mb={1} sx={{ fontWeight: " 550" }}>
+                <Box
+                  width={"100%"}
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "10px",
+                  }}
+                >
+                  <Typography
+                    variant="h4"
+                    sx={{
+                      fontWeight: 500,
+                    }}
+                  >
                     Abstract
                   </Typography>
-                  <Typography variant="body1">
+                  <Typography variant="h5">
                     {eachPaper && eachPaper.paper_info.abstract}
                   </Typography>
                 </Box>

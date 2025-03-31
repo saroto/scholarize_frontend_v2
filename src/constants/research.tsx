@@ -218,6 +218,8 @@ export const mockEachResearchPaper: Eachpaper = {
       {
         id: 1,
         name: "test",
+        department_tag: "CS",
+        department_color: "#EF4444",
       },
     ],
     pdf_path: "/research/quantum-computing-2025.pdf",

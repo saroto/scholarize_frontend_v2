@@ -1,7 +1,14 @@
 /** @format */
 
 "use client";
-import { Box, Divider, List, Typography } from "@mui/material";
+import {
+  Box,
+  Divider,
+  List,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { Section, SectionList } from "./section_list";
 import { useState } from "react";
 import { Button } from "@mui/material";
@@ -28,6 +35,9 @@ export default function DashboardLeftSideBar({
     );
   });
 
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
+
   return (
     <>
       <Box
@@ -40,11 +50,33 @@ export default function DashboardLeftSideBar({
           // width: "250px",
         }}
       >
-        <Box>
-          <List>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
+          }}
+        >
+          <List
+            sx={{
+              backgroundColor: !isSmallScreen ? "white" : "none",
+              border: !isSmallScreen ? "1px solid " : "none",
+              borderColor: !isSmallScreen ? "#ddd" : "none",
+              borderRadius: "16px",
+              paddingInline: "20px",
+            }}
+          >
             <HomeSection> {Sections}</HomeSection>
           </List>
-          <List>
+          <List
+            sx={{
+              backgroundColor: !isSmallScreen ? "white" : "none",
+              border: !isSmallScreen ? "1px solid " : "none",
+              borderColor: !isSmallScreen ? "#ddd" : "none",
+              borderRadius: "16px",
+              paddingInline: "20px",
+            }}
+          >
             {" "}
             <ResearchRightSideBar />
           </List>
