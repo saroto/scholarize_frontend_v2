@@ -112,12 +112,6 @@ export default function DashboardNavbar({
   const isRepository = pathname === "/dashboard/repository/research-library";
 
   useEffect(() => {
-    if (!isRepository) {
-      setDrawer(false);
-    }
-  }, [isRepository]);
-
-  useEffect(() => {
     if (window.location.pathname.startsWith("/dashboard/repository")) {
       setSelectedNav("repository");
     } else if (
@@ -173,6 +167,12 @@ export default function DashboardNavbar({
 
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
+
+  useEffect(() => {
+    if (!isRepository && !isSmallScreen) {
+      setDrawer(false);
+    }
+  }, [isRepository]);
 
   return (
     <Box

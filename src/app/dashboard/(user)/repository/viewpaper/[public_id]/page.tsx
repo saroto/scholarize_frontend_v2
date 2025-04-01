@@ -32,6 +32,8 @@ import {
   mockResearchPapers,
 } from "@/constants/research";
 import CustomButton from "@/components/customButton";
+import PDFViewer from "@/components/pdf/PdfViewer";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 interface ViewPaperParams {
   public_id: string;
 }
@@ -122,16 +124,21 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
   return (
     <>
       {eachPaper && eachPaper ? (
-        <div className="p-5 flex justify-center">
+        <div className="p-5 flex justify-center overflow-auto">
           <Box
             sx={{
-              width: "100%",
+              width: isSmallScreen ? "100%" : "60%",
+              display: "flex",
+              height: "100%",
+              flexDirection: "column",
+              gap: "10px",
+              alignItems: "center",
             }}
           >
             <Grid container spacing={3}>
               <Grid item container xs={12} gap={2}>
                 {/* reponsive button */}
-                {eachPaper && isSmallScreen && (
+                {eachPaper && (
                   <Box
                     sx={{
                       display: "flex",
@@ -156,7 +163,12 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
                         paddingInline: "10px",
                       }}
                     >
-                      <Typography variant="h6">
+                      <Typography
+                        sx={{
+                          fontSize: "10px",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
                         {isLoading ? "Loading..." : "Download"}
                       </Typography>
                       <DownloadIcon fontSize="small" />
@@ -171,8 +183,39 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
                         paddingInline: "10px",
                       }}
                     >
-                      <Typography variant="h6">Chat Now</Typography>
+                      <Typography
+                        sx={{
+                          fontSize: "10px",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        Chat Now
+                      </Typography>
                       <ChatIcon fontSize="small" />
+                    </CustomButton>
+                    <CustomButton
+                      size="small"
+                      onClick={() =>
+                        router.push(
+                          `/dashboard/repository/viewpaper/${eachPaper.paper_info.research_title}/pdf`
+                        )
+                      }
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        gap: "5px",
+                        paddingInline: "10px",
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          fontSize: "10px",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        View Full PDF
+                      </Typography>
+                      <PictureAsPdfIcon fontSize="small" />
                     </CustomButton>
                   </Box>
                 )}
@@ -188,6 +231,7 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
                   }}
                 >
                   <Box
+                    key={eachPaper.paper_info.research_paper_id}
                     sx={{
                       width: "100%",
                       display: "flex",
@@ -227,51 +271,6 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
                         />
                       ))}
                   </Box>
-                  {eachPaper && !isSmallScreen && (
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "row",
-                        gap: "10px",
-                      }}
-                    >
-                      <CustomButton
-                        endIcon={<DownloadIcon />}
-                        disabled={isLoading}
-                        sx={{
-                          display: "flex",
-                          textTransform: "none",
-                          paddingInline: "20px",
-                        }}
-                        onClick={() =>
-                          handleDownload(
-                            eachPaper.paper_info.pdf_path,
-                            eachPaper
-                            // eachPaper.paper_info.research_title
-                          )
-                        }
-                      >
-                        <Typography variant="h5">
-                          {isLoading ? "Loading..." : "Download"}
-                        </Typography>
-                      </CustomButton>
-                      <CustomButton
-                        endIcon={<ChatIcon />}
-                        disabled={isLoading}
-                        sx={{
-                          display: "flex",
-                          textTransform: "none",
-                          paddingInline: "20px",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        <Typography variant="h5">
-                          {/* {isLoading ? "Loading..." : "Download"} */}
-                          Chat Now
-                        </Typography>
-                      </CustomButton>
-                    </Box>
-                  )}
                 </Box>
               </Grid>
 
@@ -384,34 +383,26 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
                 </Box>
               </Grid>
 
-              <Grid item container>
-                <Box width={"100%"}>
-                  <Divider />
-                </Box>
-              </Grid>
-              <Grid item container>
-                <Box
-                  width={"100%"}
-                  sx={{
-                    overflow: "wrap",
-                    overflowWrap: "break-word",
-                    "& li": {
-                      listStylePosition: "inside",
-                    },
-                  }}
-                >
-                  {/* <SafeHtmlComponent html={eachPaper.fulltext_content} /> */}
-                  <RichTextViewPaper
-                    rich_text={eachPaper && eachPaper.fulltext_content}
-                  />
-                </Box>
-              </Grid>
-              <Grid item container>
+              <Grid
+                item
+                container
+                sx={{
+                  marginBlock: "5px",
+                }}
+              >
                 <Box width={"100%"}>
                   <Divider />
                 </Box>
               </Grid>
             </Grid>
+            {/* <Box
+              sx={{
+                display: "flex",
+                height: "100%",
+              }}
+            >
+              <PDFViewer title={eachPaper.paper_info.research_title} />
+            </Box> */}
           </Box>
 
           <ScrollTop>
