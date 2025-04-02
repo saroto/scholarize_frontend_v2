@@ -35,6 +35,7 @@ import NotificationMenu from "./notification";
 import Credits from "@/components/dialogs/credited-dialog";
 import InfoIcon from "@mui/icons-material/Info";
 import ResearchRightSideBar from "@/components/sidebar/research_right_sidebar";
+import { usePathname } from "next/navigation";
 const DrawerWidth = 270;
 
 // add margin and transition when opening the drawer
@@ -62,15 +63,21 @@ const DrawerWidth = 270;
 const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
   open?: boolean;
 }>(({ theme, open }) => ({
-  marginTop: theme.spacing(8), // Keeps space for the AppBar
+  // marginTop: theme.spacing(8), // Keeps space for the AppBar
+  paddingTop: theme.spacing(8),
+
   transition: theme.transitions.create("margin", {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
 
   // Default for larger screens
-  marginLeft: open ? `${DrawerWidth}px` : 0,
-  marginRight: open ? `${DrawerWidth}px` : 0,
+  marginLeft:
+    open &&
+    window.location.pathname === "/dashboard/repository/research-library"
+      ? `${DrawerWidth}px`
+      : 0,
+  // marginRight: open ? `${DrawerWidth}px` : 0,
 
   [theme.breakpoints.down("sm")]: {
     // On small screens (xs, sm), always remove margins
@@ -101,8 +108,10 @@ export default function DashboardNavbar({
   const [drawer, setDrawer] = useState<boolean>(openDrawer);
   const { data: session } = useSession();
   const [selectedNav, setSelectedNav] = useState<string>("");
-
   const [openCredits, setOpenCredits] = useState(false);
+
+  const pathname = usePathname();
+  const isRepository = pathname === "/dashboard/repository/research-library";
 
   useEffect(() => {
     if (window.location.pathname.startsWith("/dashboard/repository")) {
@@ -159,7 +168,13 @@ export default function DashboardNavbar({
   }
 
   const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
+
+  useEffect(() => {
+    if (!isRepository && !isSmallScreen) {
+      setDrawer(false);
+    }
+  }, [isRepository]);
 
   return (
     <Box
@@ -202,16 +217,20 @@ export default function DashboardNavbar({
               }}
             >
               {/* Start section */}
+
               <Stack direction={"row"} alignItems={"center"} spacing={1}>
-                <Stack direction={"row"} alignItems={"center"} spacing={1}>
-                  <IconButton
-                    color="inherit"
-                    onClick={toggleDrawer}
-                    edge="start"
-                  >
-                    <MenuIcon />
-                  </IconButton>
-                </Stack>
+                {(isRepository || isSmallScreen) && (
+                  <Stack direction={"row"} alignItems={"center"} spacing={1}>
+                    <IconButton
+                      color="inherit"
+                      onClick={toggleDrawer}
+                      edge="start"
+                    >
+                      <MenuIcon />
+                    </IconButton>
+                  </Stack>
+                )}
+
                 <Stack
                   direction={"row"}
                   alignItems={"center"}
@@ -437,18 +456,23 @@ export default function DashboardNavbar({
                     <InfoIcon fontSize="small" />
                   </IconButton>
                 </Tooltip>
-                <Credits open={openCredits} onClose={handleCloseCredits} />
-                <Typography
-                  variant="h6"
-                  component="h6"
-                  sx={{
-                    color: "black",
-                    fontWeight: "500",
-                    marginRight: "0.5rem",
-                  }}
-                >
-                  {session?.user?.name ?? <small>Loading...</small>}
-                </Typography>
+                {!isSmallScreen && (
+                  <Credits open={openCredits} onClose={handleCloseCredits} />
+                )}
+                {!isSmallScreen && (
+                  <Typography
+                    variant="h6"
+                    component="h6"
+                    sx={{
+                      color: "black",
+                      fontWeight: "500",
+                      marginRight: "0.5rem",
+                    }}
+                  >
+                    {session?.user?.name ?? <small>Loading...</small>}
+                  </Typography>
+                )}
+
                 <Avatar
                   onClick={openMenu}
                   alt={session?.user.name}
@@ -520,7 +544,7 @@ export default function DashboardNavbar({
       </AppBar>
       {/* </Box> */}
 
-      {!isSmallScreen && (
+      {!isSmallScreen && isRepository && (
         <Drawer
           anchor="left"
           open={drawer}
@@ -533,7 +557,12 @@ export default function DashboardNavbar({
                 boxShadow: 0,
                 border: 0,
                 zIndex: 1099,
-                width: `calc(${DrawerWidth} - 100px)`,
+                // width: `calc(${DrawerWidth} - 100px)`,
+                width: {
+                  md: `calc(${DrawerWidth} - 100px)`,
+                  lg: DrawerWidth,
+                  xl: DrawerWidth,
+                },
                 left: "100px",
                 top: theme.spacing(8),
                 height: `calc(100% - ${theme.spacing(8)})`,
@@ -571,14 +600,11 @@ export default function DashboardNavbar({
           }}
         >
           {leftSideBar}
-          <Box sx={{ paddingInline: "20px" }}>
-            <ResearchRightSideBar />
-          </Box>
         </Drawer>
       )}
 
       {/* right sidebar when not in small screen */}
-      {!isSmallScreen && (
+      {/* {!isSmallScreen && isRepository && (
         <Drawer
           anchor="right"
           open={drawer}
@@ -601,7 +627,7 @@ export default function DashboardNavbar({
         >
           <ResearchRightSideBar />
         </Drawer>
-      )}
+      )} */}
 
       <Main
         open={drawer}
@@ -610,6 +636,7 @@ export default function DashboardNavbar({
           flexDirection: "column",
           overflow: "hidden",
           height: "100%",
+          paddingInline: "20px",
         }}
       >
         {children}

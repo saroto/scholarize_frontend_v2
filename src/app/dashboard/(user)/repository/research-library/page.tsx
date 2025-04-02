@@ -25,7 +25,7 @@ export default function RepositoryResearchLibrary() {
         sx={{
           width: "100%",
           overflow: "hidden",
-          paddingBlock: "10px",
+          paddingBottom: "10px",
         }}
       >
         <SearchBar />

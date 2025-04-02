@@ -110,7 +110,7 @@ export default function DashboardRightSideBar() {
           // boxShadow: "0 1px 0 0 rgba(0,0,0,0.2)",
         }}
       >
-        APPLY FILTER
+        Filter
       </Typography>
       <form>
         <List
@@ -148,7 +148,7 @@ export default function DashboardRightSideBar() {
                   }}
                   alignItems="center"
                 >
-                  <Typography variant="h6">PAPER TYPE</Typography>
+                  <Typography variant="h5">PAPER TYPE</Typography>
 
                   <ExpandMoreRotate
                     title="Research type"
@@ -176,7 +176,7 @@ export default function DashboardRightSideBar() {
                       }}
                     />
                     <div className="text-[#333] block w-full my-auto truncate truncate-text">
-                      <Typography variant="body1" noWrap>
+                      <Typography variant="h5" noWrap>
                         {type.name}
                       </Typography>
                     </div>
@@ -216,7 +216,7 @@ export default function DashboardRightSideBar() {
                   }}
                   alignItems="center"
                 >
-                  <Typography variant="h6">DEPARTMENT</Typography>
+                  <Typography variant="h5">DEPARTMENT</Typography>
 
                   <ExpandMoreRotate
                     title=""
@@ -247,7 +247,7 @@ export default function DashboardRightSideBar() {
                     />
                     <div className="text-[#333] block w-full my-auto truncate truncate-text">
                       <Typography
-                        variant="body1"
+                        variant="h5"
                         // sx={{ width: "100%", whiteSpace: "wrap" }}
                       >
                         {department.name}
@@ -285,7 +285,7 @@ export default function DashboardRightSideBar() {
                   }}
                   alignItems="center"
                 >
-                  <Typography variant="h6">PUBLISH YEAR</Typography>
+                  <Typography variant="h5">PUBLISH YEAR</Typography>
 
                   <ExpandMoreRotate
                     title=""
@@ -317,7 +317,7 @@ export default function DashboardRightSideBar() {
                   />
 
                   <div className="text-[#333] block w-full my-auto truncate truncate-text">
-                    <Typography variant="body1" noWrap>
+                    <Typography variant="h5" noWrap>
                       {year}
                     </Typography>
                   </div>
