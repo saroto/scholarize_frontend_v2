@@ -63,7 +63,9 @@ const DrawerWidth = 270;
 const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
   open?: boolean;
 }>(({ theme, open }) => ({
-  marginTop: theme.spacing(8), // Keeps space for the AppBar
+  // marginTop: theme.spacing(8), // Keeps space for the AppBar
+  paddingTop: theme.spacing(8),
+
   transition: theme.transitions.create("margin", {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
@@ -168,11 +170,11 @@ export default function DashboardNavbar({
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
 
-  useEffect(() => {
-    if (!isRepository && !isSmallScreen) {
-      setDrawer(false);
-    }
-  }, [isRepository]);
+  // useEffect(() => {
+  //   if (!isRepository && !isSmallScreen) {
+  //     setDrawer(false);
+  //   }
+  // }, [isRepository]);
 
   return (
     <Box

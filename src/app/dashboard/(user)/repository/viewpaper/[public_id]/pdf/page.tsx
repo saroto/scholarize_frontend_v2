@@ -25,6 +25,7 @@ export default function PDFPage({ params }: { params: ViewPaperParams }) {
       sx={{
         display: "flex",
         height: "100%",
+        // backgroundColor: "black",
       }}
     >
       {eachPaper ? (
