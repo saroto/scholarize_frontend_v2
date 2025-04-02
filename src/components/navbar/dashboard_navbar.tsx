@@ -170,11 +170,11 @@ export default function DashboardNavbar({
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
 
-  // useEffect(() => {
-  //   if (!isRepository && !isSmallScreen) {
-  //     setDrawer(false);
-  //   }
-  // }, [isRepository]);
+  useEffect(() => {
+    if (!isRepository && !isSmallScreen) {
+      setDrawer(false);
+    }
+  }, [isRepository]);
 
   return (
     <Box

@@ -223,7 +223,13 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
             >
               <Page
                 pageNumber={index + 1}
-                width={isSmallScreen ? 350 * zoom : 500 * zoom}
+                width={
+                  typeof width === "number"
+                    ? Math.min(width, 500)
+                    : isSmallScreen
+                    ? 350 * zoom
+                    : 500 * zoom
+                }
                 renderTextLayer={true}
                 renderAnnotationLayer={true}
                 //   className="pdf-page"
