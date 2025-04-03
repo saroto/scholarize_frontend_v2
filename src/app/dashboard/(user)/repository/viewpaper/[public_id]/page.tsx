@@ -32,11 +32,59 @@ import {
   mockResearchPapers,
 } from "@/constants/research";
 import CustomButton from "@/components/customButton";
-import PDFViewer from "@/components/pdf/PdfViewer";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import RelatedCard from "@/components/card/related_card";
 interface ViewPaperParams {
   public_id: string;
 }
+const relatedPapers = [
+  {
+    title: "Transformers in Vision: A New Era",
+    description: "Exploring the use of transformers in computer vision tasks.",
+  },
+  {
+    title: "GPT-4: Scaling Up Language Models",
+    description:
+      "An in-depth analysis of scaling laws and their impact on NLP models.",
+  },
+  {
+    title: "Self-Supervised Learning for Speech Recognition",
+    description: "How self-supervised methods improve ASR systems.",
+  },
+  {
+    title: "Neural Radiance Fields (NeRF) for 3D Reconstruction",
+    description: "Using NeRFs for realistic 3D scene rendering.",
+  },
+  {
+    title: "Diffusion Models: The Future of Generative AI",
+    description:
+      "Understanding how diffusion models outperform GANs in image synthesis.",
+  },
+  {
+    title: "Reinforcement Learning with Human Feedback",
+    description:
+      "Incorporating human preferences into RL agents for better alignment.",
+  },
+  {
+    title: "LoRA: Efficient Fine-Tuning for Large Models",
+    description: "A low-rank adaptation method to efficiently fine-tune LLMs.",
+  },
+  {
+    title: "Multi-Modal AI: Bridging Text, Image, and Video",
+    description:
+      "How models like CLIP and Flamingo combine different modalities.",
+  },
+  {
+    title: "Efficient Transformers: Linformer vs. Performer",
+    description: "A comparison of memory-efficient transformer architectures.",
+  },
+  {
+    title: "Chain-of-Thought Prompting: Enhancing Model Reasoning",
+    description:
+      "How few-shot prompting techniques improve logical reasoning in LLMs.",
+  },
+];
+
 export default function ViewPapers({ params }: { params: ViewPaperParams }) {
   const { data: session } = useSession();
 
@@ -124,7 +172,7 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
   return (
     <>
       {eachPaper && eachPaper ? (
-        <div className="p-5 flex justify-center overflow-auto">
+        <div className="p-5 flex justify-center overflow-auto mb-4">
           <Box
             sx={{
               width: isSmallScreen ? "100%" : "60%",
@@ -403,6 +451,37 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
             >
               <PDFViewer title={eachPaper.paper_info.research_title} />
             </Box> */}
+            <Box
+              sx={{
+                width: "100%",
+                display: "flex",
+                flexDirection: "column",
+                gap: "5px",
+              }}
+            >
+              <Typography
+                variant="h4"
+                sx={{
+                  fontWeight: 500,
+                  py: "10px",
+                }}
+              >
+                Related Paper
+              </Typography>
+
+              {relatedPapers.map((paper, index) => (
+                <Box key={index}>
+                  <RelatedCard
+                    title={paper.title}
+                    description={paper.description}
+                  />
+                  {index !== relatedPapers.length - 1 && (
+                    <Divider sx={{ my: 2 }} />
+                  )}{" "}
+                  {/* Add divider if more than one item */}
+                </Box>
+              ))}
+            </Box>
           </Box>
 
           <ScrollTop>

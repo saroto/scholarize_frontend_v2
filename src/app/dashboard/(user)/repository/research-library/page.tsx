@@ -36,7 +36,7 @@ export default function RepositoryResearchLibrary() {
           flexDirection: "column",
           overflow: "auto",
           height: "100%",
-          marginBottom: "80px",
+          marginBottom: "20px",
           gap: "10px",
         }}
       >

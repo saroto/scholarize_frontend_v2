@@ -38,7 +38,6 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
   const [pageNumber, setPageNumber] = useState<number | null>(1);
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [zoom, setZoom] = useState<number>(1.0);
-  const containerRef = useRef<HTMLDivElement | null>(null);
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
@@ -55,13 +54,6 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
       reset ? 1 : Math.max(0.5, Math.min(prevZoom + factor, 3))
     );
   };
-
-  //   const handlePageChange = (event: any) => {
-  //     const page = Number(event.target.value);
-  //     if (page >= 1 && page <= (numPages || 1)) {
-  //       setPageNumber(page);
-  //     }
-  //   };
 
   const handlePageChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
