@@ -35,8 +35,8 @@ import NotificationMenu from "./notification";
 import Credits from "@/components/dialogs/credited-dialog";
 import InfoIcon from "@mui/icons-material/Info";
 import ResearchRightSideBar from "@/components/sidebar/research_right_sidebar";
-import { usePathname } from "next/navigation";
 const DrawerWidth = 270;
+import { usePathname } from "next/navigation";
 
 // add margin and transition when opening the drawer
 // refer to this docs: https://mui.com/material-ui/react-drawer/#persistent-drawer
@@ -114,18 +114,18 @@ export default function DashboardNavbar({
   const isRepository = pathname === "/dashboard/repository/research-library";
 
   useEffect(() => {
-    if (window.location.pathname.startsWith("/dashboard/repository")) {
+    if (pathname === "/dashboard/repository/my-publications") {
+      setSelectedNav("my-publications");
+    } else if (pathname?.startsWith("/dashboard/repository/research-library")) {
       setSelectedNav("repository");
-    } else if (
-      window.location.pathname.startsWith("/dashboard/collaboration")
-    ) {
+    } else if (pathname?.startsWith("/dashboard/collaboration")) {
       setSelectedNav("collaboration");
-    } else if (window.location.pathname.startsWith("/dashboard/schedule")) {
+    } else if (pathname?.startsWith("/dashboard/schedule")) {
       setSelectedNav("schedule");
     } else {
       setSelectedNav("");
     }
-  }, [selectedNav]);
+  }, [pathname]);
 
   const openMenu = (event: React.MouseEvent<HTMLElement>) => {
     // set html dom to the state
@@ -369,6 +369,34 @@ export default function DashboardNavbar({
                     >
                       {" "}
                       Repository
+                    </Typography>
+                  </Button>
+                </Link>
+                <Link href={"/dashboard/repository/my-publications"}>
+                  <Button
+                    sx={{
+                      backgroundColor:
+                        selectedNav === "my-publications"
+                          ? "#CFCFCF"
+                          : "transparent",
+                      fontWeight:
+                        selectedNav === "my-publications" ? "550" : "500",
+                      paddingLeft: "1rem",
+                      paddingRight: "1rem",
+                      ":hover": {
+                        backgroundColor: "rgba(0, 0, 0, 0.1)",
+                      },
+                    }}
+                  >
+                    <Typography
+                      variant="h5"
+                      sx={{
+                        textTransform: "none",
+                        color: "text.primary",
+                      }}
+                    >
+                      {" "}
+                      Publication
                     </Typography>
                   </Button>
                 </Link>
