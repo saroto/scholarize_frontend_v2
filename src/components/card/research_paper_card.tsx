@@ -31,6 +31,7 @@ interface ResearchPaperCardProps {
 const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
   const { data: session } = useSession();
   const [allPapers, setAllPapers] = useState<ResearchPaper[]>([]);
+
   const [userPapers, setUserPapers] = useState<publicResearchPaper | null>(
     null
   );
@@ -55,9 +56,9 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
               const fetchPapers = await getResearchPapers(session);
 
               if (fetchPapers?.data.papers === null) {
-                // setAllPapers([]);
-                // setPapers([]);
-                setAllPapers(mockResearchPapers);
+                setAllPapers([]);
+                setPapers([]);
+                // setAllPapers(mockResearchPapers);
                 return;
               }
 
@@ -101,8 +102,8 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
         }
       };
       fetchPapers();
-      setAllPapers(mockResearchPapers);
-      setPapers(mockResearchPapers);
+      // setAllPapers(mockResearchPapers);
+      // setPapers(mockResearchPapers);
     }
   }, [session?.user.token, fetchType]);
 

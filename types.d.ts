@@ -77,6 +77,7 @@ export interface ResearchPaper {
   public_id: string;
   research_title: string;
   departments: TDepartment[];
+  // departments: Department[];
   pdf_path: string;
   fullText: string;
   research_type: ResearchType;
@@ -150,7 +151,8 @@ interface Eachpaper {
     public_id: string;
     research_paper_id: number;
     research_title: string;
-    departments: Department[];
+    // departments: Department[];
+    departments: TDepartment[];
     pdf_path: string;
     research_type: ResearchType;
     author: string;
@@ -189,7 +191,8 @@ interface Paper {
   research_paper_id: number;
   public_id: string;
   research_title: string;
-  departments: Department[];
+  // departments: Department[];
+  departments: TDepartment[];
   pdf_path: string;
   fullText: string;
   research_type: ResearchType;

@@ -248,6 +248,11 @@ export default function DashboardRightSideBar() {
                     <div className="text-[#333] block w-full my-auto truncate truncate-text">
                       <Typography
                         variant="h5"
+                        sx={{
+                          display: "flex",
+                          width: "100%",
+                          whiteSpace: "wrap",
+                        }}
                         // sx={{ width: "100%", whiteSpace: "wrap" }}
                       >
                         {department.name}
