@@ -221,6 +221,15 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
                       <DownloadIcon fontSize="small" />
                     </CustomButton>
                     <CustomButton
+                      onClick={() =>
+                        router.push(
+                          `/dashboard/repository/viewpaper/${
+                            eachPaper.paper_info.pdf_path
+                          }/chat?title=${encodeURIComponent(
+                            eachPaper.paper_info.research_title
+                          )}`
+                        )
+                      }
                       disabled={isLoading}
                       size="small"
                       sx={{

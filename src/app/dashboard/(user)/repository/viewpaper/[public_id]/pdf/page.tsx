@@ -2,7 +2,7 @@
 import { mockEachResearchPaper } from "@/constants/research";
 import { Eachpaper } from "@/types";
 import { Box } from "@mui/material";
-import PDFViewer from "@/components/pdf/PdfViewer";
+import PDFViewer from "@/components/pdf/PDFViewer";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
