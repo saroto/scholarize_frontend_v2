@@ -38,6 +38,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
   const [pageNumber, setPageNumber] = useState<number | null>(1);
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [zoom, setZoom] = useState<number>(1.0);
+  console.log("zoom", zoom);
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
@@ -79,6 +80,18 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
       });
     }
   }, [pageNumber]);
+  let calculatedWidth;
+
+  if (typeof width === "number") {
+    // If 'width' is passed as a number, apply zoom and ensure it's not greater than 500
+    calculatedWidth = Math.min(width, 500);
+  } else if (isSmallScreen) {
+    // If it's a small screen and width is not passed, apply the zoom with a base of 350px
+    calculatedWidth = 350 * zoom;
+  } else {
+    // If it's not a small screen and width is not passed, apply the zoom with a base of 500px
+    calculatedWidth = 500 * zoom;
+  }
 
   console.log("page number", zoom);
   return (
@@ -215,13 +228,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
             >
               <Page
                 pageNumber={index + 1}
-                width={
-                  typeof width === "number"
-                    ? Math.min(width, 500)
-                    : isSmallScreen
-                    ? 350 * zoom
-                    : 500 * zoom
-                }
+                width={calculatedWidth}
                 renderTextLayer={true}
                 renderAnnotationLayer={true}
                 //   className="pdf-page"

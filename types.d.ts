@@ -51,7 +51,7 @@ export type permission = {
   permissions: string[];
 };
 
-interface TDepartment {
+interface Department {
   department_id: number;
   department_name: string;
   department_tag: string;
@@ -76,7 +76,7 @@ export interface ResearchPaper {
   research_paper_id: number;
   public_id: string;
   research_title: string;
-  departments: TDepartment[];
+  departments: Department[];
   pdf_path: string;
   fullText: string;
   research_type: ResearchType;

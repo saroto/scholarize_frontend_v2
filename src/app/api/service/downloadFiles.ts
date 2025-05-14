@@ -14,6 +14,7 @@ export default async function downloadResearchFiles(
       method: "GET",
     });
 
+    console.log("response", response);
     if (!response.ok) {
       return { success: false, url: downloadUrl };
     }

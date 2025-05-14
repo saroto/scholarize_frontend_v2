@@ -18,6 +18,8 @@ export async function getResearchPapers(session: any) {
   );
   const data = await response.json();
 
+  // console.log("data", data);
+
   if (!response.ok) {
     if (data && data.error === "Token invalid! Please login again!") {
       return redirect("/auth/sessionexpire");

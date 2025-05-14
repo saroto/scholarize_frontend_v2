@@ -32,6 +32,7 @@ export default function submissionPreview({
 
   const [awaitingPaper, setawaitingPaper] = useState<awaiting_paper>();
 
+  console.log("awaitingPaper", awaitingPaper);
   useEffect(() => {
     if (session?.user.token && id) {
       const fetchPaper = async () => {
@@ -46,12 +47,12 @@ export default function submissionPreview({
     }
   }, [session?.user.token, id]);
 
-  const dept = awaitingPaper?.paper.departments
-    .map((department) => department.department_name)
-    .join(", ");
+  // const dept = awaitingPaper?.paper.departments
+  //   .map((department) => department.department_name)
+  //   .join(", ");
 
   return (
-    <Box sx={{ width: "100%", padding: 4 }}>
+    <Box sx={{ width: "100%", padding: 4, overflow: "auto" }}>
       <FormControl fullWidth>
         <Button
           href="/dashboard/repository/my-publications"

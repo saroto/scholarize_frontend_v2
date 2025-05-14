@@ -34,6 +34,7 @@ import {
 import CustomButton from "@/components/customButton";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import RelatedCard from "@/components/card/related_card";
+import PersonIcon from "@mui/icons-material/Person";
 interface ViewPaperParams {
   public_id: string;
 }
@@ -89,13 +90,14 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
   const { data: session } = useSession();
 
   const [eachPaper, setEachPaper] = useState<Eachpaper>();
-
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
   // const eachPaper = mockEachResearchPaper;
 
-  useEffect(() => {
-    setEachPaper(mockEachResearchPaper);
-  }),
-    [];
+  // useEffect(() => {
+  //   setEachPaper(mockEachResearchPaper);
+  // }),
+  //   [];
 
   const id = params.public_id;
   const [isLoading, setIsLoading] = useState(false);
@@ -128,31 +130,31 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
 
   const router = useRouter();
 
-  // useEffect(() => {
-  //   const fetchPaper = async () => {
-  //     if (session?.user.token && id) {
-  //       try {
-  //         const data = await GetPaperById(session, String(id));
-  //         if (data?.error) {
-  //           router.replace("/dashboard/repository/research-library");
-  //           toast.error(data.error.error);
-  //           return;
-  //         }
-  //         setEachPaper(data?.data);
-  //       } catch (error) {
-  //         console.error("Failed to load research paper", error);
-  //       }
-  //     }
-  //   };
+  useEffect(() => {
+    const fetchPaper = async () => {
+      if (session?.user.token && id) {
+        try {
+          const data = await GetPaperById(session, String(id));
+          if (data?.error) {
+            router.replace("/dashboard/repository/research-library");
+            toast.error(data.error.error);
+            return;
+          }
+          setEachPaper(data?.data);
+        } catch (error) {
+          console.error("Failed to load research paper", error);
+        }
+      }
+    };
 
-  //   fetchPaper();
-  // }, [session?.user.token, id]);
-  // if (!eachPaper)
-  // return (
-  //   <div className="p-5 flex justify-center">
-  //     <CircularProgress />
-  //   </div>
-  // );
+    fetchPaper();
+  }, [session?.user.token, id]);
+  if (!eachPaper)
+    return (
+      <div className="p-5 flex justify-center">
+        <CircularProgress />
+      </div>
+    );
 
   const handleBackClick = () => {
     const authSignInRoute = "/signin/oauth/id";
@@ -165,9 +167,6 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
       window.history.back();
     }
   };
-
-  const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
 
   return (
     <>
@@ -222,6 +221,15 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
                       <DownloadIcon fontSize="small" />
                     </CustomButton>
                     <CustomButton
+                      onClick={() =>
+                        router.push(
+                          `/dashboard/repository/viewpaper/${
+                            eachPaper.paper_info.pdf_path
+                          }/chat?title=${encodeURIComponent(
+                            eachPaper.paper_info.research_title
+                          )}`
+                        )
+                      }
                       disabled={isLoading}
                       size="small"
                       sx={{
@@ -245,7 +253,11 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
                       size="small"
                       onClick={() =>
                         router.push(
-                          `/dashboard/repository/viewpaper/${eachPaper.paper_info.research_title}/pdf`
+                          `/dashboard/repository/viewpaper/${
+                            eachPaper.paper_info.pdf_path
+                          }/pdf?title=${encodeURIComponent(
+                            eachPaper.paper_info.research_title
+                          )}`
                         )
                       }
                       sx={{
@@ -349,7 +361,9 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
                   display={"flex"}
                   sx={{ alignItems: "center", gap: "10px" }}
                 >
-                  <PermIdentityIcon sx={{ display: "flex" }} />
+                  {/* <PermIdentityIcon sx={{ display: "flex" }} /> */}
+                  <PersonIcon sx={{ display: "flex" }} />
+
                   <Typography
                     variant="h5"
                     sx={{

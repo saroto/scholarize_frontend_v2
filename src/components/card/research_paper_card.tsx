@@ -31,6 +31,7 @@ interface ResearchPaperCardProps {
 const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
   const { data: session } = useSession();
   const [allPapers, setAllPapers] = useState<ResearchPaper[]>([]);
+
   const [userPapers, setUserPapers] = useState<publicResearchPaper | null>(
     null
   );
@@ -55,9 +56,9 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
               const fetchPapers = await getResearchPapers(session);
 
               if (fetchPapers?.data.papers === null) {
-                // setAllPapers([]);
-                // setPapers([]);
-                setAllPapers(mockResearchPapers);
+                setAllPapers([]);
+                setPapers([]);
+                // setAllPapers(mockResearchPapers);
                 return;
               }
 
@@ -101,8 +102,8 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
         }
       };
       fetchPapers();
-      setAllPapers(mockResearchPapers);
-      setPapers(mockResearchPapers);
+      // setAllPapers(mockResearchPapers);
+      // setPapers(mockResearchPapers);
     }
   }, [session?.user.token, fetchType]);
 
@@ -212,12 +213,19 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
       {fetchType === "user-specific" &&
         (userPapers && userPapers.published_papers !== null ? (
           userPapers.published_papers.map((userPapers) => (
-            <PaperCardComponent
-              key={userPapers.research_paper_id}
-              paper={userPapers}
-              handleClick={handleClick}
-              handleDownload={handleDownload}
-            />
+            <Box
+              sx={{
+                display: "flex",
+                paddingBottom: "1rem",
+              }}
+            >
+              <PaperCardComponent
+                key={userPapers.research_paper_id}
+                paper={userPapers}
+                handleClick={handleClick}
+                handleDownload={handleDownload}
+              />
+            </Box>
           ))
         ) : (
           <Box sx={{ justifyContent: "center", textAlign: "center" }}>
@@ -242,16 +250,30 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
         submission.papers !== null ? (
           submission.papers.map((submissionPapers) => {
             return (
-              <PaperCardComponent
-                key={submissionPapers.research_paper_id}
-                paper={submissionPapers}
-                handleClick={handleClickSubmission}
-                handleDownload={handleDownload}
-              />
+              <Box
+                sx={{
+                  width: "100%",
+                  paddingBottom: "1rem",
+                }}
+              >
+                {" "}
+                <PaperCardComponent
+                  key={submissionPapers.research_paper_id}
+                  paper={submissionPapers}
+                  handleClick={handleClickSubmission}
+                  handleDownload={handleDownload}
+                />{" "}
+              </Box>
             );
           })
         ) : (
-          <Box sx={{ justifyContent: "center", textAlign: "center" }}>
+          <Box
+            sx={{
+              justifyContent: "center",
+              textAlign: "center",
+              width: "100%",
+            }}
+          >
             {submission && submission.department === null ? (
               <Typography
                 variant="h6"

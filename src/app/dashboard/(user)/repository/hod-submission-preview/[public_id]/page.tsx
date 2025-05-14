@@ -63,13 +63,13 @@ export default function submissionPreview({
   const handleOpenApproveDialog = () => {
     if (submissionHodPaper) {
       const approveData = {
-        research_paper_id: submissionHodPaper.paper.research_paper_id,
+        research_paper_id: submissionHodPaper?.paper?.research_paper_id,
         approval_status: "approve", // Assuming "approve" is a status you need to pass
-        research_title: submissionHodPaper.paper.research_title,
-        departments: submissionHodPaper.paper.departments,
-        research_type: submissionHodPaper.paper.research_type,
-        author: submissionHodPaper.paper.author,
-        published_at: submissionHodPaper.paper.published_at,
+        research_title: submissionHodPaper?.paper?.research_title,
+        departments: submissionHodPaper?.paper?.departments,
+        research_type: submissionHodPaper?.paper?.research_type,
+        author: submissionHodPaper?.paper?.author,
+        published_at: submissionHodPaper?.paper?.published_at,
       };
       setApproveData(approveData); // You need to have this state set up to hold the data
       setIsApprovalDialogOpen(true);
@@ -90,9 +90,9 @@ export default function submissionPreview({
     }
   }, [session?.user.token, id]);
 
-  const dept = submissionHodPaper?.paper.departments
-    .map((department) => department.department_name)
-    .join(", ");
+  // const dept = submissionHodPaper?.paper.departments
+  //   .map((department) => department.department_name)
+  //   .join(", ");
   if (!submissionHodPaper)
     return (
       <div className="p-5 flex justify-center">
@@ -100,7 +100,7 @@ export default function submissionPreview({
       </div>
     );
   return (
-    <Box sx={{ width: "100%", padding: 4 }}>
+    <Box sx={{ width: "100%", padding: 4, overflowY: "auto" }}>
       <FormControl fullWidth>
         <Button
           href="/dashboard/repository/hod-submission"

@@ -57,7 +57,7 @@ export default function DashboardLeftSideBar({
             gap: "10px",
           }}
         >
-          <List
+          {/* <List
             sx={{
               backgroundColor: !isSmallScreen ? "white" : "none",
               border: !isSmallScreen ? "1px solid " : "none",
@@ -67,7 +67,7 @@ export default function DashboardLeftSideBar({
             }}
           >
             <HomeSection> {Sections}</HomeSection>
-          </List>
+          </List> */}
           <List
             sx={{
               backgroundColor: !isSmallScreen ? "white" : "none",
