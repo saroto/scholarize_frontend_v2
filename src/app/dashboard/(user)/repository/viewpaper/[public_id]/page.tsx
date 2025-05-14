@@ -244,7 +244,11 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
                       size="small"
                       onClick={() =>
                         router.push(
-                          `/dashboard/repository/viewpaper/${eachPaper.paper_info.research_title}/pdf`
+                          `/dashboard/repository/viewpaper/${
+                            eachPaper.paper_info.pdf_path
+                          }/pdf?title=${encodeURIComponent(
+                            eachPaper.paper_info.research_title
+                          )}`
                         )
                       }
                       sx={{
