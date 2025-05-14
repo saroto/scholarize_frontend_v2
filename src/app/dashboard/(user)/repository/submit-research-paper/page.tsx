@@ -5,7 +5,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SubmitForm from "@/components/submitform/submitform";
 export default function RepositoryResearchLibrary() {
   return (
-    <Box sx={{ width: "100%", padding: 4 }}>
+    <Box sx={{ width: "100%", padding: 4, overflow: "auto" }}>
       <Link
         href="/dashboard/repository/my-publications"
         sx={{
@@ -13,7 +13,7 @@ export default function RepositoryResearchLibrary() {
           alignItems: "center",
           display: "flex",
           height: "auto",
-          position: "absolute",
+          // position: "absolute",
           fontSize: "1rem",
           color: "#777777",
           ":hover": {

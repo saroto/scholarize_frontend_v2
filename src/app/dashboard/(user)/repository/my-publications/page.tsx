@@ -12,10 +12,14 @@ export default function RepositoryResearchLibrary() {
     <Grid container minHeight={"100vh"}>
       <Grid container item xs={12}>
         <Grid item xs={10} sm={9.5}>
-          <Typography variant="h4" sx={{ 
-            marginTop: 3, textAlign: "center",
-            fontWeight: "600",
-            }}>
+          <Typography
+            variant="h4"
+            sx={{
+              marginTop: 3,
+              textAlign: "center",
+              fontWeight: "600",
+            }}
+          >
             MY PUBLISHED RESEACH PAPERS
           </Typography>
           <Grid item container sx={{ margin: "auto" }}>

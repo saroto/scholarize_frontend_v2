@@ -24,17 +24,17 @@ export default function ViewPaper({
           <Grid item container>
             {viewPaper?.paper?.departments?.map((department) => (
               <Chip
-                label={department.department_tag}
+                label={department?.department_tag}
                 size="medium"
                 sx={{
                   marginRight: 1,
                   display: "flex",
-                  backgroundColor: department.department_color,
+                  backgroundColor: department?.department_color,
                   color: "#fff",
                   fontSize: "1.2rem",
                   my: 0.5,
                 }}
-                key={department.department_id}
+                key={department?.department_id}
               ></Chip>
             ))}
           </Grid>
@@ -43,7 +43,7 @@ export default function ViewPaper({
             <Box width={"100%"}>
               <Typography
                 variant="h4"
-                key={viewPaper?.paper.research_paper_id}
+                key={viewPaper?.paper?.research_paper_id}
                 fontWeight={"bold"}
                 color={"#2F2F85"}
                 sx={{
@@ -52,7 +52,7 @@ export default function ViewPaper({
                   wordWrap: "break-word",
                 }}
               >
-                {viewPaper?.paper.research_title}
+                {viewPaper?.paper?.research_title}
               </Typography>
             </Box>
           </Grid>
@@ -75,7 +75,7 @@ export default function ViewPaper({
                   fontWeight: "550",
                 }}
               >
-                {viewPaper?.paper.research_type.ResearchTypeName}
+                {viewPaper?.paper?.research_type.ResearchTypeName}
               </Typography>
             </Box>
           </Grid>
@@ -89,7 +89,7 @@ export default function ViewPaper({
                   // fontStyle: "italic",
                 }}
               >
-                {viewPaper?.paper.author}
+                {viewPaper?.paper?.author}
               </Typography>
             </Box>
           </Grid>
@@ -97,18 +97,18 @@ export default function ViewPaper({
             <Box display={"flex"}>
               <CalendarMonthIcon sx={{ display: "flex" }} />
               <Typography sx={{ marginLeft: 0.7, fontSize: "1.1rem" }}>
-                {viewPaper?.paper.published_at}
+                {viewPaper?.paper?.published_at}
               </Typography>
             </Box>
           </Grid>
-          {viewPaper?.paperInfo.Advisor !== "None" && (
+          {viewPaper?.paperInfo?.Advisor !== "None" && (
             <Grid item container>
               <Box component="span" mr={1}>
                 <Typography sx={{ fontWeight: "bold" }}>Advisor: </Typography>
               </Box>
               <Typography sx={{ fontSize: "1.1rem" }}>
                 {/* <span className="font-bold">Advisor: </span> */}
-                {viewPaper?.paperInfo.Advisor}
+                {viewPaper?.paperInfo?.Advisor}
               </Typography>
             </Grid>
           )}
@@ -119,7 +119,7 @@ export default function ViewPaper({
             </Box>
             <Typography sx={{ fontSize: "1.1rem" }}>
               {/* <span className="font-bold">Tag: </span> */}
-              {viewPaper?.paperInfo.Tag}
+              {viewPaper?.paperInfo?.Tag}
             </Typography>
           </Grid>
           <Grid item container>
@@ -149,7 +149,7 @@ export default function ViewPaper({
                 Abstract
               </Typography>
               <Typography variant="body1">
-                {viewPaper?.paper.abstract}
+                {viewPaper?.paper?.abstract}
               </Typography>
             </Box>
           </Grid>

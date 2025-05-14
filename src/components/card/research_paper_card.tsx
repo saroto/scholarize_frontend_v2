@@ -213,12 +213,19 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
       {fetchType === "user-specific" &&
         (userPapers && userPapers.published_papers !== null ? (
           userPapers.published_papers.map((userPapers) => (
-            <PaperCardComponent
-              key={userPapers.research_paper_id}
-              paper={userPapers}
-              handleClick={handleClick}
-              handleDownload={handleDownload}
-            />
+            <Box
+              sx={{
+                display: "flex",
+                paddingBottom: "1rem",
+              }}
+            >
+              <PaperCardComponent
+                key={userPapers.research_paper_id}
+                paper={userPapers}
+                handleClick={handleClick}
+                handleDownload={handleDownload}
+              />
+            </Box>
           ))
         ) : (
           <Box sx={{ justifyContent: "center", textAlign: "center" }}>
@@ -243,16 +250,30 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
         submission.papers !== null ? (
           submission.papers.map((submissionPapers) => {
             return (
-              <PaperCardComponent
-                key={submissionPapers.research_paper_id}
-                paper={submissionPapers}
-                handleClick={handleClickSubmission}
-                handleDownload={handleDownload}
-              />
+              <Box
+                sx={{
+                  width: "100%",
+                  paddingBottom: "1rem",
+                }}
+              >
+                {" "}
+                <PaperCardComponent
+                  key={submissionPapers.research_paper_id}
+                  paper={submissionPapers}
+                  handleClick={handleClickSubmission}
+                  handleDownload={handleDownload}
+                />{" "}
+              </Box>
             );
           })
         ) : (
-          <Box sx={{ justifyContent: "center", textAlign: "center" }}>
+          <Box
+            sx={{
+              justifyContent: "center",
+              textAlign: "center",
+              width: "100%",
+            }}
+          >
             {submission && submission.department === null ? (
               <Typography
                 variant="h6"
