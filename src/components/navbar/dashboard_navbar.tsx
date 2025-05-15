@@ -129,9 +129,13 @@ export default function DashboardNavbar({
   const handleClickOpenPopper =
     (newPlacement: PopperPlacementType) =>
     (event: React.MouseEvent<HTMLButtonElement>) => {
-      setAnchorEls(event.currentTarget);
-      setOpen((prev) => placement !== newPlacement || !prev);
-      setPlacement(newPlacement);
+      if (session?.user?.role?.RoleName != "HOD") {
+        return;
+      } else {
+        setAnchorEls(event.currentTarget);
+        setOpen((prev) => placement !== newPlacement || !prev);
+        setPlacement(newPlacement);
+      }
     };
 
   const pathname = usePathname();
@@ -437,15 +441,16 @@ export default function DashboardNavbar({
                       }}
                     >
                       {" "}
-                      {session?.user?.role.RoleName === "HOD"
+                      {session?.user?.role?.RoleName === "HOD"
                         ? "Submissions"
                         : "My Publications"}
                     </Typography>
-                    {open && session?.user?.role.RoleName === "HOD" ? (
-                      <KeyboardArrowUpIcon />
-                    ) : (
-                      <KeyboardArrowDownIcon />
-                    )}
+                    {session?.user.role.RoleName === "HOD" &&
+                      (open ? (
+                        <KeyboardArrowUpIcon />
+                      ) : (
+                        <KeyboardArrowDownIcon />
+                      ))}
                   </Button>
                 </Link>
                 <Link href={"/dashboard/collaboration/groups"}>
