@@ -142,9 +142,9 @@ export default function submissionPreview({
         </InputLabel>
       </Stack> */}
 
-      <Stack direction="column" sx={{ marginTop: 2 }} width={"100%"}>
+      {/* <Stack direction="column" sx={{ marginTop: 2 }} width={"100%"}>
         <RichText rich_text={submissionHodPaper?.full_text} />
-      </Stack>
+      </Stack> */}
 
       <Box
         sx={{

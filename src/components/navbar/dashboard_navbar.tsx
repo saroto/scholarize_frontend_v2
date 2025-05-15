@@ -113,6 +113,12 @@ export default function DashboardNavbar({
   openDrawer?: boolean;
   onClick?: () => void;
 }>) {
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
+
+  if (isSmallScreen) {
+    openDrawer = false;
+  }
   const router = useRouter();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [drawer, setDrawer] = useState<boolean>(openDrawer);
@@ -196,8 +202,6 @@ export default function DashboardNavbar({
   }
 
   console.log("session", session);
-  const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
 
   useEffect(() => {
     if (!isRepository && !isSmallScreen) {
@@ -248,7 +252,7 @@ export default function DashboardNavbar({
               {/* Start section */}
 
               <Stack direction={"row"} alignItems={"center"} spacing={1}>
-                {(isRepository || isSmallScreen) && (
+                {(isRepository || (isRepository && isSmallScreen)) && (
                   <Stack direction={"row"} alignItems={"center"} spacing={1}>
                     <IconButton
                       color="inherit"
@@ -772,7 +776,7 @@ export default function DashboardNavbar({
           flexDirection: "column",
           overflow: "hidden",
           height: "100%",
-          paddingInline: "20px",
+          // paddingInline: "20px",
         }}
       >
         {children}

@@ -20,6 +20,7 @@ import { RejectDialogProps } from "@/types";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { rejectResearchPaper } from "@/app/api/service/repo/approve-reject/reject";
+import PersonIcon from "@mui/icons-material/Person";
 
 import { toast, ToastContainer } from "react-toastify";
 
@@ -113,7 +114,7 @@ const RejectDialogs: React.FC<RejectDialogProps> = ({
                   variant="h5"
                   component="div"
                   color={"black"}
-                  sx={{}}
+                  sx={{ fontWeight: 500 }}
                 >
                   {reject.research_title}
                 </Typography>
@@ -135,7 +136,7 @@ const RejectDialogs: React.FC<RejectDialogProps> = ({
             </Stack>
             <Stack
               direction="column"
-              spacing={1}
+              spacing={2}
               sx={{ paddingTop: 1, paddingBottom: 1 }}
             >
               <Stack direction="row" spacing={1}>
@@ -143,7 +144,7 @@ const RejectDialogs: React.FC<RejectDialogProps> = ({
                 <Typography>{reject.research_type.ResearchTypeName}</Typography>
               </Stack>
               <Stack direction="row" spacing={1}>
-                <PermIdentityIcon />
+                <PersonIcon />
                 <Typography>{reject.author}</Typography>
               </Stack>
               <Stack direction="row" spacing={1}>
