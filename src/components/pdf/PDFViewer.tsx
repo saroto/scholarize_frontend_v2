@@ -11,6 +11,7 @@ import {
   IconButton,
   MenuItem,
   Select,
+  Skeleton,
   TextField,
   Typography,
   useMediaQuery,
@@ -38,6 +39,8 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
   const [pageNumber, setPageNumber] = useState<number | null>(1);
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [zoom, setZoom] = useState<number>(1.0);
+  const [isError, setIsError] = useState<boolean>(false);
+
   console.log("zoom", zoom);
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
   const theme = useTheme();
@@ -125,74 +128,76 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
         >
           {title + ".pdf"}
         </Typography>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            gap: "10px",
-            paddingBottom: "10px",
-          }}
-        >
+        {isError === false && (
           <Box
             sx={{
               display: "flex",
               flexDirection: "row",
               gap: "10px",
-              borderRadius: "8px",
-              border: "1px solid ",
-              borderColor: "#ddd",
-              backgroundColor: "background.paper",
+              paddingBottom: "10px",
             }}
           >
-            {/* Zoom Out Button */}
-            <IconButton size="small" onClick={() => handleZoom(-0.2)}>
-              <RemoveIcon fontSize="small" />
-            </IconButton>
-            {/* reset Button */}
-            <IconButton size="small" onClick={() => handleZoom(-0.2, true)}>
-              <RestartAltIcon fontSize="small" />
-            </IconButton>
-            {/* Zoom In Button */}
-            <IconButton size="small" onClick={() => handleZoom(0.2)}>
-              <AddIcon fontSize="small" />
-            </IconButton>
-          </Box>
-          {/* Manual Page Input */}
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              gap: "10px",
-              alignItems: "center",
-            }}
-          >
-            {" "}
-            <TextField
-              type="text"
-              value={pageNumber}
-              onChange={handlePageChange}
+            <Box
               sx={{
+                display: "flex",
+                flexDirection: "row",
+                gap: "10px",
+                borderRadius: "8px",
+                border: "1px solid ",
                 borderColor: "#ddd",
-                width: 50,
-                height: 30,
-                "& .MuiInputBase-root": {
-                  height: 30,
-                  fontSize: "0.83rem",
-                  padding: "0 8px",
-                  fontWeight: 500,
-                },
-                "& .MuiOutlinedInput-input": {
-                  textAlign: "center",
-                  padding: "5px",
-                },
+                backgroundColor: "background.paper",
               }}
-              inputProps={{ maxLength: 3 }}
-            />
-            <Typography variant="h5" sx={{ fontWeight: 500 }}>
-              {" / " + numPages}
-            </Typography>
+            >
+              {/* Zoom Out Button */}
+              <IconButton size="small" onClick={() => handleZoom(-0.2)}>
+                <RemoveIcon fontSize="small" />
+              </IconButton>
+              {/* reset Button */}
+              <IconButton size="small" onClick={() => handleZoom(-0.2, true)}>
+                <RestartAltIcon fontSize="small" />
+              </IconButton>
+              {/* Zoom In Button */}
+              <IconButton size="small" onClick={() => handleZoom(0.2)}>
+                <AddIcon fontSize="small" />
+              </IconButton>
+            </Box>
+            {/* Manual Page Input */}
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                gap: "10px",
+                alignItems: "center",
+              }}
+            >
+              {" "}
+              <TextField
+                type="text"
+                value={pageNumber}
+                onChange={handlePageChange}
+                sx={{
+                  borderColor: "#ddd",
+                  width: 50,
+                  height: 30,
+                  "& .MuiInputBase-root": {
+                    height: 30,
+                    fontSize: "0.83rem",
+                    padding: "0 8px",
+                    fontWeight: 500,
+                  },
+                  "& .MuiOutlinedInput-input": {
+                    textAlign: "center",
+                    padding: "5px",
+                  },
+                }}
+                inputProps={{ maxLength: 3 }}
+              />
+              <Typography variant="h5" sx={{ fontWeight: 500 }}>
+                {" / " + numPages}
+              </Typography>
+            </Box>
           </Box>
-        </Box>
+        )}
       </Container>
 
       <Box
@@ -207,8 +212,14 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
       >
         <Document
           file={fileUrl}
-          onLoadSuccess={({ numPages }) => setNumPages(numPages)}
-          onError={(error) => console.error(error)}
+          loading={<PDFSkeleton />}
+          onLoadSuccess={({ numPages }) => {
+            setNumPages(numPages);
+          }}
+          onLoadError={() => {
+            setIsError(true);
+          }}
+          error={<PDFNotFound />}
         >
           {Array.from(new Array(numPages), (_, index) => (
             <Box
@@ -227,6 +238,15 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
               }}
             >
               <Page
+                loading={
+                  <Skeleton
+                    variant="rectangular"
+                    height={20}
+                    sx={{
+                      minWidth: isSmallScreen ? "380px" : "500px",
+                    }}
+                  />
+                }
                 pageNumber={index + 1}
                 width={calculatedWidth}
                 renderTextLayer={true}
@@ -238,6 +258,70 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
         </Document>
       </Box>
     </div>
+  );
+};
+
+const PDFSkeleton = () => {
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  return (
+    <Box
+      sx={{
+        minWidth: isSmallScreen ? "380px" : "500px",
+        padding: 2,
+        display: "flex",
+        flexDirection: "column",
+        gap: 1.5,
+      }}
+    >
+      {/* Title */}
+      <Skeleton variant="text" width="60%" height={40} />
+
+      {/* Paragraph-like lines */}
+      {Array.from({ length: 10 }).map((_, i) => (
+        <Skeleton key={i} variant="text" width={`${90 - i * 3}%`} height={20} />
+      ))}
+
+      {/* Large content block (e.g., PDF image/preview) */}
+      <Skeleton
+        variant="rectangular"
+        width="100%"
+        height={400}
+        sx={{ borderRadius: 1 }}
+      />
+    </Box>
+  );
+};
+
+const PDFNotFound = () => {
+  return (
+    <Box
+      sx={{
+        textAlign: "center",
+        padding: 4,
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "text.secondary",
+      }}
+    >
+      <Typography
+        variant="h3"
+        gutterBottom
+        sx={{
+          fontWeight: 500,
+        }}
+      >
+        PDF Not Found
+      </Typography>
+      <Typography variant="body1">
+        We couldn't locate the PDF file. It may have been removed or the path is
+        incorrect.
+      </Typography>
+    </Box>
   );
 };
 
