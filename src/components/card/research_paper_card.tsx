@@ -38,6 +38,7 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
 
   const [submission, setSubmission] = useState<SubmissionPaper | null>(null);
   const { filters } = useSearchStore();
+  console.log("filters", filters);
 
   console.log("isloading", isLoading);
   const router = useRouter();
@@ -159,26 +160,26 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
     window.scrollTo(0, 0);
   }, []);
 
-  // useEffect(() => {
-  //   if (session?.user.token) {
-  //     const fetchPapers = async () => {
-  //       try {
-  //         const fetchedPapers = await getResearchPaperBySearch(
-  //           session,
-  //           filters
-  //         );
-  //         setAllPapers(fetchedPapers); // Assuming you have a state called papers
-  //       } catch (error) {
-  //         console.error("Error fetching papers:", error);
-  //       }
-  //     };
-  //     try {
-  //       fetchPapers();
-  //     } catch (error) {
-  //       throw new Error("Failed to fetch data" + error);
-  //     }
-  //   }
-  // }, [filters]);
+  useEffect(() => {
+    if (session?.user.token) {
+      const fetchPapers = async () => {
+        try {
+          const fetchedPapers = await getResearchPaperBySearch(
+            session,
+            filters
+          );
+          setAllPapers(fetchedPapers); // Assuming you have a state called papers
+        } catch (error) {
+          console.error("Error fetching papers:", error);
+        }
+      };
+      try {
+        fetchPapers();
+      } catch (error) {
+        throw new Error("Failed to fetch data" + error);
+      }
+    }
+  }, [filters]);
 
   return (
     <>

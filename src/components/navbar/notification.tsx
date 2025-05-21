@@ -64,18 +64,18 @@ export default function NotificationMenu() {
   };
 
   const readNotifications = async (notificationID: number) => {
-    const response = await readNotification(
-      session?.user?.token ?? "",
-      notificationID
-    );
-    if (response.success) {
-      fetchNotifications();
-    } else {
-      if (response.error === "Token invalid! Please login again!") {
-        router.replace("/auth/sessionexpire");
-      }
-      return;
-    }
+    // const response = await readNotification(
+    //   session?.user?.token ?? "",
+    //   notificationID
+    // );
+    // if (response.success) {
+    //   fetchNotifications();
+    // } else {
+    //   if (response.error === "Token invalid! Please login again!") {
+    //     router.replace("/auth/sessionexpire");
+    //   }
+    //   return;
+    // }
   };
 
   useEffect(() => {
