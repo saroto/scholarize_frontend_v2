@@ -78,10 +78,12 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
               const userSpecificPapers = await MyPublication(session);
               if (userSpecificPapers === null) {
                 setUserPapers(null);
+                setIsLoading(false);
                 return;
               }
               setUserPapers(userSpecificPapers && userSpecificPapers.data);
               setpublicePaper(userSpecificPapers && userSpecificPapers.data);
+              setIsLoading(false);
             } catch (error) {
               // throw new Error("Failed to fetch data" + error);
             }
@@ -91,10 +93,12 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
               const submittedPapers = await getPaperByHOD(session);
               if (submittedPapers === null) {
                 setSubmission(null);
+                setIsLoading(false);
                 return;
               }
               setSubmission(submittedPapers);
               setSubmissionPaper(submittedPapers);
+              setIsLoading(false);
             } catch (error) {
               // throw new Error("Failed to fetch data" + error);
             } finally {
@@ -230,6 +234,7 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
         ))}
 
       {fetchType === "user-specific" &&
+        !isLoading &&
         (userPapers && userPapers.published_papers !== null ? (
           userPapers.published_papers.map((userPapers) => (
             <Box
@@ -293,31 +298,35 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
               width: "100%",
             }}
           >
-            {submission && submission.department === null ? (
-              <Typography
-                variant="h6"
-                sx={{
-                  textAlign: "center",
-                  color: "#777777",
-                  fontStyle: "italic",
-                  marginTop: 2,
-                }}
-              >
-                You are not assign to any department
-              </Typography>
-            ) : (
-              <Typography
-                variant="h6"
-                sx={{
-                  textAlign: "center",
-                  color: "#777777",
-                  fontStyle: "italic",
-                  marginTop: 2,
-                }}
-              >
-                No research paper found
-              </Typography>
-            )}
+            {!isLoading ? (
+              <Box>
+                {submission && submission.department === null ? (
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      textAlign: "center",
+                      color: "#777777",
+                      fontStyle: "italic",
+                      marginTop: 2,
+                    }}
+                  >
+                    You are not assigned to any department
+                  </Typography>
+                ) : (
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      textAlign: "center",
+                      color: "#777777",
+                      fontStyle: "italic",
+                      marginTop: 2,
+                    }}
+                  >
+                    No research paper found
+                  </Typography>
+                )}
+              </Box>
+            ) : null}
           </Box>
         ))}
       {/* {fetchType === "browser" &&(
