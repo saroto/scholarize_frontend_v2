@@ -14,8 +14,9 @@ export default function ViewPaper({
     <div className="flex justify-center pb-3">
       <Box
         sx={{
-          border: "2px solid #e0e0e0",
-          borderRadius: 5,
+          border: "1px solid",
+          borderColor: "#ddd",
+          borderRadius: "16px",
           width: "100%",
           backgroundColor: "#fff",
         }}

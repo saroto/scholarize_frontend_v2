@@ -302,7 +302,7 @@ export default function Form({
           )}
         </FormControl>
 
-        <Stack direction="column">
+        {/* <Stack direction="column">
           <InputLabel id="rich-text" sx={{ color: "black", fontWeight: "550" }}>
             FULL TEXT
           </InputLabel>
@@ -322,7 +322,7 @@ export default function Form({
               rich_text={formData.fullText}
             />
           </Stack>
-        )}
+        )} */}
 
         <Box sx={{ justifyContent: "center", display: "flex", marginTop: 2 }}>
           <Button

@@ -113,6 +113,12 @@ export default function DashboardNavbar({
   openDrawer?: boolean;
   onClick?: () => void;
 }>) {
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
+
+  if (isSmallScreen) {
+    openDrawer = false;
+  }
   const router = useRouter();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [drawer, setDrawer] = useState<boolean>(openDrawer);
@@ -129,9 +135,13 @@ export default function DashboardNavbar({
   const handleClickOpenPopper =
     (newPlacement: PopperPlacementType) =>
     (event: React.MouseEvent<HTMLButtonElement>) => {
-      setAnchorEls(event.currentTarget);
-      setOpen((prev) => placement !== newPlacement || !prev);
-      setPlacement(newPlacement);
+      if (session?.user?.role?.RoleName != "HOD") {
+        return;
+      } else {
+        setAnchorEls(event.currentTarget);
+        setOpen((prev) => placement !== newPlacement || !prev);
+        setPlacement(newPlacement);
+      }
     };
 
   const pathname = usePathname();
@@ -192,8 +202,6 @@ export default function DashboardNavbar({
   }
 
   console.log("session", session);
-  const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
 
   useEffect(() => {
     if (!isRepository && !isSmallScreen) {
@@ -244,7 +252,7 @@ export default function DashboardNavbar({
               {/* Start section */}
 
               <Stack direction={"row"} alignItems={"center"} spacing={1}>
-                {(isRepository || isSmallScreen) && (
+                {(isRepository || (isRepository && isSmallScreen)) && (
                   <Stack direction={"row"} alignItems={"center"} spacing={1}>
                     <IconButton
                       color="inherit"
@@ -437,15 +445,16 @@ export default function DashboardNavbar({
                       }}
                     >
                       {" "}
-                      {session?.user?.role.RoleName === "HOD"
+                      {session?.user?.role?.RoleName === "HOD"
                         ? "Submissions"
                         : "My Publications"}
                     </Typography>
-                    {open && session?.user?.role.RoleName === "HOD" ? (
-                      <KeyboardArrowUpIcon />
-                    ) : (
-                      <KeyboardArrowDownIcon />
-                    )}
+                    {session?.user.role.RoleName === "HOD" &&
+                      (open ? (
+                        <KeyboardArrowUpIcon />
+                      ) : (
+                        <KeyboardArrowDownIcon />
+                      ))}
                   </Button>
                 </Link>
                 <Link href={"/dashboard/collaboration/groups"}>
@@ -767,7 +776,7 @@ export default function DashboardNavbar({
           flexDirection: "column",
           overflow: "hidden",
           height: "100%",
-          paddingInline: "20px",
+          // paddingInline: "20px",
         }}
       >
         {children}

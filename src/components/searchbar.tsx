@@ -67,12 +67,20 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 export default function PrimarySearchAppBar() {
   const [sort, setSort] = React.useState("ASC");
   const [searchTerm, setSearchTerm] = useState("");
-
   const handleChange = (event: SelectChangeEvent<string>) => {
     setSort(event.target.value);
   };
 
   const { updateFilters } = useSearchStore();
+
+  // console.log(
+  //   "search term",
+  //   searchTerm,
+  //   "sort",
+  //   sort,
+  //   "filters",
+  //   updateFilters
+  // );
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);

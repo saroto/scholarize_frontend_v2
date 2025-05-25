@@ -1,7 +1,7 @@
 /** @format */
 
 "use client";
-import { Typography, Box } from "@mui/material";
+import { Typography, Box, Skeleton } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { getResearchPapers } from "@/app/api/service/getResearchPaper";
 import { useEffect, useState } from "react";
@@ -31,7 +31,6 @@ interface ResearchPaperCardProps {
 const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
   const { data: session } = useSession();
   const [allPapers, setAllPapers] = useState<ResearchPaper[]>([]);
-
   const [userPapers, setUserPapers] = useState<publicResearchPaper | null>(
     null
   );
@@ -39,7 +38,9 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
 
   const [submission, setSubmission] = useState<SubmissionPaper | null>(null);
   const { filters } = useSearchStore();
+  console.log("filters", filters);
 
+  console.log("isloading", isLoading);
   const router = useRouter();
 
   const { setPapers } = useResearchPaperStore();
@@ -56,16 +57,20 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
               const fetchPapers = await getResearchPapers(session);
 
               if (fetchPapers?.data.papers === null) {
+                setIsLoading(false);
                 setAllPapers([]);
                 setPapers([]);
                 // setAllPapers(mockResearchPapers);
                 return;
               }
 
+              setIsLoading(false);
               setAllPapers(fetchPapers?.data.papers);
               setPapers(fetchPapers?.data.papers);
             } catch (error) {
               // throw new Error("Failed to fetch data" + error);
+
+              setIsLoading(false);
             }
             break;
           case "user-specific":
@@ -155,29 +160,43 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
     window.scrollTo(0, 0);
   }, []);
 
-  // useEffect(() => {
-  //   if (session?.user.token) {
-  //     const fetchPapers = async () => {
-  //       try {
-  //         const fetchedPapers = await getResearchPaperBySearch(
-  //           session,
-  //           filters
-  //         );
-  //         setAllPapers(fetchedPapers); // Assuming you have a state called papers
-  //       } catch (error) {
-  //         console.error("Error fetching papers:", error);
-  //       }
-  //     };
-  //     try {
-  //       fetchPapers();
-  //     } catch (error) {
-  //       throw new Error("Failed to fetch data" + error);
-  //     }
-  //   }
-  // }, [filters]);
+  useEffect(() => {
+    if (session?.user.token) {
+      const fetchPapers = async () => {
+        try {
+          const fetchedPapers = await getResearchPaperBySearch(
+            session,
+            filters
+          );
+          setAllPapers(fetchedPapers); // Assuming you have a state called papers
+        } catch (error) {
+          console.error("Error fetching papers:", error);
+        }
+      };
+      try {
+        fetchPapers();
+      } catch (error) {
+        throw new Error("Failed to fetch data" + error);
+      }
+    }
+  }, [filters]);
 
   return (
     <>
+      {isLoading &&
+        Array.from({ length: 8 }).map((_, index) => (
+          <Skeleton
+            key={index}
+            variant="rectangular"
+            sx={{
+              borderRadius: "4px",
+              width: "100%",
+              height: "72px",
+              mb: 1,
+            }}
+          />
+        ))}
+
       {fetchType === "all" &&
         (allPapers && allPapers !== null ? (
           allPapers.map((allPapers) => (

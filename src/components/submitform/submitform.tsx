@@ -39,7 +39,7 @@ export default function SubmitForm({ readonly = false }: SubmitFormProps) {
     tags: "",
     author: "",
     advisor: "",
-    fullText: "",
+    fullText: "no value",
     paperTypes: [],
     departments: [],
   });

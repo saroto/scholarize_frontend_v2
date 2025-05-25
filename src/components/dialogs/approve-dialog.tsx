@@ -21,6 +21,7 @@ import { approveResearchPaper } from "@/app/api/service/repo/approve-reject/appr
 import { ApproveDialogProps } from "@/types";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import PersonIcon from "@mui/icons-material/Person";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialog-paper": {
@@ -104,7 +105,9 @@ const ApproveDialogs: React.FC<ApproveDialogProps> = ({
                 variant="h5"
                 component="div"
                 color={"black"}
-                sx={{}}
+                sx={{
+                  fontWeight: 500,
+                }}
               >
                 {approve.research_title}
               </Typography>
@@ -126,7 +129,7 @@ const ApproveDialogs: React.FC<ApproveDialogProps> = ({
           </Stack>
           <Stack
             direction="column"
-            spacing={1}
+            spacing={2}
             sx={{ paddingTop: 1, paddingBottom: 1 }}
           >
             <Stack direction="row" spacing={1}>
@@ -134,7 +137,7 @@ const ApproveDialogs: React.FC<ApproveDialogProps> = ({
               <Typography>{approve.research_type.ResearchTypeName}</Typography>
             </Stack>
             <Stack direction="row" spacing={1}>
-              <PermIdentityIcon />
+              <PersonIcon />
               <Typography>{approve.author}</Typography>
             </Stack>
             <Stack direction="row" spacing={1}>
