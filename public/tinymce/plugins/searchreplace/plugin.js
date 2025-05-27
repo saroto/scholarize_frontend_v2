@@ -1,5 +1,5 @@
 /**
- * TinyMCE version 7.1.1 (2024-05-22)
+ * TinyMCE version 7.7.2 (2025-03-19)
  */
 
 (function () {
@@ -896,37 +896,41 @@
       const getPanelItems = error => {
         const items = [
           {
-            type: 'bar',
-            items: [
-              {
-                type: 'input',
-                name: 'findtext',
-                placeholder: 'Find',
-                maximized: true,
-                inputMode: 'search'
-              },
-              {
-                type: 'button',
-                name: 'prev',
-                text: 'Previous',
-                icon: 'action-prev',
-                enabled: false,
-                borderless: true
-              },
-              {
-                type: 'button',
-                name: 'next',
-                text: 'Next',
-                icon: 'action-next',
-                enabled: false,
-                borderless: true
-              }
-            ]
+            type: 'label',
+            label: 'Find',
+            for: 'findtext',
+            items: [{
+                type: 'bar',
+                items: [
+                  {
+                    type: 'input',
+                    name: 'findtext',
+                    maximized: true,
+                    inputMode: 'search'
+                  },
+                  {
+                    type: 'button',
+                    name: 'prev',
+                    text: 'Previous',
+                    icon: 'action-prev',
+                    enabled: false,
+                    borderless: true
+                  },
+                  {
+                    type: 'button',
+                    name: 'next',
+                    text: 'Next',
+                    icon: 'action-next',
+                    enabled: false,
+                    borderless: true
+                  }
+                ]
+              }]
           },
           {
             type: 'input',
             name: 'replacetext',
-            placeholder: 'Replace with',
+            label: 'Replace with',
             inputMode: 'search'
           }
         ];

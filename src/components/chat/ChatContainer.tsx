@@ -1,6 +1,9 @@
 import {
   Box,
+  Button,
   Container,
+  IconButton,
+  Tooltip,
   Typography,
   useMediaQuery,
   useTheme,
@@ -12,6 +15,8 @@ import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import SaveAltIcon from "@mui/icons-material/SaveAlt";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 interface SearchFormData {
   collection_name: string;
@@ -39,6 +44,7 @@ export default function ChatContainer() {
   });
 
   console.log("chat data array", messages);
+
   const chatPDFData = async (query: string) => {
     const requestFormData = new FormData();
 
@@ -160,6 +166,88 @@ export default function ChatContainer() {
           paddingBlock: "20px",
         }}
       >
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            gap: "10px",
+            alignItems: "center",
+            justifyContent: "flex-end",
+            paddingRight: "16px",
+          }}
+        >
+          <Tooltip title="Save Chat">
+            <IconButton
+              size="small"
+              sx={{
+                borderRadius: "5px",
+                color: "#0030AA",
+                border: "1.5px solid #0030AA",
+                cursor: "pointer",
+                transition: "all 0.2s ease-in-out",
+                backgroundColor: "#E0EAFF",
+                "&:hover": {
+                  backgroundColor: "#D0DCFF", // Darker on hover
+                  color: "#001F80", // Slightly darker text
+                  borderColor: "#001F80",
+                  transform: "translateY(-1px)", // Subtle lift effect
+                },
+                "&:focus": {
+                  backgroundColor: "#C8D6FF", // Even darker on focus
+                  color: "#001A70", // Darker text on focus
+                  borderColor: "#001A70",
+                  outline: "2px solid rgba(0, 48, 170, 0.3)", // Focus ring
+                  outlineOffset: "2px",
+                },
+                "&:active": {
+                  backgroundColor: "#C0D0FF", // Darkest when pressed
+                  transform: "translateY(0px)", // Reset lift on click
+                },
+              }}
+            >
+              <SaveAltIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Delete Chat History">
+            <IconButton
+              color="error"
+              size="small"
+              sx={{
+                backgroundColor: "#FDE0E0",
+                borderRadius: "5px",
+                border: "1.5px solid",
+                borderColor: "#F00000",
+                transition: "all 0.2s ease-in-out",
+                "&:hover": {
+                  backgroundColor: "#FCC8C8", // Darker red on hover
+                  borderColor: "#D00000", // Darker border
+                  transform: "translateY(-1px)", // Subtle lift effect
+                  "& .MuiSvgIcon-root": {
+                    color: "#D00000", // Darker icon color
+                  },
+                },
+                "&:focus": {
+                  backgroundColor: "#FAB0B0", // Even darker on focus
+                  borderColor: "#C00000", // Darker border on focus
+                  outline: "2px solid rgba(240, 0, 0, 0.3)", // Focus ring
+                  outlineOffset: "2px",
+                  "& .MuiSvgIcon-root": {
+                    color: "#C00000", // Darker icon color
+                  },
+                },
+                "&:active": {
+                  backgroundColor: "#F89898", // Darkest when pressed
+                  transform: "translateY(0px)", // Reset lift on click
+                  "& .MuiSvgIcon-root": {
+                    color: "#B00000", // Darkest icon color
+                  },
+                },
+              }}
+            >
+              <DeleteIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </Box>
         {messages.length === 0 ? (
           newChat()
         ) : (
