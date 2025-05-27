@@ -16,7 +16,6 @@ import React, { useCallback, useState } from "react";
 import { getBrowserPaper } from "@/app/api/service/browser-paper";
 import { Paper } from "@/types";
 import BrowserPaperCard from "./browser_paper_card";
-import { mockResearchPapers } from "@/constants/research";
 import Promotion from "./promotion";
 
 import Image from "next/image";
@@ -96,7 +95,6 @@ export default function BrowserPaper() {
 
   // Extract the nested ternary operation into an independent statement
   let content;
-  const firstPaper = mockResearchPapers[0];
   if (isLoading) {
     content = (
       <Box
@@ -112,11 +110,7 @@ export default function BrowserPaper() {
     );
   } else if (searchResult && searchResult !== null) {
     content = searchResult.map((paper) => (
-      // <BrowserPaperCard key={paper.research_paper_id} paper={paper} />
-      <BrowserPaperCard
-        key={paper.research_paper_id}
-        paper={mockResearchPapers[0]}
-      />
+      <BrowserPaperCard key={paper.research_paper_id} paper={paper} />
     ));
   } else {
     content = (
@@ -224,8 +218,8 @@ export default function BrowserPaper() {
           <div className="mt-4">{content}</div>
           {!isTryNow ? (
             <BrowserPaperCard
-              key={mockResearchPapers[0].public_id}
-              paper={mockResearchPapers[0]}
+              key={searchResult[0].public_id}
+              paper={searchResult[0]}
             />
           ) : (
             <Container

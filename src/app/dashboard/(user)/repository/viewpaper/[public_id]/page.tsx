@@ -27,10 +27,6 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import RichTextViewPaper from "@/components/rich-text/rich-text-view-paper";
 import ChatIcon from "@mui/icons-material/Chat";
-import {
-  mockEachResearchPaper,
-  mockResearchPapers,
-} from "@/constants/research";
 import CustomButton from "@/components/customButton";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import RelatedCard from "@/components/card/related_card";

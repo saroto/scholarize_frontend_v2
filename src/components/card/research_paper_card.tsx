@@ -21,8 +21,6 @@ import { usePublicationPaperStore } from "@/stores/StorePublicationPaper";
 import { useSubmissionPaperStore } from "@/stores/StoreSubmissionPaper";
 import { toast } from "react-toastify";
 import downloadResearchFiles from "@/app/api/service/downloadFiles";
-import { mockResearchPapers } from "@/constants/research";
-
 type FetchType = "all" | "user-specific" | "submitted";
 
 interface ResearchPaperCardProps {
