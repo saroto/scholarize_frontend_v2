@@ -27,10 +27,6 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import RichTextViewPaper from "@/components/rich-text/rich-text-view-paper";
 import ChatIcon from "@mui/icons-material/Chat";
-import {
-  mockEachResearchPaper,
-  mockResearchPapers,
-} from "@/constants/research";
 import CustomButton from "@/components/customButton";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import RelatedCard from "@/components/card/related_card";
@@ -90,6 +86,7 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
   const { data: session } = useSession();
 
   const [eachPaper, setEachPaper] = useState<Eachpaper>();
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
   // const eachPaper = mockEachResearchPaper;
@@ -102,6 +99,7 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
   const id = params.public_id;
   const [isLoading, setIsLoading] = useState(false);
 
+  console.log("eachPaper", eachPaper);
   const handleDownload = async (path: string, eachPaper: Eachpaper) => {
     setIsLoading(true);
 
@@ -141,6 +139,8 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
             return;
           }
           setEachPaper(data?.data);
+          // console.log("eachPaper", data.data.session);
+          setSessionId(data?.data.session);
         } catch (error) {
           console.error("Failed to load research paper", error);
         }
@@ -208,8 +208,31 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
                         flexDirection: "row",
                         gap: "5px",
                         paddingInline: "10px",
+                        cursor: "pointer",
+                        transition: "all 0.2s ease-in-out",
+                        backgroundColor: "#E0EAFF",
+                        color: "#0030AA",
+                        border: "1.5px solid #0030AA",
+                        "&:hover": {
+                          backgroundColor: "#D0DCFF", // Darker on hover
+                          color: "#001F80", // Slightly darker text
+                          borderColor: "#001F80",
+                          transform: "translateY(-1px)", // Subtle lift effect
+                        },
+                        "&:focus": {
+                          backgroundColor: "#C8D6FF", // Even darker on focus
+                          color: "#001A70", // Darker text on focus
+                          borderColor: "#001A70",
+                          outline: "2px solid rgba(0, 48, 170, 0.3)", // Focus ring
+                          outlineOffset: "2px",
+                        },
+                        "&:active": {
+                          backgroundColor: "#C0D0FF", // Darkest when pressed
+                          transform: "translateY(0px)", // Reset lift on click
+                        },
                       }}
                     >
+                      <DownloadIcon fontSize="small" />
                       <Typography
                         sx={{
                           fontSize: "10px",
@@ -218,7 +241,6 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
                       >
                         {isLoading ? "Loading..." : "Download"}
                       </Typography>
-                      <DownloadIcon fontSize="small" />
                     </CustomButton>
                     <CustomButton
                       onClick={() =>
@@ -227,7 +249,7 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
                             eachPaper.paper_info.pdf_path
                           }/chat?title=${encodeURIComponent(
                             eachPaper.paper_info.research_title
-                          )}`
+                          )}&sessionId=${sessionId}`
                         )
                       }
                       disabled={isLoading}
@@ -237,8 +259,31 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
                         flexDirection: "row",
                         gap: "5px",
                         paddingInline: "10px",
+                        cursor: "pointer",
+                        transition: "all 0.2s ease-in-out",
+                        backgroundColor: "#E0EAFF",
+                        color: "#0030AA",
+                        border: "1.5px solid #0030AA",
+                        "&:hover": {
+                          backgroundColor: "#D0DCFF", // Darker on hover
+                          color: "#001F80", // Slightly darker text
+                          borderColor: "#001F80",
+                          transform: "translateY(-1px)", // Subtle lift effect
+                        },
+                        "&:focus": {
+                          backgroundColor: "#C8D6FF", // Even darker on focus
+                          color: "#001A70", // Darker text on focus
+                          borderColor: "#001A70",
+                          outline: "2px solid rgba(0, 48, 170, 0.3)", // Focus ring
+                          outlineOffset: "2px",
+                        },
+                        "&:active": {
+                          backgroundColor: "#C0D0FF", // Darkest when pressed
+                          transform: "translateY(0px)", // Reset lift on click
+                        },
                       }}
                     >
+                      <ChatIcon fontSize="small" />
                       <Typography
                         sx={{
                           fontSize: "10px",
@@ -247,7 +292,6 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
                       >
                         Chat Now
                       </Typography>
-                      <ChatIcon fontSize="small" />
                     </CustomButton>
                     <CustomButton
                       size="small"
@@ -265,8 +309,31 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
                         flexDirection: "row",
                         gap: "5px",
                         paddingInline: "10px",
+                        cursor: "pointer",
+                        transition: "all 0.2s ease-in-out",
+                        backgroundColor: "#E0EAFF",
+                        color: "#0030AA",
+                        border: "1.5px solid #0030AA",
+                        "&:hover": {
+                          backgroundColor: "#D0DCFF", // Darker on hover
+                          color: "#001F80", // Slightly darker text
+                          borderColor: "#001F80",
+                          transform: "translateY(-1px)", // Subtle lift effect
+                        },
+                        "&:focus": {
+                          backgroundColor: "#C8D6FF", // Even darker on focus
+                          color: "#001A70", // Darker text on focus
+                          borderColor: "#001A70",
+                          outline: "2px solid rgba(0, 48, 170, 0.3)", // Focus ring
+                          outlineOffset: "2px",
+                        },
+                        "&:active": {
+                          backgroundColor: "#C0D0FF", // Darkest when pressed
+                          transform: "translateY(0px)", // Reset lift on click
+                        },
                       }}
                     >
+                      <PictureAsPdfIcon fontSize="small" />
                       <Typography
                         sx={{
                           fontSize: "10px",
@@ -275,7 +342,6 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
                       >
                         View Full PDF
                       </Typography>
-                      <PictureAsPdfIcon fontSize="small" />
                     </CustomButton>
                   </Box>
                 )}

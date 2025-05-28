@@ -1,5 +1,5 @@
 /**
- * TinyMCE version 7.1.1 (2024-05-22)
+ * TinyMCE version 7.7.2 (2025-03-19)
  */
 
 (function () {
@@ -484,8 +484,12 @@
     const trim$1 = blank(/^\s+|\s+$/g);
     const isNotEmpty = s => s.length > 0;
     const isEmpty = s => !isNotEmpty(s);
+    const toFloat = value => {
+      const num = parseFloat(value);
+      return isNaN(num) ? Optional.none() : Optional.some(num);
+    };
 
-    const isSupported$1 = dom => dom.style !== undefined && isFunction(dom.style.getPropertyValue);
+    const isSupported = dom => dom.style !== undefined && isFunction(dom.style.getPropertyValue);
 
     const fromHtml$2 = (html, scope) => {
       const doc = scope || document;
@@ -652,9 +656,7 @@
     };
 
     const isShadowRoot = dos => isDocumentFragment(dos) && isNonNullable(dos.dom.host);
-    const supported = isFunction(Element.prototype.attachShadow) && isFunction(Node.prototype.getRootNode);
-    const isSupported = constant$1(supported);
-    const getRootNode = supported ? e => SugarElement.fromDom(e.dom.getRootNode()) : documentOrOwner;
+    const getRootNode = e => SugarElement.fromDom(e.dom.getRootNode());
     const getContentContainer = dos => isShadowRoot(dos) ? dos : SugarElement.fromDom(documentOrOwner(dos).dom.body);
     const isInShadowRoot = e => getShadowRoot(e).isSome();
     const getShadowRoot = e => {
@@ -663,7 +665,7 @@
     };
     const getShadowHost = e => SugarElement.fromDom(e.dom.host);
     const getOriginalEventTarget = event => {
-      if (isSupported() && isNonNullable(event.target)) {
+      if (isNonNullable(event.target)) {
         const el = SugarElement.fromDom(event.target);
         if (isElement$1(el) && isOpenShadowHost(el)) {
           if (event.composed && event.composedPath) {
@@ -721,7 +723,7 @@
       const dom = element.dom;
       return dom && dom.hasAttribute ? dom.hasAttribute(key) : false;
     };
-    const remove$7 = (element, key) => {
+    const remove$8 = (element, key) => {
       element.dom.removeAttribute(key);
     };
     const clone$2 = element => foldl(element.dom.attributes, (acc, attr) => {
@@ -734,12 +736,12 @@
         console.error('Invalid call to CSS.set. Property ', property, ':: Value ', value, ':: Element ', dom);
         throw new Error('CSS value must be a string: ' + value);
       }
-      if (isSupported$1(dom)) {
+      if (isSupported(dom)) {
         dom.style.setProperty(property, value);
       }
     };
     const internalRemove = (dom, property) => {
-      if (isSupported$1(dom)) {
+      if (isSupported(dom)) {
         dom.style.removeProperty(property);
       }
     };
@@ -769,7 +771,7 @@
       const r = styles.getPropertyValue(property);
       return r === '' && !inBody(element) ? getUnsafeProperty(dom, property) : r;
     };
-    const getUnsafeProperty = (dom, property) => isSupported$1(dom) ? dom.style.getPropertyValue(property) : '';
+    const getUnsafeProperty = (dom, property) => isSupported(dom) ? dom.style.getPropertyValue(property) : '';
     const getRaw = (element, property) => {
       const dom = element.dom;
       const raw = getUnsafeProperty(dom, property);
@@ -778,7 +780,7 @@
     const getAllRaw = element => {
       const css = {};
       const dom = element.dom;
-      if (isSupported$1(dom)) {
+      if (isSupported(dom)) {
         for (let i = 0; i < dom.style.length; i++) {
           const ruleName = dom.style.item(i);
           css[ruleName] = dom.style[ruleName];
@@ -792,11 +794,11 @@
       const style = getRaw(element, property);
       return style.isSome();
     };
-    const remove$6 = (element, property) => {
+    const remove$7 = (element, property) => {
       const dom = element.dom;
       internalRemove(dom, property);
       if (is$1(getOpt(element, 'style').map(trim$1), '')) {
-        remove$7(element, 'style');
+        remove$8(element, 'style');
       }
     };
     const reflow = e => e.dom.offsetWidth;
@@ -807,7 +809,7 @@
           throw new Error(name + '.set accepts only positive integer values. Value was ' + h);
         }
         const dom = element.dom;
-        if (isSupported$1(dom)) {
+        if (isSupported(dom)) {
           dom.style[name] = h + 'px';
         }
       };
@@ -1248,7 +1250,7 @@
     const PlatformDetection = { detect: detect$2 };
 
     const mediaMatch = query => window.matchMedia(query).matches;
-    let platform = cached(() => PlatformDetection.detect(navigator.userAgent, Optional.from(navigator.userAgentData), mediaMatch));
+    let platform = cached(() => PlatformDetection.detect(window.navigator.userAgent, Optional.from(window.navigator.userAgentData), mediaMatch));
     const detect$1 = () => platform();
 
     const mkEvent = (target, x, y, stop, prevent, kill, raw) => ({
@@ -1328,10 +1330,10 @@
     const empty = element => {
       element.dom.textContent = '';
       each$1(children(element), rogue => {
-        remove$5(rogue);
+        remove$6(rogue);
       });
     };
-    const remove$5 = element => {
+    const remove$6 = element => {
       const dom = element.dom;
       if (dom.parentNode !== null) {
         dom.parentNode.removeChild(dom);
@@ -2005,7 +2007,6 @@
     const requiredNumber = key => requiredOf(key, number);
     const requiredString = key => requiredOf(key, string);
     const requiredStringEnum = (key, values) => field$1(key, key, required$2(), validateEnum(values));
-    const requiredBoolean = key => requiredOf(key, boolean);
     const requiredFunction = key => requiredOf(key, functionProcessor);
     const forbid = (key, message) => field$1(key, key, asOption(), value$2(_v => SimpleResult.serror('The field: ' + key + ' is forbidden. ' + message)));
     const requiredObjOf = (key, objSchema) => field$1(key, key, required$2(), objOf(objSchema));
@@ -2574,12 +2575,12 @@
       set$9(element, attr, nu.join(' '));
       return true;
     };
-    const remove$4 = (element, attr, id) => {
+    const remove$5 = (element, attr, id) => {
       const nu = filter$2(read$1(element, attr), v => v !== id);
       if (nu.length > 0) {
         set$9(element, attr, nu.join(' '));
       } else {
-        remove$7(element, attr);
+        remove$8(element, attr);
       }
       return false;
     };
@@ -2587,10 +2588,10 @@
     const supports = element => element.dom.classList !== undefined;
     const get$a = element => read$1(element, 'class');
     const add$3 = (element, clazz) => add$4(element, 'class', clazz);
-    const remove$3 = (element, clazz) => remove$4(element, 'class', clazz);
+    const remove$4 = (element, clazz) => remove$5(element, 'class', clazz);
     const toggle$5 = (element, clazz) => {
       if (contains$2(get$a(element), clazz)) {
-        return remove$3(element, clazz);
+        return remove$4(element, clazz);
       } else {
         return add$3(element, clazz);
       }
@@ -2606,15 +2607,15 @@
     const cleanClass = element => {
       const classList = supports(element) ? element.dom.classList : get$a(element);
       if (classList.length === 0) {
-        remove$7(element, 'class');
+        remove$8(element, 'class');
       }
     };
-    const remove$2 = (element, clazz) => {
+    const remove$3 = (element, clazz) => {
       if (supports(element)) {
         const classList = element.dom.classList;
         classList.remove(clazz);
       } else {
-        remove$3(element, clazz);
+        remove$4(element, clazz);
       }
       cleanClass(element);
     };
@@ -2630,9 +2631,9 @@
         add$2(element, x);
       });
     };
-    const remove$1 = (element, classes) => {
+    const remove$2 = (element, classes) => {
       each$1(classes, x => {
-        remove$2(element, x);
+        remove$3(element, x);
       });
     };
     const toggle$3 = (element, classes) => {
@@ -2680,7 +2681,7 @@
         return parent(element).bind(parent => {
           append$2(parent, marker);
           const offsetParent$1 = offsetParent(marker);
-          remove$5(marker);
+          remove$6(marker);
           return offsetParent$1;
         });
       });
@@ -2690,14 +2691,14 @@
     const appear = (component, contextualInfo) => {
       const elem = component.element;
       add$2(elem, contextualInfo.transitionClass);
-      remove$2(elem, contextualInfo.fadeOutClass);
+      remove$3(elem, contextualInfo.fadeOutClass);
       add$2(elem, contextualInfo.fadeInClass);
       contextualInfo.onShow(component);
     };
     const disappear = (component, contextualInfo) => {
       const elem = component.element;
       add$2(elem, contextualInfo.transitionClass);
-      remove$2(elem, contextualInfo.fadeInClass);
+      remove$3(elem, contextualInfo.fadeInClass);
       add$2(elem, contextualInfo.fadeOutClass);
       contextualInfo.onHide(component);
     };
@@ -2865,7 +2866,7 @@
         'top',
         'bottom',
         'position'
-      ], prop => remove$6(component.element, prop));
+      ], prop => remove$7(component.element, prop));
       config.onUndocked(component);
     };
     const morphToCoord = (component, config, state, position) => {
@@ -2934,7 +2935,7 @@
       });
       state.setVisible(true);
       config.contextual.each(contextInfo => {
-        remove$1(elem, [
+        remove$2(elem, [
           contextInfo.fadeInClass,
           contextInfo.fadeOutClass,
           contextInfo.transitionClass
@@ -2981,7 +2982,7 @@
       runOnSource(transitionend(), (component, simulatedEvent) => {
         dockInfo.contextual.each(contextInfo => {
           if (has(component.element, contextInfo.transitionClass)) {
-            remove$1(component.element, [
+            remove$2(component.element, [
               contextInfo.transitionClass,
               contextInfo.fadeInClass
             ]);
@@ -3269,13 +3270,26 @@
         events: events$h
     });
 
+    const cycleBy = (value, delta, min, max) => {
+      const r = value + delta;
+      if (r > max) {
+        return min;
+      } else if (r < min) {
+        return max;
+      } else {
+        return r;
+      }
+    };
+    const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+    const random = () => window.crypto.getRandomValues(new Uint32Array(1))[0] / 4294967295;
+
     let unique = 0;
     const generate$6 = prefix => {
       const date = new Date();
       const time = date.getTime();
-      const random = Math.floor(Math.random() * 1000000000);
+      const random$1 = Math.floor(random() * 1000000000);
       unique++;
-      return prefix + '_' + random + unique + String(time);
+      return prefix + '_' + random$1 + unique + String(time);
     };
 
     const prefix$1 = constant$1('alloy-id-');
@@ -3527,7 +3541,8 @@
           baseBehaviour,
           'disabling',
           'toggling',
-          'representing'
+          'representing',
+          'tooltipping'
         ],
         [input()]: [
           baseBehaviour,
@@ -3599,14 +3614,14 @@
       obsoleted.fold(() => append$2(parent, child), obs => {
         if (!eq(obs, child)) {
           before$1(obs, child);
-          remove$5(obs);
+          remove$6(obs);
         }
       });
     };
     const patchChildrenWith = (parent, nu, f) => {
       const builtChildren = map$2(nu, f);
       const currentChildren = children(parent);
-      each$1(currentChildren.slice(builtChildren.length), remove$5);
+      each$1(currentChildren.slice(builtChildren.length), remove$6);
       return builtChildren;
     };
     const patchSpecChild = (parent, index, spec, build) => {
@@ -3646,7 +3661,7 @@
         toRemove: attrsToRemove
       } = diffKeyValueSet(definition.attributes, existingAttributes);
       const updateAttrs = () => {
-        each$1(attrsToRemove, a => remove$7(obsoleted, a));
+        each$1(attrsToRemove, a => remove$8(obsoleted, a));
         setAll$1(obsoleted, attrsToSet);
       };
       const existingStyles = getAllRaw(obsoleted);
@@ -3655,7 +3670,7 @@
         toRemove: stylesToRemove
       } = diffKeyValueSet(definition.styles, existingStyles);
       const updateStyles = () => {
-        each$1(stylesToRemove, s => remove$6(obsoleted, s));
+        each$1(stylesToRemove, s => remove$7(obsoleted, s));
         setAll(obsoleted, stylesToSet);
       };
       const existingClasses = get$9(obsoleted);
@@ -3663,7 +3678,7 @@
       const classesToAdd = difference(definition.classes, existingClasses);
       const updateClasses = () => {
         add$1(obsoleted, classesToAdd);
-        remove$1(obsoleted, classesToRemove);
+        remove$2(obsoleted, classesToRemove);
       };
       const updateHtml = html => {
         set$6(obsoleted, html);
@@ -3704,7 +3719,7 @@
       try {
         const e = reconcileToDom(definition, obsoleted);
         return Optional.some(e);
-      } catch (err) {
+      } catch (_a) {
         return Optional.none();
       }
     };
@@ -3949,7 +3964,7 @@
         set$9(elem, attribute, ariaId);
       };
       const unlink = elem => {
-        remove$7(elem, attribute);
+        remove$8(elem, attribute);
       };
       return {
         id: ariaId,
@@ -3993,18 +4008,6 @@
     const north$3 = adt$a.north;
     const east$3 = adt$a.east;
     const west$3 = adt$a.west;
-
-    const cycleBy = (value, delta, min, max) => {
-      const r = value + delta;
-      if (r > max) {
-        return min;
-      } else if (r < min) {
-        return max;
-      } else {
-        return r;
-      }
-    };
-    const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
     const getRestriction = (anchor, restriction) => {
       switch (restriction) {
@@ -4265,7 +4268,7 @@
       set$9(element, placementAttribute, placement);
     };
     const getPlacement = element => getOpt(element, placementAttribute);
-    const reset$1 = element => remove$7(element, placementAttribute);
+    const reset$1 = element => remove$8(element, placementAttribute);
 
     const adt$8 = Adt.generate([
       { fit: ['reposition'] },
@@ -4450,8 +4453,8 @@
           const type = e === null || e === void 0 ? void 0 : e.raw.type;
           if (isNullable(type) || type === transitionend()) {
             clearTimeout(timer);
-            remove$7(element, timerAttr);
-            remove$1(element, transition.classes);
+            remove$8(element, timerAttr);
+            remove$2(element, transition.classes);
           }
         }
       };
@@ -4472,7 +4475,7 @@
       add$1(element, transition.classes);
       getOpt(element, timerAttr).each(timerId => {
         clearTimeout(parseInt(timerId, 10));
-        remove$7(element, timerAttr);
+        remove$8(element, timerAttr);
       });
       setupTransitionListeners(element, transition);
     };
@@ -4494,7 +4497,7 @@
           reflow(element);
         }
       } else {
-        remove$1(element, transition.classes);
+        remove$2(element, transition.classes);
       }
     };
 
@@ -4503,14 +4506,14 @@
       height: getOuter$2(p)
     });
     const layout = (anchorBox, element, bubbles, options) => {
-      remove$6(element, 'max-height');
-      remove$6(element, 'max-width');
+      remove$7(element, 'max-height');
+      remove$7(element, 'max-width');
       const elementBox = elementSize(element);
       return attempts(element, options.preference, anchorBox, elementBox, bubbles, options.bounds);
     };
     const setClasses = (element, decision) => {
       const classInfo = decision.classes;
-      remove$1(element, classInfo.off);
+      remove$2(element, classInfo.off);
       add$1(element, classInfo.on);
     };
     const setHeight = (element, decision, options) => {
@@ -5131,7 +5134,7 @@
             const zeroWidth$1 = SugarElement.fromText(zeroWidth);
             before$1(sel.start, zeroWidth$1);
             const rect = getFirstRect(win, SimSelection.exact(zeroWidth$1, 0, zeroWidth$1, 1));
-            remove$5(zeroWidth$1);
+            remove$6(zeroWidth$1);
             return rect;
           });
           return optRect.bind(rawRect => {
@@ -5277,12 +5280,12 @@
           posState.set(placee.uid, newState);
         });
         oldVisibility.fold(() => {
-          remove$6(element, 'visibility');
+          remove$7(element, 'visibility');
         }, vis => {
           set$8(element, 'visibility', vis);
         });
         if (getRaw(element, 'left').isNone() && getRaw(element, 'top').isNone() && getRaw(element, 'right').isNone() && getRaw(element, 'bottom').isNone() && is$1(getRaw(element, 'position'), 'fixed')) {
-          remove$6(element, 'position');
+          remove$7(element, 'position');
         }
       }, element);
     };
@@ -5295,7 +5298,7 @@
         'right',
         'top',
         'bottom'
-      ], prop => remove$6(element, prop));
+      ], prop => remove$7(element, prop));
       reset$1(element);
       posState.clear(placee.uid);
     };
@@ -5367,7 +5370,7 @@
       append$2(parent.element, child.element);
     };
     const detachChildren$1 = component => {
-      each$1(component.components(), childComp => remove$5(childComp.element));
+      each$1(component.components(), childComp => remove$6(childComp.element));
       empty(component.element);
       component.syncComponents();
     };
@@ -5429,7 +5432,7 @@
     };
     const doDetach = component => {
       fireDetaching(component);
-      remove$5(component.element);
+      remove$6(component.element);
       component.getSystem().removeFromWorld(component);
     };
     const detach = component => {
@@ -5463,7 +5466,7 @@
       each$1(children$1, child => {
         guiSystem.getByDom(child).each(fireDetaching);
       });
-      remove$5(guiSystem.element);
+      remove$6(guiSystem.element);
     };
 
     const rebuild = (sandbox, sConfig, sState, data) => {
@@ -5502,14 +5505,14 @@
     const getState$2 = (_sandbox, _sConfig, sState) => sState.get();
     const store = (sandbox, cssKey, attr, newValue) => {
       getRaw(sandbox.element, cssKey).fold(() => {
-        remove$7(sandbox.element, attr);
+        remove$8(sandbox.element, attr);
       }, v => {
         set$9(sandbox.element, attr, v);
       });
       set$8(sandbox.element, cssKey, newValue);
     };
     const restore = (sandbox, cssKey, attr) => {
-      getOpt(sandbox.element, attr).fold(() => remove$6(sandbox.element, cssKey), oldValue => set$8(sandbox.element, cssKey, oldValue));
+      getOpt(sandbox.element, attr).fold(() => remove$7(sandbox.element, cssKey), oldValue => set$8(sandbox.element, cssKey, oldValue));
     };
     const cloak = (sandbox, sConfig, _sState) => {
       const sink = sConfig.getAttachPoint(sandbox);
@@ -5524,7 +5527,7 @@
     ], pos => getRaw(element, pos).isSome());
     const decloak = (sandbox, sConfig, _sState) => {
       if (!hasPosition(sandbox.element)) {
-        remove$6(sandbox.element, 'position');
+        remove$7(sandbox.element, 'position');
       }
       restore(sandbox, 'visibility', sConfig.cloakVisibilityAttr);
     };
@@ -6249,7 +6252,7 @@
       set$9(component.element, 'disabled', 'disabled');
     };
     const nativeEnable = component => {
-      remove$7(component.element, 'disabled');
+      remove$8(component.element, 'disabled');
     };
     const ariaIsDisabled = component => get$g(component.element, 'aria-disabled') === 'true';
     const ariaDisable = component => {
@@ -6268,13 +6271,13 @@
     };
     const enable = (component, disableConfig, _disableState) => {
       disableConfig.disableClass.each(disableClass => {
-        remove$2(component.element, disableClass);
+        remove$3(component.element, disableClass);
       });
       const f = hasNative(component, disableConfig) ? nativeEnable : ariaEnable;
       f(component);
       disableConfig.onEnabled(component);
     };
-    const isDisabled = (component, disableConfig) => hasNative(component, disableConfig) ? nativeIsDisabled(component) : ariaIsDisabled(component);
+    const isDisabled$1 = (component, disableConfig) => hasNative(component, disableConfig) ? nativeIsDisabled(component) : ariaIsDisabled(component);
     const set$4 = (component, disableConfig, disableState, disabled) => {
       const f = disabled ? disable : enable;
       f(component, disableConfig);
@@ -6284,14 +6287,14 @@
         __proto__: null,
         enable: enable,
         disable: disable,
-        isDisabled: isDisabled,
+        isDisabled: isDisabled$1,
         onLoad: onLoad$1,
         set: set$4
     });
 
     const exhibit$5 = (base, disableConfig) => nu$8({ classes: disableConfig.disabled() ? disableConfig.disableClass.toArray() : [] });
     const events$d = (disableConfig, disableState) => derive$2([
-      abort(execute$5(), (component, _simulatedEvent) => isDisabled(component, disableConfig)),
+      abort(execute$5(), (component, _simulatedEvent) => isDisabled$1(component, disableConfig)),
       loadEvent(disableConfig, disableState, onLoad$1)
     ]);
 
@@ -6321,7 +6324,7 @@
       each$1(highlighted, h => {
         const shouldSkip = exists(skip, skipComp => eq(skipComp.element, h));
         if (!shouldSkip) {
-          remove$2(h, hConfig.highlightClass);
+          remove$3(h, hConfig.highlightClass);
           component.getSystem().getByDom(h).each(target => {
             hConfig.onDehighlight(component, target);
             emit(target, dehighlight$1());
@@ -6332,7 +6335,7 @@
     const dehighlightAll = (component, hConfig, hState) => dehighlightAllExcept(component, hConfig, hState, []);
     const dehighlight = (component, hConfig, hState, target) => {
       if (isHighlighted(component, hConfig, hState, target)) {
-        remove$2(target.element, hConfig.highlightClass);
+        remove$3(target.element, hConfig.highlightClass);
         hConfig.onDehighlight(component, target);
         emit(target, dehighlight$1());
       }
@@ -6609,7 +6612,7 @@
         return Optional.some(true);
       });
       const go = (component, _simulatedEvent, tabbingConfig, cycle) => {
-        const tabstops = descendants(component.element, tabbingConfig.selector);
+        const tabstops = filter$2(descendants(component.element, tabbingConfig.selector), element => isVisible(tabbingConfig, element));
         return findCurrent(component, tabbingConfig).bind(tabstop => {
           const optStopIndex = findIndex$1(tabstops, curry(eq, tabstop));
           return optStopIndex.bind(stopIndex => goFromTabstop(component, tabstops, stopIndex, tabbingConfig, cycle));
@@ -6790,7 +6793,7 @@
       defaulted('captureTab', false),
       initSize()
     ];
-    const focusIn$3 = (component, gridConfig, _gridState) => {
+    const focusIn$4 = (component, gridConfig, _gridState) => {
       descendant(component.element, gridConfig.selector).each(first => {
         gridConfig.focusManager.set(component, first);
       });
@@ -6823,7 +6826,7 @@
       rule(inSet(ESCAPE), doEscape$1),
       rule(inSet(SPACE), stopEventForFirefox)
     ]);
-    var FlatgridType = typical(schema$u, flatgrid$1, getKeydownRules$4, getKeyupRules$4, () => Optional.some(focusIn$3));
+    var FlatgridType = typical(schema$u, flatgrid$1, getKeydownRules$4, getKeyupRules$4, () => Optional.some(focusIn$4));
 
     const f = (container, selector, current, delta, getNewIndex) => {
       const isDisabledButton = candidate => name$3(candidate) === 'button' && get$g(candidate, 'disabled') === 'disabled';
@@ -6855,7 +6858,7 @@
     ];
     const findCurrent = (component, flowConfig) => flowConfig.focusManager.get(component).bind(elem => closest$1(elem, flowConfig.selector));
     const execute$2 = (component, simulatedEvent, flowConfig) => findCurrent(component, flowConfig).bind(focused => flowConfig.execute(component, simulatedEvent, focused));
-    const focusIn$2 = (component, flowConfig, _state) => {
+    const focusIn$3 = (component, flowConfig, _state) => {
       flowConfig.getInitial(component).orThunk(() => descendant(component.element, flowConfig.selector)).each(first => {
         flowConfig.focusManager.set(component, first);
       });
@@ -6878,7 +6881,7 @@
       rule(inSet(SPACE), stopEventForFirefox),
       rule(inSet(ESCAPE), doEscape)
     ]);
-    var FlowType = typical(schema$t, NoState.init, getKeydownRules$3, getKeyupRules$3, () => Optional.some(focusIn$2));
+    var FlowType = typical(schema$t, NoState.init, getKeydownRules$3, getKeyupRules$3, () => Optional.some(focusIn$3));
 
     const toCell = (matrix, rowIndex, columnIndex) => Optional.from(matrix[rowIndex]).bind(row => Optional.from(row[columnIndex]).map(cell => ({
       rowIndex,
@@ -6927,7 +6930,7 @@
       defaulted('previousSelector', Optional.none),
       defaulted('execute', defaultExecute)
     ];
-    const focusIn$1 = (component, matrixConfig, _state) => {
+    const focusIn$2 = (component, matrixConfig, _state) => {
       const focused = matrixConfig.previousSelector(component).orThunk(() => {
         const selectors = matrixConfig.selectors;
         return descendant(component.element, selectors.cell);
@@ -6963,7 +6966,7 @@
       rule(inSet(SPACE.concat(ENTER)), execute$1)
     ]);
     const getKeyupRules$2 = constant$1([rule(inSet(SPACE), stopEventForFirefox)]);
-    var MatrixType = typical(schema$s, NoState.init, getKeydownRules$2, getKeyupRules$2, () => Optional.some(focusIn$1));
+    var MatrixType = typical(schema$s, NoState.init, getKeydownRules$2, getKeyupRules$2, () => Optional.some(focusIn$2));
 
     const schema$r = [
       required$1('selector'),
@@ -6971,7 +6974,7 @@
       defaulted('moveOnTab', false)
     ];
     const execute = (component, simulatedEvent, menuConfig) => menuConfig.focusManager.get(component).bind(focused => menuConfig.execute(component, simulatedEvent, focused));
-    const focusIn = (component, menuConfig, _state) => {
+    const focusIn$1 = (component, menuConfig, _state) => {
       descendant(component.element, menuConfig.selector).each(first => {
         menuConfig.focusManager.set(component, first);
       });
@@ -6995,7 +6998,7 @@
       rule(inSet(SPACE), execute)
     ]);
     const getKeyupRules$1 = constant$1([rule(inSet(SPACE), stopEventForFirefox)]);
-    var MenuType = typical(schema$r, NoState.init, getKeydownRules$1, getKeyupRules$1, () => Optional.some(focusIn));
+    var MenuType = typical(schema$r, NoState.init, getKeydownRules$1, getKeyupRules$1, () => Optional.some(focusIn$1));
 
     const schema$q = [
       onKeyboardHandler('onSpace'),
@@ -7129,7 +7132,7 @@
     const prepend = (component, replaceConfig, replaceState, prependee) => {
       insert(component, prepend$1, prependee);
     };
-    const remove = (component, replaceConfig, replaceState, removee) => {
+    const remove$1 = (component, replaceConfig, replaceState, removee) => {
       const children = contents(component);
       const foundChild = find$5(children, child => eq(removee.element, child.element));
       foundChild.each(detach);
@@ -7154,7 +7157,7 @@
         __proto__: null,
         append: append,
         prepend: prepend,
-        remove: remove,
+        remove: remove$1,
         replaceAt: replaceAt,
         replaceBy: replaceBy,
         set: set$3,
@@ -7265,7 +7268,7 @@
         if (toggleState.get()) {
           add$2(component.element, toggleClass);
         } else {
-          remove$2(component.element, toggleClass);
+          remove$3(component.element, toggleClass);
         }
       });
     };
@@ -7406,9 +7409,9 @@
     const focus$1 = constant$1(focusEvent);
     const toggled = constant$1(toggledEvent);
 
-    const getItemRole = detail => detail.toggling.map(toggling => toggling.exclusive ? 'menuitemradio' : 'menuitemcheckbox').getOr('menuitem');
-    const getTogglingSpec = tConfig => ({
-      aria: { mode: 'checked' },
+    const getItemRole = detail => detail.role.fold(() => detail.toggling.map(toggling => toggling.exclusive ? 'menuitemradio' : 'menuitemcheckbox').getOr('menuitem'), identity);
+    const getTogglingSpec = (tConfig, isOption) => ({
+      aria: { mode: isOption ? 'selected' : 'checked' },
       ...filter$1(tConfig, (_value, name) => name !== 'exclusive'),
       onToggled: (component, state) => {
         if (isFunction(tConfig.onToggled)) {
@@ -7429,7 +7432,7 @@
         }
       },
       behaviours: SketchBehaviours.augment(detail.itemBehaviours, [
-        detail.toggling.fold(Toggling.revoke, tConfig => Toggling.config(getTogglingSpec(tConfig))),
+        detail.toggling.fold(Toggling.revoke, tConfig => Toggling.config(getTogglingSpec(tConfig, detail.role.exists(role => role === 'option')))),
         Focusing.config({
           ignore: detail.ignoreFocus,
           stopMousedown: detail.ignoreFocus,
@@ -7459,6 +7462,7 @@
       required$1('dom'),
       defaulted('hasSubmenu', false),
       option$3('toggling'),
+      option$3('role'),
       SketchBehaviours.field('itemBehaviours', [
         Toggling,
         Focusing,
@@ -7639,6 +7643,7 @@
         }
       })]);
     const schema$m = constant$1([
+      optionString('role'),
       required$1('value'),
       required$1('items'),
       required$1('dom'),
@@ -7673,7 +7678,7 @@
       defaulted('focusManager', dom$2()),
       onHandler('onHighlight'),
       onHandler('onDehighlight'),
-      defaulted('menuRole', true)
+      defaulted('showMenuRole', true)
     ]);
 
     const focus = constant$1('alloy.menu-focus');
@@ -7733,7 +7738,7 @@
       ]),
       components,
       eventOrder: detail.eventOrder,
-      ...detail.menuRole ? { domModification: { attributes: { role: 'menu' } } } : {}
+      ...detail.showMenuRole ? { domModification: { attributes: { role: detail.role.getOr('menu') } } } : {}
     });
 
     const Menu = composite({
@@ -7918,7 +7923,7 @@
       const closeOthers = (container, state, path) => {
         const others = getMenus(state, state.otherMenus(path));
         each$1(others, o => {
-          remove$1(o.element, [detail.markers.backgroundMenu]);
+          remove$2(o.element, [detail.markers.backgroundMenu]);
           if (!detail.stayInDom) {
             Replacing.remove(container, o);
           }
@@ -7956,7 +7961,7 @@
           if (!inBody(activeMenu.element)) {
             Replacing.append(container, premade(activeMenu));
           }
-          remove$1(activeMenu.element, [detail.markers.backgroundMenu]);
+          remove$2(activeMenu.element, [detail.markers.backgroundMenu]);
           setActiveMenuAndItem(container, activeMenu);
           closeOthers(container, state, path);
           return Optional.some(activeMenu);
@@ -8430,7 +8435,7 @@
     }(ToolbarLocation$1 || (ToolbarLocation$1 = {})));
     const option$2 = name => editor => editor.options.get(name);
     const wrapOptional = fn => editor => Optional.from(fn(editor));
-    const register$e = editor => {
+    const register$f = editor => {
       const isPhone = global$6.deviceType.isPhone();
       const isMobile = global$6.deviceType.isTablet() || isPhone;
       const registerOption = editor.options.register;
@@ -8600,6 +8605,7 @@
       });
     };
     const isReadOnly = option$2('readonly');
+    const isDisabled = option$2('disabled');
     const getHeightOption = option$2('height');
     const getWidthOption = option$2('width');
     const getMinWidthOption = wrapOptional(option$2('min_width'));
@@ -8637,6 +8643,7 @@
     const promotionEnabled = option$2('promotion');
     const useHelpAccessibility = option$2('help_accessibility');
     const getDefaultFontStack = option$2('default_font_stack');
+    const getSkin = option$2('skin');
     const isSkinDisabled = editor => editor.options.get('skin') === false;
     const isMenubarEnabled = editor => editor.options.get('menubar') !== false;
     const getSkinUrl = editor => {
@@ -8708,10 +8715,12 @@
         __proto__: null,
         get ToolbarMode () { return ToolbarMode$1; },
         get ToolbarLocation () { return ToolbarLocation$1; },
-        register: register$e,
+        register: register$f,
         getSkinUrl: getSkinUrl,
         getSkinUrlOption: getSkinUrlOption,
         isReadOnly: isReadOnly,
+        isDisabled: isDisabled,
+        getSkin: getSkin,
         isSkinDisabled: isSkinDisabled,
         getHeightOption: getHeightOption,
         getWidthOption: getWidthOption,
@@ -8777,21 +8786,23 @@
         return false;
       }
     };
-    const detect = popupSinkElem => {
+    const isFullscreen = editor => editor.plugins.fullscreen && editor.plugins.fullscreen.isFullscreen();
+    const detect = (editor, popupSinkElem) => {
       const ancestorsScrollers = ancestors(popupSinkElem, isScroller);
       const scrollers = ancestorsScrollers.length === 0 ? getShadowRoot(popupSinkElem).map(getShadowHost).map(x => ancestors(x, isScroller)).getOr([]) : ancestorsScrollers;
       return head(scrollers).map(element => ({
         element,
-        others: scrollers.slice(1)
+        others: scrollers.slice(1),
+        isFullscreen: () => isFullscreen(editor)
       }));
     };
-    const detectWhenSplitUiMode = (editor, popupSinkElem) => isSplitUiMode(editor) ? detect(popupSinkElem) : Optional.none();
+    const detectWhenSplitUiMode = (editor, popupSinkElem) => isSplitUiMode(editor) ? detect(editor, popupSinkElem) : Optional.none();
     const getBoundsFrom = sc => {
       const scrollableBoxes = [
         ...map$2(sc.others, box$1),
         win()
       ];
-      return constrainByMany(box$1(sc.element), scrollableBoxes);
+      return sc.isFullscreen() ? win() : constrainByMany(box$1(sc.element), scrollableBoxes);
     };
 
     const factory$n = detail => {
@@ -8917,18 +8928,24 @@
     const hideAllExclusive = (component, _tConfig, _tState) => {
       component.getSystem().broadcastOn([ExclusivityChannel], {});
     };
-    const setComponents = (component, tConfig, tState, specs) => {
+    const setComponents = (_component, _tConfig, tState, specs) => {
       tState.getTooltip().each(tooltip => {
         if (tooltip.getSystem().isConnected()) {
           Replacing.set(tooltip, specs);
         }
       });
     };
+    const isEnabled = (_component, _tConfig, tState) => tState.isEnabled();
+    const setEnabled = (_component, _tConfig, tState, enabled) => tState.setEnabled(enabled);
+    const immediateOpenClose = (component, _tConfig, _tState, open) => emit(component, open ? ImmediateShowTooltipEvent : ImmediateHideTooltipEvent);
 
     var TooltippingApis = /*#__PURE__*/Object.freeze({
         __proto__: null,
         hideAllExclusive: hideAllExclusive,
-        setComponents: setComponents
+        immediateOpenClose: immediateOpenClose,
+        isEnabled: isEnabled,
+        setComponents: setComponents,
+        setEnabled: setEnabled
     });
 
     const events$8 = (tooltipConfig, state) => {
@@ -8943,7 +8960,7 @@
         state.clearTimer();
       };
       const show = comp => {
-        if (!state.isShowing()) {
+        if (!state.isShowing() && state.isEnabled()) {
           hideAllExclusive(comp);
           const sink = tooltipConfig.lazySink(comp).getOrDie();
           const popup = comp.getSystem().build({
@@ -9062,6 +9079,9 @@
       };
       return derive$2(flatten([
         [
+          runOnInit(component => {
+            tooltipConfig.onSetup(component);
+          }),
           run$1(ShowTooltipEvent, comp => {
             state.resetTimer(() => {
               show(comp);
@@ -9109,7 +9129,8 @@
       defaulted('exclusive', true),
       defaulted('tooltipComponents', []),
       defaultedFunction('delayForShow', constant$1(300)),
-      defaultedFunction('delayForHide', constant$1(300)),
+      defaultedFunction('delayForHide', constant$1(100)),
+      defaultedFunction('onSetup', noop),
       defaultedStringEnum('mode', 'normal', [
         'normal',
         'follow-highlight',
@@ -9144,6 +9165,7 @@
     ];
 
     const init$a = () => {
+      const enabled = Cell(true);
       const timer = value$4();
       const popup = value$4();
       const clearTimer = () => {
@@ -9161,7 +9183,9 @@
         clearTooltip: popup.clear,
         clearTimer,
         resetTimer,
-        readState
+        readState,
+        isEnabled: () => enabled.get(),
+        setEnabled: setToEnabled => enabled.set(setToEnabled)
       });
     };
 
@@ -9178,14 +9202,24 @@
       apis: TooltippingApis
     });
 
-    const {entries, setPrototypeOf, isFrozen, getPrototypeOf, getOwnPropertyDescriptor} = Object;
-    let {freeze, seal, create: create$1} = Object;
-    let {apply, construct} = typeof Reflect !== 'undefined' && Reflect;
-    if (!apply) {
-      apply = function apply(fun, thisValue, args) {
-        return fun.apply(thisValue, args);
-      };
-    }
+    /*! @license DOMPurify 3.2.4 | (c) Cure53 and other contributors | Released under the Apache license 2.0 and Mozilla Public License 2.0 | github.com/cure53/DOMPurify/blob/3.2.4/LICENSE */
+
+    const {
+      entries,
+      setPrototypeOf,
+      isFrozen,
+      getPrototypeOf,
+      getOwnPropertyDescriptor
+    } = Object;
+    let {
+      freeze,
+      seal,
+      create: create$1
+    } = Object; // eslint-disable-line import/no-mutable-exports
+    let {
+      apply,
+      construct
+    } = typeof Reflect !== 'undefined' && Reflect;
     if (!freeze) {
       freeze = function freeze(x) {
         return x;
@@ -9196,22 +9230,36 @@
         return x;
       };
     }
+    if (!apply) {
+      apply = function apply(fun, thisValue, args) {
+        return fun.apply(thisValue, args);
+      };
+    }
     if (!construct) {
       construct = function construct(Func, args) {
         return new Func(...args);
       };
     }
     const arrayForEach = unapply(Array.prototype.forEach);
+    const arrayLastIndexOf = unapply(Array.prototype.lastIndexOf);
     const arrayPop = unapply(Array.prototype.pop);
     const arrayPush = unapply(Array.prototype.push);
+    const arraySplice = unapply(Array.prototype.splice);
     const stringToLowerCase = unapply(String.prototype.toLowerCase);
     const stringToString = unapply(String.prototype.toString);
     const stringMatch = unapply(String.prototype.match);
     const stringReplace = unapply(String.prototype.replace);
     const stringIndexOf = unapply(String.prototype.indexOf);
     const stringTrim = unapply(String.prototype.trim);
+    const objectHasOwnProperty = unapply(Object.prototype.hasOwnProperty);
     const regExpTest = unapply(RegExp.prototype.test);
     const typeErrorCreate = unconstruct(TypeError);
+    /**
+     * Creates a new function that calls the given function with a specified thisArg and arguments.
+     *
+     * @param func - The function to be wrapped and called.
+     * @returns A new function that calls the given function with a specified thisArg and arguments.
+     */
     function unapply(func) {
       return function (thisArg) {
         for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -9220,6 +9268,12 @@
         return apply(func, thisArg, args);
       };
     }
+    /**
+     * Creates a new function that constructs an instance of the given constructor function with the provided arguments.
+     *
+     * @param func - The constructor function to be wrapped and called.
+     * @returns A new function that constructs an instance of the given constructor function with the provided arguments.
+     */
     function unconstruct(func) {
       return function () {
         for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
@@ -9228,10 +9282,20 @@
         return construct(func, args);
       };
     }
-    function addToSet(set, array, transformCaseFunc) {
-      var _transformCaseFunc;
-      transformCaseFunc = (_transformCaseFunc = transformCaseFunc) !== null && _transformCaseFunc !== void 0 ? _transformCaseFunc : stringToLowerCase;
+    /**
+     * Add properties to a lookup table
+     *
+     * @param set - The set to which elements will be added.
+     * @param array - The array containing elements to be added to the set.
+     * @param transformCaseFunc - An optional function to transform the case of each element before adding to the set.
+     * @returns The modified set with added elements.
+     */
+    function addToSet(set, array) {
+      let transformCaseFunc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : stringToLowerCase;
       if (setPrototypeOf) {
+        // Make 'in' and truthy checks like Boolean(set.constructor)
+        // independent of any properties defined on Object.prototype.
+        // Prevent prototype setters from intercepting set as a this value.
         setPrototypeOf(set, null);
       }
       let l = array.length;
@@ -9240,6 +9304,7 @@
         if (typeof element === 'string') {
           const lcElement = transformCaseFunc(element);
           if (lcElement !== element) {
+            // Config presets (e.g. tags.js, attrs.js) are immutable.
             if (!isFrozen(array)) {
               array[l] = lcElement;
             }
@@ -9250,13 +9315,50 @@
       }
       return set;
     }
+    /**
+     * Clean up an array to harden against CSPP
+     *
+     * @param array - The array to be cleaned.
+     * @returns The cleaned version of the array
+     */
+    function cleanArray(array) {
+      for (let index = 0; index < array.length; index++) {
+        const isPropertyExist = objectHasOwnProperty(array, index);
+        if (!isPropertyExist) {
+          array[index] = null;
+        }
+      }
+      return array;
+    }
+    /**
+     * Shallow clone an object
+     *
+     * @param object - The object to be cloned.
+     * @returns A new object that copies the original.
+     */
     function clone(object) {
       const newObject = create$1(null);
       for (const [property, value] of entries(object)) {
-        newObject[property] = value;
+        const isPropertyExist = objectHasOwnProperty(object, property);
+        if (isPropertyExist) {
+          if (Array.isArray(value)) {
+            newObject[property] = cleanArray(value);
+          } else if (value && typeof value === 'object' && value.constructor === Object) {
+            newObject[property] = clone(value);
+          } else {
+            newObject[property] = value;
+          }
+        }
       }
       return newObject;
     }
+    /**
+     * This method automatically checks if the prop is function or getter and behaves accordingly.
+     *
+     * @param object - The object to look up the getter function in its prototype chain.
+     * @param prop - The property name for which to find the getter function.
+     * @returns The getter function found in the prototype chain or a fallback function.
+     */
     function lookupGetter(object, prop) {
       while (object !== null) {
         const desc = getOwnPropertyDescriptor(object, prop);
@@ -9270,660 +9372,95 @@
         }
         object = getPrototypeOf(object);
       }
-      function fallbackValue(element) {
-        console.warn('fallback value for', element);
+      function fallbackValue() {
         return null;
       }
       return fallbackValue;
     }
-    const html$1 = freeze([
-      'a',
-      'abbr',
-      'acronym',
-      'address',
-      'area',
-      'article',
-      'aside',
-      'audio',
-      'b',
-      'bdi',
-      'bdo',
-      'big',
-      'blink',
-      'blockquote',
-      'body',
-      'br',
-      'button',
-      'canvas',
-      'caption',
-      'center',
-      'cite',
-      'code',
-      'col',
-      'colgroup',
-      'content',
-      'data',
-      'datalist',
-      'dd',
-      'decorator',
-      'del',
-      'details',
-      'dfn',
-      'dialog',
-      'dir',
-      'div',
-      'dl',
-      'dt',
-      'element',
-      'em',
-      'fieldset',
-      'figcaption',
-      'figure',
-      'font',
-      'footer',
-      'form',
-      'h1',
-      'h2',
-      'h3',
-      'h4',
-      'h5',
-      'h6',
-      'head',
-      'header',
-      'hgroup',
-      'hr',
-      'html',
-      'i',
-      'img',
-      'input',
-      'ins',
-      'kbd',
-      'label',
-      'legend',
-      'li',
-      'main',
-      'map',
-      'mark',
-      'marquee',
-      'menu',
-      'menuitem',
-      'meter',
-      'nav',
-      'nobr',
-      'ol',
-      'optgroup',
-      'option',
-      'output',
-      'p',
-      'picture',
-      'pre',
-      'progress',
-      'q',
-      'rp',
-      'rt',
-      'ruby',
-      's',
-      'samp',
-      'section',
-      'select',
-      'shadow',
-      'small',
-      'source',
-      'spacer',
-      'span',
-      'strike',
-      'strong',
-      'style',
-      'sub',
-      'summary',
-      'sup',
-      'table',
-      'tbody',
-      'td',
-      'template',
-      'textarea',
-      'tfoot',
-      'th',
-      'thead',
-      'time',
-      'tr',
-      'track',
-      'tt',
-      'u',
-      'ul',
-      'var',
-      'video',
-      'wbr'
-    ]);
-    const svg$1 = freeze([
-      'svg',
-      'a',
-      'altglyph',
-      'altglyphdef',
-      'altglyphitem',
-      'animatecolor',
-      'animatemotion',
-      'animatetransform',
-      'circle',
-      'clippath',
-      'defs',
-      'desc',
-      'ellipse',
-      'filter',
-      'font',
-      'g',
-      'glyph',
-      'glyphref',
-      'hkern',
-      'image',
-      'line',
-      'lineargradient',
-      'marker',
-      'mask',
-      'metadata',
-      'mpath',
-      'path',
-      'pattern',
-      'polygon',
-      'polyline',
-      'radialgradient',
-      'rect',
-      'stop',
-      'style',
-      'switch',
-      'symbol',
-      'text',
-      'textpath',
-      'title',
-      'tref',
-      'tspan',
-      'view',
-      'vkern'
-    ]);
-    const svgFilters = freeze([
-      'feBlend',
-      'feColorMatrix',
-      'feComponentTransfer',
-      'feComposite',
-      'feConvolveMatrix',
-      'feDiffuseLighting',
-      'feDisplacementMap',
-      'feDistantLight',
-      'feDropShadow',
-      'feFlood',
-      'feFuncA',
-      'feFuncB',
-      'feFuncG',
-      'feFuncR',
-      'feGaussianBlur',
-      'feImage',
-      'feMerge',
-      'feMergeNode',
-      'feMorphology',
-      'feOffset',
-      'fePointLight',
-      'feSpecularLighting',
-      'feSpotLight',
-      'feTile',
-      'feTurbulence'
-    ]);
-    const svgDisallowed = freeze([
-      'animate',
-      'color-profile',
-      'cursor',
-      'discard',
-      'font-face',
-      'font-face-format',
-      'font-face-name',
-      'font-face-src',
-      'font-face-uri',
-      'foreignobject',
-      'hatch',
-      'hatchpath',
-      'mesh',
-      'meshgradient',
-      'meshpatch',
-      'meshrow',
-      'missing-glyph',
-      'script',
-      'set',
-      'solidcolor',
-      'unknown',
-      'use'
-    ]);
-    const mathMl$1 = freeze([
-      'math',
-      'menclose',
-      'merror',
-      'mfenced',
-      'mfrac',
-      'mglyph',
-      'mi',
-      'mlabeledtr',
-      'mmultiscripts',
-      'mn',
-      'mo',
-      'mover',
-      'mpadded',
-      'mphantom',
-      'mroot',
-      'mrow',
-      'ms',
-      'mspace',
-      'msqrt',
-      'mstyle',
-      'msub',
-      'msup',
-      'msubsup',
-      'mtable',
-      'mtd',
-      'mtext',
-      'mtr',
-      'munder',
-      'munderover',
-      'mprescripts'
-    ]);
-    const mathMlDisallowed = freeze([
-      'maction',
-      'maligngroup',
-      'malignmark',
-      'mlongdiv',
-      'mscarries',
-      'mscarry',
-      'msgroup',
-      'mstack',
-      'msline',
-      'msrow',
-      'semantics',
-      'annotation',
-      'annotation-xml',
-      'mprescripts',
-      'none'
-    ]);
+
+    const html$1 = freeze(['a', 'abbr', 'acronym', 'address', 'area', 'article', 'aside', 'audio', 'b', 'bdi', 'bdo', 'big', 'blink', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'center', 'cite', 'code', 'col', 'colgroup', 'content', 'data', 'datalist', 'dd', 'decorator', 'del', 'details', 'dfn', 'dialog', 'dir', 'div', 'dl', 'dt', 'element', 'em', 'fieldset', 'figcaption', 'figure', 'font', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header', 'hgroup', 'hr', 'html', 'i', 'img', 'input', 'ins', 'kbd', 'label', 'legend', 'li', 'main', 'map', 'mark', 'marquee', 'menu', 'menuitem', 'meter', 'nav', 'nobr', 'ol', 'optgroup', 'option', 'output', 'p', 'picture', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'section', 'select', 'shadow', 'small', 'source', 'spacer', 'span', 'strike', 'strong', 'style', 'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'template', 'textarea', 'tfoot', 'th', 'thead', 'time', 'tr', 'track', 'tt', 'u', 'ul', 'var', 'video', 'wbr']);
+    const svg$1 = freeze(['svg', 'a', 'altglyph', 'altglyphdef', 'altglyphitem', 'animatecolor', 'animatemotion', 'animatetransform', 'circle', 'clippath', 'defs', 'desc', 'ellipse', 'filter', 'font', 'g', 'glyph', 'glyphref', 'hkern', 'image', 'line', 'lineargradient', 'marker', 'mask', 'metadata', 'mpath', 'path', 'pattern', 'polygon', 'polyline', 'radialgradient', 'rect', 'stop', 'style', 'switch', 'symbol', 'text', 'textpath', 'title', 'tref', 'tspan', 'view', 'vkern']);
+    const svgFilters = freeze(['feBlend', 'feColorMatrix', 'feComponentTransfer', 'feComposite', 'feConvolveMatrix', 'feDiffuseLighting', 'feDisplacementMap', 'feDistantLight', 'feDropShadow', 'feFlood', 'feFuncA', 'feFuncB', 'feFuncG', 'feFuncR', 'feGaussianBlur', 'feImage', 'feMerge', 'feMergeNode', 'feMorphology', 'feOffset', 'fePointLight', 'feSpecularLighting', 'feSpotLight', 'feTile', 'feTurbulence']);
+    // List of SVG elements that are disallowed by default.
+    // We still need to know them so that we can do namespace
+    // checks properly in case one wants to add them to
+    // allow-list.
+    const svgDisallowed = freeze(['animate', 'color-profile', 'cursor', 'discard', 'font-face', 'font-face-format', 'font-face-name', 'font-face-src', 'font-face-uri', 'foreignobject', 'hatch', 'hatchpath', 'mesh', 'meshgradient', 'meshpatch', 'meshrow', 'missing-glyph', 'script', 'set', 'solidcolor', 'unknown', 'use']);
+    const mathMl$1 = freeze(['math', 'menclose', 'merror', 'mfenced', 'mfrac', 'mglyph', 'mi', 'mlabeledtr', 'mmultiscripts', 'mn', 'mo', 'mover', 'mpadded', 'mphantom', 'mroot', 'mrow', 'ms', 'mspace', 'msqrt', 'mstyle', 'msub', 'msup', 'msubsup', 'mtable', 'mtd', 'mtext', 'mtr', 'munder', 'munderover', 'mprescripts']);
+    // Similarly to SVG, we want to know all MathML elements,
+    // even those that we disallow by default.
+    const mathMlDisallowed = freeze(['maction', 'maligngroup', 'malignmark', 'mlongdiv', 'mscarries', 'mscarry', 'msgroup', 'mstack', 'msline', 'msrow', 'semantics', 'annotation', 'annotation-xml', 'mprescripts', 'none']);
     const text$1 = freeze(['#text']);
-    const html = freeze([
-      'accept',
-      'action',
-      'align',
-      'alt',
-      'autocapitalize',
-      'autocomplete',
-      'autopictureinpicture',
-      'autoplay',
-      'background',
-      'bgcolor',
-      'border',
-      'capture',
-      'cellpadding',
-      'cellspacing',
-      'checked',
-      'cite',
-      'class',
-      'clear',
-      'color',
-      'cols',
-      'colspan',
-      'controls',
-      'controlslist',
-      'coords',
-      'crossorigin',
-      'datetime',
-      'decoding',
-      'default',
-      'dir',
-      'disabled',
-      'disablepictureinpicture',
-      'disableremoteplayback',
-      'download',
-      'draggable',
-      'enctype',
-      'enterkeyhint',
-      'face',
-      'for',
-      'headers',
-      'height',
-      'hidden',
-      'high',
-      'href',
-      'hreflang',
-      'id',
-      'inputmode',
-      'integrity',
-      'ismap',
-      'kind',
-      'label',
-      'lang',
-      'list',
-      'loading',
-      'loop',
-      'low',
-      'max',
-      'maxlength',
-      'media',
-      'method',
-      'min',
-      'minlength',
-      'multiple',
-      'muted',
-      'name',
-      'nonce',
-      'noshade',
-      'novalidate',
-      'nowrap',
-      'open',
-      'optimum',
-      'pattern',
-      'placeholder',
-      'playsinline',
-      'poster',
-      'preload',
-      'pubdate',
-      'radiogroup',
-      'readonly',
-      'rel',
-      'required',
-      'rev',
-      'reversed',
-      'role',
-      'rows',
-      'rowspan',
-      'spellcheck',
-      'scope',
-      'selected',
-      'shape',
-      'size',
-      'sizes',
-      'span',
-      'srclang',
-      'start',
-      'src',
-      'srcset',
-      'step',
-      'style',
-      'summary',
-      'tabindex',
-      'title',
-      'translate',
-      'type',
-      'usemap',
-      'valign',
-      'value',
-      'width',
-      'xmlns',
-      'slot'
-    ]);
-    const svg = freeze([
-      'accent-height',
-      'accumulate',
-      'additive',
-      'alignment-baseline',
-      'ascent',
-      'attributename',
-      'attributetype',
-      'azimuth',
-      'basefrequency',
-      'baseline-shift',
-      'begin',
-      'bias',
-      'by',
-      'class',
-      'clip',
-      'clippathunits',
-      'clip-path',
-      'clip-rule',
-      'color',
-      'color-interpolation',
-      'color-interpolation-filters',
-      'color-profile',
-      'color-rendering',
-      'cx',
-      'cy',
-      'd',
-      'dx',
-      'dy',
-      'diffuseconstant',
-      'direction',
-      'display',
-      'divisor',
-      'dur',
-      'edgemode',
-      'elevation',
-      'end',
-      'fill',
-      'fill-opacity',
-      'fill-rule',
-      'filter',
-      'filterunits',
-      'flood-color',
-      'flood-opacity',
-      'font-family',
-      'font-size',
-      'font-size-adjust',
-      'font-stretch',
-      'font-style',
-      'font-variant',
-      'font-weight',
-      'fx',
-      'fy',
-      'g1',
-      'g2',
-      'glyph-name',
-      'glyphref',
-      'gradientunits',
-      'gradienttransform',
-      'height',
-      'href',
-      'id',
-      'image-rendering',
-      'in',
-      'in2',
-      'k',
-      'k1',
-      'k2',
-      'k3',
-      'k4',
-      'kerning',
-      'keypoints',
-      'keysplines',
-      'keytimes',
-      'lang',
-      'lengthadjust',
-      'letter-spacing',
-      'kernelmatrix',
-      'kernelunitlength',
-      'lighting-color',
-      'local',
-      'marker-end',
-      'marker-mid',
-      'marker-start',
-      'markerheight',
-      'markerunits',
-      'markerwidth',
-      'maskcontentunits',
-      'maskunits',
-      'max',
-      'mask',
-      'media',
-      'method',
-      'mode',
-      'min',
-      'name',
-      'numoctaves',
-      'offset',
-      'operator',
-      'opacity',
-      'order',
-      'orient',
-      'orientation',
-      'origin',
-      'overflow',
-      'paint-order',
-      'path',
-      'pathlength',
-      'patterncontentunits',
-      'patterntransform',
-      'patternunits',
-      'points',
-      'preservealpha',
-      'preserveaspectratio',
-      'primitiveunits',
-      'r',
-      'rx',
-      'ry',
-      'radius',
-      'refx',
-      'refy',
-      'repeatcount',
-      'repeatdur',
-      'restart',
-      'result',
-      'rotate',
-      'scale',
-      'seed',
-      'shape-rendering',
-      'specularconstant',
-      'specularexponent',
-      'spreadmethod',
-      'startoffset',
-      'stddeviation',
-      'stitchtiles',
-      'stop-color',
-      'stop-opacity',
-      'stroke-dasharray',
-      'stroke-dashoffset',
-      'stroke-linecap',
-      'stroke-linejoin',
-      'stroke-miterlimit',
-      'stroke-opacity',
-      'stroke',
-      'stroke-width',
-      'style',
-      'surfacescale',
-      'systemlanguage',
-      'tabindex',
-      'targetx',
-      'targety',
-      'transform',
-      'transform-origin',
-      'text-anchor',
-      'text-decoration',
-      'text-rendering',
-      'textlength',
-      'type',
-      'u1',
-      'u2',
-      'unicode',
-      'values',
-      'viewbox',
-      'visibility',
-      'version',
-      'vert-adv-y',
-      'vert-origin-x',
-      'vert-origin-y',
-      'width',
-      'word-spacing',
-      'wrap',
-      'writing-mode',
-      'xchannelselector',
-      'ychannelselector',
-      'x',
-      'x1',
-      'x2',
-      'xmlns',
-      'y',
-      'y1',
-      'y2',
-      'z',
-      'zoomandpan'
-    ]);
-    const mathMl = freeze([
-      'accent',
-      'accentunder',
-      'align',
-      'bevelled',
-      'close',
-      'columnsalign',
-      'columnlines',
-      'columnspan',
-      'denomalign',
-      'depth',
-      'dir',
-      'display',
-      'displaystyle',
-      'encoding',
-      'fence',
-      'frame',
-      'height',
-      'href',
-      'id',
-      'largeop',
-      'length',
-      'linethickness',
-      'lspace',
-      'lquote',
-      'mathbackground',
-      'mathcolor',
-      'mathsize',
-      'mathvariant',
-      'maxsize',
-      'minsize',
-      'movablelimits',
-      'notation',
-      'numalign',
-      'open',
-      'rowalign',
-      'rowlines',
-      'rowspacing',
-      'rowspan',
-      'rspace',
-      'rquote',
-      'scriptlevel',
-      'scriptminsize',
-      'scriptsizemultiplier',
-      'selection',
-      'separator',
-      'separators',
-      'stretchy',
-      'subscriptshift',
-      'supscriptshift',
-      'symmetric',
-      'voffset',
-      'width',
-      'xmlns'
-    ]);
-    const xml = freeze([
-      'xlink:href',
-      'xml:id',
-      'xlink:title',
-      'xml:space',
-      'xmlns:xlink'
-    ]);
-    const MUSTACHE_EXPR = seal(/\{\{[\w\W]*|[\w\W]*\}\}/gm);
+
+    const html = freeze(['accept', 'action', 'align', 'alt', 'autocapitalize', 'autocomplete', 'autopictureinpicture', 'autoplay', 'background', 'bgcolor', 'border', 'capture', 'cellpadding', 'cellspacing', 'checked', 'cite', 'class', 'clear', 'color', 'cols', 'colspan', 'controls', 'controlslist', 'coords', 'crossorigin', 'datetime', 'decoding', 'default', 'dir', 'disabled', 'disablepictureinpicture', 'disableremoteplayback', 'download', 'draggable', 'enctype', 'enterkeyhint', 'face', 'for', 'headers', 'height', 'hidden', 'high', 'href', 'hreflang', 'id', 'inputmode', 'integrity', 'ismap', 'kind', 'label', 'lang', 'list', 'loading', 'loop', 'low', 'max', 'maxlength', 'media', 'method', 'min', 'minlength', 'multiple', 'muted', 'name', 'nonce', 'noshade', 'novalidate', 'nowrap', 'open', 'optimum', 'pattern', 'placeholder', 'playsinline', 'popover', 'popovertarget', 'popovertargetaction', 'poster', 'preload', 'pubdate', 'radiogroup', 'readonly', 'rel', 'required', 'rev', 'reversed', 'role', 'rows', 'rowspan', 'spellcheck', 'scope', 'selected', 'shape', 'size', 'sizes', 'span', 'srclang', 'start', 'src', 'srcset', 'step', 'style', 'summary', 'tabindex', 'title', 'translate', 'type', 'usemap', 'valign', 'value', 'width', 'wrap', 'xmlns', 'slot']);
+    const svg = freeze(['accent-height', 'accumulate', 'additive', 'alignment-baseline', 'amplitude', 'ascent', 'attributename', 'attributetype', 'azimuth', 'basefrequency', 'baseline-shift', 'begin', 'bias', 'by', 'class', 'clip', 'clippathunits', 'clip-path', 'clip-rule', 'color', 'color-interpolation', 'color-interpolation-filters', 'color-profile', 'color-rendering', 'cx', 'cy', 'd', 'dx', 'dy', 'diffuseconstant', 'direction', 'display', 'divisor', 'dur', 'edgemode', 'elevation', 'end', 'exponent', 'fill', 'fill-opacity', 'fill-rule', 'filter', 'filterunits', 'flood-color', 'flood-opacity', 'font-family', 'font-size', 'font-size-adjust', 'font-stretch', 'font-style', 'font-variant', 'font-weight', 'fx', 'fy', 'g1', 'g2', 'glyph-name', 'glyphref', 'gradientunits', 'gradienttransform', 'height', 'href', 'id', 'image-rendering', 'in', 'in2', 'intercept', 'k', 'k1', 'k2', 'k3', 'k4', 'kerning', 'keypoints', 'keysplines', 'keytimes', 'lang', 'lengthadjust', 'letter-spacing', 'kernelmatrix', 'kernelunitlength', 'lighting-color', 'local', 'marker-end', 'marker-mid', 'marker-start', 'markerheight', 'markerunits', 'markerwidth', 'maskcontentunits', 'maskunits', 'max', 'mask', 'media', 'method', 'mode', 'min', 'name', 'numoctaves', 'offset', 'operator', 'opacity', 'order', 'orient', 'orientation', 'origin', 'overflow', 'paint-order', 'path', 'pathlength', 'patterncontentunits', 'patterntransform', 'patternunits', 'points', 'preservealpha', 'preserveaspectratio', 'primitiveunits', 'r', 'rx', 'ry', 'radius', 'refx', 'refy', 'repeatcount', 'repeatdur', 'restart', 'result', 'rotate', 'scale', 'seed', 'shape-rendering', 'slope', 'specularconstant', 'specularexponent', 'spreadmethod', 'startoffset', 'stddeviation', 'stitchtiles', 'stop-color', 'stop-opacity', 'stroke-dasharray', 'stroke-dashoffset', 'stroke-linecap', 'stroke-linejoin', 'stroke-miterlimit', 'stroke-opacity', 'stroke', 'stroke-width', 'style', 'surfacescale', 'systemlanguage', 'tabindex', 'tablevalues', 'targetx', 'targety', 'transform', 'transform-origin', 'text-anchor', 'text-decoration', 'text-rendering', 'textlength', 'type', 'u1', 'u2', 'unicode', 'values', 'viewbox', 'visibility', 'version', 'vert-adv-y', 'vert-origin-x', 'vert-origin-y', 'width', 'word-spacing', 'wrap', 'writing-mode', 'xchannelselector', 'ychannelselector', 'x', 'x1', 'x2', 'xmlns', 'y', 'y1', 'y2', 'z', 'zoomandpan']);
+    const mathMl = freeze(['accent', 'accentunder', 'align', 'bevelled', 'close', 'columnsalign', 'columnlines', 'columnspan', 'denomalign', 'depth', 'dir', 'display', 'displaystyle', 'encoding', 'fence', 'frame', 'height', 'href', 'id', 'largeop', 'length', 'linethickness', 'lspace', 'lquote', 'mathbackground', 'mathcolor', 'mathsize', 'mathvariant', 'maxsize', 'minsize', 'movablelimits', 'notation', 'numalign', 'open', 'rowalign', 'rowlines', 'rowspacing', 'rowspan', 'rspace', 'rquote', 'scriptlevel', 'scriptminsize', 'scriptsizemultiplier', 'selection', 'separator', 'separators', 'stretchy', 'subscriptshift', 'supscriptshift', 'symmetric', 'voffset', 'width', 'xmlns']);
+    const xml = freeze(['xlink:href', 'xml:id', 'xlink:title', 'xml:space', 'xmlns:xlink']);
+
+    // eslint-disable-next-line unicorn/better-regex
+    const MUSTACHE_EXPR = seal(/\{\{[\w\W]*|[\w\W]*\}\}/gm); // Specify template detection regex for SAFE_FOR_TEMPLATES mode
     const ERB_EXPR = seal(/<%[\w\W]*|[\w\W]*%>/gm);
-    const TMPLIT_EXPR = seal(/\${[\w\W]*}/gm);
-    const DATA_ATTR = seal(/^data-[\-\w.\u00B7-\uFFFF]/);
-    const ARIA_ATTR = seal(/^aria-[\-\w]+$/);
-    const IS_ALLOWED_URI = seal(/^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i);
+    const TMPLIT_EXPR = seal(/\$\{[\w\W]*/gm); // eslint-disable-line unicorn/better-regex
+    const DATA_ATTR = seal(/^data-[\-\w.\u00B7-\uFFFF]+$/); // eslint-disable-line no-useless-escape
+    const ARIA_ATTR = seal(/^aria-[\-\w]+$/); // eslint-disable-line no-useless-escape
+    const IS_ALLOWED_URI = seal(/^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i // eslint-disable-line no-useless-escape
+    );
     const IS_SCRIPT_OR_DATA = seal(/^(?:\w+script|data):/i);
-    const ATTR_WHITESPACE = seal(/[\u0000-\u0020\u00A0\u1680\u180E\u2000-\u2029\u205F\u3000]/g);
+    const ATTR_WHITESPACE = seal(/[\u0000-\u0020\u00A0\u1680\u180E\u2000-\u2029\u205F\u3000]/g // eslint-disable-line no-control-regex
+    );
     const DOCTYPE_NAME = seal(/^html$/i);
-    var EXPRESSIONS = Object.freeze({
+    const CUSTOM_ELEMENT = seal(/^[a-z][.\w]*(-[.\w]+)+$/i);
+
+    var EXPRESSIONS = /*#__PURE__*/Object.freeze({
       __proto__: null,
-      MUSTACHE_EXPR: MUSTACHE_EXPR,
-      ERB_EXPR: ERB_EXPR,
-      TMPLIT_EXPR: TMPLIT_EXPR,
-      DATA_ATTR: DATA_ATTR,
       ARIA_ATTR: ARIA_ATTR,
+      ATTR_WHITESPACE: ATTR_WHITESPACE,
+      CUSTOM_ELEMENT: CUSTOM_ELEMENT,
+      DATA_ATTR: DATA_ATTR,
+      DOCTYPE_NAME: DOCTYPE_NAME,
+      ERB_EXPR: ERB_EXPR,
       IS_ALLOWED_URI: IS_ALLOWED_URI,
       IS_SCRIPT_OR_DATA: IS_SCRIPT_OR_DATA,
-      ATTR_WHITESPACE: ATTR_WHITESPACE,
-      DOCTYPE_NAME: DOCTYPE_NAME
+      MUSTACHE_EXPR: MUSTACHE_EXPR,
+      TMPLIT_EXPR: TMPLIT_EXPR
     });
-    const getGlobal = () => typeof window === 'undefined' ? null : window;
+
+    /* eslint-disable @typescript-eslint/indent */
+    // https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType
+    const NODE_TYPE = {
+      element: 1,
+      attribute: 2,
+      text: 3,
+      cdataSection: 4,
+      entityReference: 5,
+      // Deprecated
+      entityNode: 6,
+      // Deprecated
+      progressingInstruction: 7,
+      comment: 8,
+      document: 9,
+      documentType: 10,
+      documentFragment: 11,
+      notation: 12 // Deprecated
+    };
+    const getGlobal = function getGlobal() {
+      return typeof window === 'undefined' ? null : window;
+    };
+    /**
+     * Creates a no-op policy for internal use only.
+     * Don't export this function outside this module!
+     * @param trustedTypes The policy factory.
+     * @param purifyHostElement The Script element used to load DOMPurify (to determine policy name suffix).
+     * @return The policy created (or null, if Trusted Types
+     * are not supported or creating the policy failed).
+     */
     const _createTrustedTypesPolicy = function _createTrustedTypesPolicy(trustedTypes, purifyHostElement) {
       if (typeof trustedTypes !== 'object' || typeof trustedTypes.createPolicy !== 'function') {
         return null;
       }
+      // Allow the callers to control the unique policy name
+      // by adding a data-tt-policy-suffix to the script element with the DOMPurify.
+      // Policy creation with duplicate names throws in Trusted Types.
       let suffix = null;
       const ATTR_NAME = 'data-tt-policy-suffix';
       if (purifyHostElement && purifyHostElement.hasAttribute(ATTR_NAME)) {
@@ -9940,28 +9477,65 @@
           }
         });
       } catch (_) {
+        // Policy creation failed (most likely another DOMPurify script has
+        // already run). Skip creating the policy, as this will only cause errors
+        // if TT are enforced.
         console.warn('TrustedTypes policy ' + policyName + ' could not be created.');
         return null;
       }
     };
+    const _createHooksMap = function _createHooksMap() {
+      return {
+        afterSanitizeAttributes: [],
+        afterSanitizeElements: [],
+        afterSanitizeShadowDOM: [],
+        beforeSanitizeAttributes: [],
+        beforeSanitizeElements: [],
+        beforeSanitizeShadowDOM: [],
+        uponSanitizeAttribute: [],
+        uponSanitizeElement: [],
+        uponSanitizeShadowNode: []
+      };
+    };
     function createDOMPurify() {
       let window = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : getGlobal();
       const DOMPurify = root => createDOMPurify(root);
-      DOMPurify.version = '3.0.5';
+      DOMPurify.version = '3.2.4';
       DOMPurify.removed = [];
-      if (!window || !window.document || window.document.nodeType !== 9) {
+      if (!window || !window.document || window.document.nodeType !== NODE_TYPE.document || !window.Element) {
+        // Not running in a browser, provide a factory function
+        // so that you can pass your own Window
         DOMPurify.isSupported = false;
         return DOMPurify;
       }
-      const originalDocument = window.document;
+      let {
+        document
+      } = window;
+      const originalDocument = document;
       const currentScript = originalDocument.currentScript;
-      let {document} = window;
-      const {DocumentFragment, HTMLTemplateElement, Node, Element, NodeFilter, NamedNodeMap = window.NamedNodeMap || window.MozNamedAttrMap, HTMLFormElement, DOMParser, trustedTypes} = window;
+      const {
+        DocumentFragment,
+        HTMLTemplateElement,
+        Node,
+        Element,
+        NodeFilter,
+        NamedNodeMap = window.NamedNodeMap || window.MozNamedAttrMap,
+        HTMLFormElement,
+        DOMParser,
+        trustedTypes
+      } = window;
       const ElementPrototype = Element.prototype;
       const cloneNode = lookupGetter(ElementPrototype, 'cloneNode');
+      const remove = lookupGetter(ElementPrototype, 'remove');
       const getNextSibling = lookupGetter(ElementPrototype, 'nextSibling');
       const getChildNodes = lookupGetter(ElementPrototype, 'childNodes');
       const getParentNode = lookupGetter(ElementPrototype, 'parentNode');
+      // As per issue #47, the web-components registry is inherited by a
+      // new document created via createHTMLDocument. As per the spec
+      // (http://w3c.github.io/webcomponents/spec/custom/#creating-and-passing-registries)
+      // a new empty registry is used when creating a template contents owner
+      // document, so we use that as our parent document to ensure nothing
+      // is inherited.
       if (typeof HTMLTemplateElement === 'function') {
         const template = document.createElement('template');
         if (template.content && template.content.ownerDocument) {
@@ -9970,28 +9544,50 @@
       }
       let trustedTypesPolicy;
       let emptyHTML = '';
-      const {implementation, createNodeIterator, createDocumentFragment, getElementsByTagName} = document;
-      const {importNode} = originalDocument;
-      let hooks = {};
+      const {
+        implementation,
+        createNodeIterator,
+        createDocumentFragment,
+        getElementsByTagName
+      } = document;
+      const {
+        importNode
+      } = originalDocument;
+      let hooks = _createHooksMap();
+      /**
+       * Expose whether this browser supports running the full DOMPurify.
+       */
       DOMPurify.isSupported = typeof entries === 'function' && typeof getParentNode === 'function' && implementation && implementation.createHTMLDocument !== undefined;
-      const {MUSTACHE_EXPR, ERB_EXPR, TMPLIT_EXPR, DATA_ATTR, ARIA_ATTR, IS_SCRIPT_OR_DATA, ATTR_WHITESPACE} = EXPRESSIONS;
-      let {IS_ALLOWED_URI: IS_ALLOWED_URI$1} = EXPRESSIONS;
+      const {
+        MUSTACHE_EXPR,
+        ERB_EXPR,
+        TMPLIT_EXPR,
+        DATA_ATTR,
+        ARIA_ATTR,
+        IS_SCRIPT_OR_DATA,
+        ATTR_WHITESPACE,
+        CUSTOM_ELEMENT
+      } = EXPRESSIONS;
+      let {
+        IS_ALLOWED_URI: IS_ALLOWED_URI$1
+      } = EXPRESSIONS;
+      /**
+       * We consider the elements and attributes below to be safe. Ideally
+       * don't add any new ones but feel free to remove unwanted ones.
+       */
+      /* allowed element names */
       let ALLOWED_TAGS = null;
-      const DEFAULT_ALLOWED_TAGS = addToSet({}, [
-        ...html$1,
-        ...svg$1,
-        ...svgFilters,
-        ...mathMl$1,
-        ...text$1
-      ]);
+      const DEFAULT_ALLOWED_TAGS = addToSet({}, [...html$1, ...svg$1, ...svgFilters, ...mathMl$1, ...text$1]);
+      /* Allowed attribute names */
       let ALLOWED_ATTR = null;
-      const DEFAULT_ALLOWED_ATTR = addToSet({}, [
-        ...html,
-        ...svg,
-        ...mathMl,
-        ...xml
-      ]);
-      let CUSTOM_ELEMENT_HANDLING = Object.seal(Object.create(null, {
+      const DEFAULT_ALLOWED_ATTR = addToSet({}, [...html, ...svg, ...mathMl, ...xml]);
+      /*
+       * Configure how DOMPurify should handle custom elements and their attributes as well as customized built-in elements.
+       * @property {RegExp|Function|null} tagNameCheck one of [null, regexPattern, predicate]. Default: `null` (disallow any custom elements)
+       * @property {RegExp|Function|null} attributeNameCheck one of [null, regexPattern, predicate]. Default: `null` (disallow any attributes not on the allow list)
+       * @property {boolean} allowCustomizedBuiltInElements allow custom elements derived from built-ins if they pass CUSTOM_ELEMENT_HANDLING.tagNameCheck. Default: `false`.
+       */
+      let CUSTOM_ELEMENT_HANDLING = Object.seal(create$1(null, {
         tagNameCheck: {
           writable: true,
           configurable: false,
@@ -10011,137 +9607,160 @@
           value: false
         }
       }));
+      /* Explicitly forbidden tags (overrides ALLOWED_TAGS/ADD_TAGS) */
       let FORBID_TAGS = null;
+      /* Explicitly forbidden attributes (overrides ALLOWED_ATTR/ADD_ATTR) */
       let FORBID_ATTR = null;
+      /* Decide if ARIA attributes are okay */
       let ALLOW_ARIA_ATTR = true;
+      /* Decide if custom data attributes are okay */
       let ALLOW_DATA_ATTR = true;
+      /* Decide if unknown protocols are okay */
       let ALLOW_UNKNOWN_PROTOCOLS = false;
+      /* Decide if self-closing tags in attributes are allowed.
+       * Usually removed due to a mXSS issue in jQuery 3.0 */
       let ALLOW_SELF_CLOSE_IN_ATTR = true;
+      /* Output should be safe for common template engines.
+       * This means, DOMPurify removes data attributes, mustaches and ERB
+       */
       let SAFE_FOR_TEMPLATES = false;
+      /* Output should be safe even for XML used within HTML and alike.
+       * This means, DOMPurify removes comments when containing risky content.
+       */
+      let SAFE_FOR_XML = true;
+      /* Decide if document with <html>... should be returned */
       let WHOLE_DOCUMENT = false;
+      /* Track whether config is already set on this instance of DOMPurify. */
       let SET_CONFIG = false;
+      /* Decide if all elements (e.g. style, script) must be children of
+       * document.body. By default, browsers might move them to document.head */
       let FORCE_BODY = false;
+      /* Decide if a DOM `HTMLBodyElement` should be returned, instead of a html
+       * string (or a TrustedHTML object if Trusted Types are supported).
+       * If `WHOLE_DOCUMENT` is enabled a `HTMLHtmlElement` will be returned instead
+       */
       let RETURN_DOM = false;
+      /* Decide if a DOM `DocumentFragment` should be returned, instead of a html
+       * string  (or a TrustedHTML object if Trusted Types are supported) */
       let RETURN_DOM_FRAGMENT = false;
+      /* Try to return a Trusted Type object instead of a string, return a string in
+       * case Trusted Types are not supported  */
       let RETURN_TRUSTED_TYPE = false;
+      /* Output should be free from DOM clobbering attacks?
+       * This sanitizes markups named with colliding, clobberable built-in DOM APIs.
+       */
       let SANITIZE_DOM = true;
+      /* Achieve full DOM Clobbering protection by isolating the namespace of named
+       * properties and JS variables, mitigating attacks that abuse the HTML/DOM spec rules.
+       *
+       * HTML/DOM spec rules that enable DOM Clobbering:
+       *   - Named Access on Window (§7.3.3)
+       *   - DOM Tree Accessors (§3.1.5)
+       *   - Form Element Parent-Child Relations (§4.10.3)
+       *   - Iframe srcdoc / Nested WindowProxies (§4.8.5)
+       *   - HTMLCollection (§4.2.10.2)
+       *
+       * Namespace isolation is implemented by prefixing `id` and `name` attributes
+       * with a constant string, i.e., `user-content-`
+       */
       let SANITIZE_NAMED_PROPS = false;
       const SANITIZE_NAMED_PROPS_PREFIX = 'user-content-';
+      /* Keep element content when removing element? */
       let KEEP_CONTENT = true;
+      /* If a `Node` is passed to sanitize(), then performs sanitization in-place instead
+       * of importing it into a new Document and returning a sanitized copy */
       let IN_PLACE = false;
+      /* Allow usage of profiles like html, svg and mathMl */
       let USE_PROFILES = {};
+      /* Tags to ignore content of when KEEP_CONTENT is true */
       let FORBID_CONTENTS = null;
-      const DEFAULT_FORBID_CONTENTS = addToSet({}, [
-        'annotation-xml',
-        'audio',
-        'colgroup',
-        'desc',
-        'foreignobject',
-        'head',
-        'iframe',
-        'math',
-        'mi',
-        'mn',
-        'mo',
-        'ms',
-        'mtext',
-        'noembed',
-        'noframes',
-        'noscript',
-        'plaintext',
-        'script',
-        'style',
-        'svg',
-        'template',
-        'thead',
-        'title',
-        'video',
-        'xmp'
-      ]);
+      const DEFAULT_FORBID_CONTENTS = addToSet({}, ['annotation-xml', 'audio', 'colgroup', 'desc', 'foreignobject', 'head', 'iframe', 'math', 'mi', 'mn', 'mo', 'ms', 'mtext', 'noembed', 'noframes', 'noscript', 'plaintext', 'script', 'style', 'svg', 'template', 'thead', 'title', 'video', 'xmp']);
+      /* Tags that are safe for data: URIs */
       let DATA_URI_TAGS = null;
-      const DEFAULT_DATA_URI_TAGS = addToSet({}, [
-        'audio',
-        'video',
-        'img',
-        'source',
-        'image',
-        'track'
-      ]);
+      const DEFAULT_DATA_URI_TAGS = addToSet({}, ['audio', 'video', 'img', 'source', 'image', 'track']);
+      /* Attributes safe for values like "javascript:" */
       let URI_SAFE_ATTRIBUTES = null;
-      const DEFAULT_URI_SAFE_ATTRIBUTES = addToSet({}, [
-        'alt',
-        'class',
-        'for',
-        'id',
-        'label',
-        'name',
-        'pattern',
-        'placeholder',
-        'role',
-        'summary',
-        'title',
-        'value',
-        'style',
-        'xmlns'
-      ]);
+      const DEFAULT_URI_SAFE_ATTRIBUTES = addToSet({}, ['alt', 'class', 'for', 'id', 'label', 'name', 'pattern', 'placeholder', 'role', 'summary', 'title', 'value', 'style', 'xmlns']);
       const MATHML_NAMESPACE = 'http://www.w3.org/1998/Math/MathML';
       const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
       const HTML_NAMESPACE = 'http://www.w3.org/1999/xhtml';
+      /* Document namespace */
       let NAMESPACE = HTML_NAMESPACE;
       let IS_EMPTY_INPUT = false;
+      /* Allowed XHTML+XML namespaces */
       let ALLOWED_NAMESPACES = null;
-      const DEFAULT_ALLOWED_NAMESPACES = addToSet({}, [
-        MATHML_NAMESPACE,
-        SVG_NAMESPACE,
-        HTML_NAMESPACE
-      ], stringToString);
-      let PARSER_MEDIA_TYPE;
-      const SUPPORTED_PARSER_MEDIA_TYPES = [
-        'application/xhtml+xml',
-        'text/html'
-      ];
+      const DEFAULT_ALLOWED_NAMESPACES = addToSet({}, [MATHML_NAMESPACE, SVG_NAMESPACE, HTML_NAMESPACE], stringToString);
+      let MATHML_TEXT_INTEGRATION_POINTS = addToSet({}, ['mi', 'mo', 'mn', 'ms', 'mtext']);
+      let HTML_INTEGRATION_POINTS = addToSet({}, ['annotation-xml']);
+      // Certain elements are allowed in both SVG and HTML
+      // namespace. We need to specify them explicitly
+      // so that they don't get erroneously deleted from
+      // HTML namespace.
+      const COMMON_SVG_AND_HTML_ELEMENTS = addToSet({}, ['title', 'style', 'font', 'a', 'script']);
+      /* Parsing of strict XHTML documents */
+      let PARSER_MEDIA_TYPE = null;
+      const SUPPORTED_PARSER_MEDIA_TYPES = ['application/xhtml+xml', 'text/html'];
       const DEFAULT_PARSER_MEDIA_TYPE = 'text/html';
-      let transformCaseFunc;
+      let transformCaseFunc = null;
+      /* Keep a reference to config to pass to hooks */
       let CONFIG = null;
+      /* Ideally, do not touch anything below this line */
+      /* ______________________________________________ */
       const formElement = document.createElement('form');
       const isRegexOrFunction = function isRegexOrFunction(testValue) {
         return testValue instanceof RegExp || testValue instanceof Function;
       };
-      const _parseConfig = function _parseConfig(cfg) {
+      /**
+       * _parseConfig
+       *
+       * @param cfg optional config literal
+       */
+      // eslint-disable-next-line complexity
+      const _parseConfig = function _parseConfig() {
+        let cfg = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
         if (CONFIG && CONFIG === cfg) {
           return;
         }
+        /* Shield configuration object from tampering */
         if (!cfg || typeof cfg !== 'object') {
           cfg = {};
         }
+        /* Shield configuration object from prototype pollution */
         cfg = clone(cfg);
-        PARSER_MEDIA_TYPE = SUPPORTED_PARSER_MEDIA_TYPES.indexOf(cfg.PARSER_MEDIA_TYPE) === -1 ? PARSER_MEDIA_TYPE = DEFAULT_PARSER_MEDIA_TYPE : PARSER_MEDIA_TYPE = cfg.PARSER_MEDIA_TYPE;
+        PARSER_MEDIA_TYPE =
+        // eslint-disable-next-line unicorn/prefer-includes
+        SUPPORTED_PARSER_MEDIA_TYPES.indexOf(cfg.PARSER_MEDIA_TYPE) === -1 ? DEFAULT_PARSER_MEDIA_TYPE : cfg.PARSER_MEDIA_TYPE;
+        // HTML tags and attributes are not case-sensitive, converting to lowercase. Keeping XHTML as is.
         transformCaseFunc = PARSER_MEDIA_TYPE === 'application/xhtml+xml' ? stringToString : stringToLowerCase;
-        ALLOWED_TAGS = 'ALLOWED_TAGS' in cfg ? addToSet({}, cfg.ALLOWED_TAGS, transformCaseFunc) : DEFAULT_ALLOWED_TAGS;
-        ALLOWED_ATTR = 'ALLOWED_ATTR' in cfg ? addToSet({}, cfg.ALLOWED_ATTR, transformCaseFunc) : DEFAULT_ALLOWED_ATTR;
-        ALLOWED_NAMESPACES = 'ALLOWED_NAMESPACES' in cfg ? addToSet({}, cfg.ALLOWED_NAMESPACES, stringToString) : DEFAULT_ALLOWED_NAMESPACES;
-        URI_SAFE_ATTRIBUTES = 'ADD_URI_SAFE_ATTR' in cfg ? addToSet(clone(DEFAULT_URI_SAFE_ATTRIBUTES), cfg.ADD_URI_SAFE_ATTR, transformCaseFunc) : DEFAULT_URI_SAFE_ATTRIBUTES;
-        DATA_URI_TAGS = 'ADD_DATA_URI_TAGS' in cfg ? addToSet(clone(DEFAULT_DATA_URI_TAGS), cfg.ADD_DATA_URI_TAGS, transformCaseFunc) : DEFAULT_DATA_URI_TAGS;
-        FORBID_CONTENTS = 'FORBID_CONTENTS' in cfg ? addToSet({}, cfg.FORBID_CONTENTS, transformCaseFunc) : DEFAULT_FORBID_CONTENTS;
-        FORBID_TAGS = 'FORBID_TAGS' in cfg ? addToSet({}, cfg.FORBID_TAGS, transformCaseFunc) : {};
-        FORBID_ATTR = 'FORBID_ATTR' in cfg ? addToSet({}, cfg.FORBID_ATTR, transformCaseFunc) : {};
-        USE_PROFILES = 'USE_PROFILES' in cfg ? cfg.USE_PROFILES : false;
-        ALLOW_ARIA_ATTR = cfg.ALLOW_ARIA_ATTR !== false;
-        ALLOW_DATA_ATTR = cfg.ALLOW_DATA_ATTR !== false;
-        ALLOW_UNKNOWN_PROTOCOLS = cfg.ALLOW_UNKNOWN_PROTOCOLS || false;
-        ALLOW_SELF_CLOSE_IN_ATTR = cfg.ALLOW_SELF_CLOSE_IN_ATTR !== false;
-        SAFE_FOR_TEMPLATES = cfg.SAFE_FOR_TEMPLATES || false;
-        WHOLE_DOCUMENT = cfg.WHOLE_DOCUMENT || false;
-        RETURN_DOM = cfg.RETURN_DOM || false;
-        RETURN_DOM_FRAGMENT = cfg.RETURN_DOM_FRAGMENT || false;
-        RETURN_TRUSTED_TYPE = cfg.RETURN_TRUSTED_TYPE || false;
-        FORCE_BODY = cfg.FORCE_BODY || false;
-        SANITIZE_DOM = cfg.SANITIZE_DOM !== false;
-        SANITIZE_NAMED_PROPS = cfg.SANITIZE_NAMED_PROPS || false;
-        KEEP_CONTENT = cfg.KEEP_CONTENT !== false;
-        IN_PLACE = cfg.IN_PLACE || false;
+        /* Set configuration parameters */
+        ALLOWED_TAGS = objectHasOwnProperty(cfg, 'ALLOWED_TAGS') ? addToSet({}, cfg.ALLOWED_TAGS, transformCaseFunc) : DEFAULT_ALLOWED_TAGS;
+        ALLOWED_ATTR = objectHasOwnProperty(cfg, 'ALLOWED_ATTR') ? addToSet({}, cfg.ALLOWED_ATTR, transformCaseFunc) : DEFAULT_ALLOWED_ATTR;
+        ALLOWED_NAMESPACES = objectHasOwnProperty(cfg, 'ALLOWED_NAMESPACES') ? addToSet({}, cfg.ALLOWED_NAMESPACES, stringToString) : DEFAULT_ALLOWED_NAMESPACES;
+        URI_SAFE_ATTRIBUTES = objectHasOwnProperty(cfg, 'ADD_URI_SAFE_ATTR') ? addToSet(clone(DEFAULT_URI_SAFE_ATTRIBUTES), cfg.ADD_URI_SAFE_ATTR, transformCaseFunc) : DEFAULT_URI_SAFE_ATTRIBUTES;
+        DATA_URI_TAGS = objectHasOwnProperty(cfg, 'ADD_DATA_URI_TAGS') ? addToSet(clone(DEFAULT_DATA_URI_TAGS), cfg.ADD_DATA_URI_TAGS, transformCaseFunc) : DEFAULT_DATA_URI_TAGS;
+        FORBID_CONTENTS = objectHasOwnProperty(cfg, 'FORBID_CONTENTS') ? addToSet({}, cfg.FORBID_CONTENTS, transformCaseFunc) : DEFAULT_FORBID_CONTENTS;
+        FORBID_TAGS = objectHasOwnProperty(cfg, 'FORBID_TAGS') ? addToSet({}, cfg.FORBID_TAGS, transformCaseFunc) : {};
+        FORBID_ATTR = objectHasOwnProperty(cfg, 'FORBID_ATTR') ? addToSet({}, cfg.FORBID_ATTR, transformCaseFunc) : {};
+        USE_PROFILES = objectHasOwnProperty(cfg, 'USE_PROFILES') ? cfg.USE_PROFILES : false;
+        ALLOW_ARIA_ATTR = cfg.ALLOW_ARIA_ATTR !== false; // Default true
+        ALLOW_DATA_ATTR = cfg.ALLOW_DATA_ATTR !== false; // Default true
+        ALLOW_UNKNOWN_PROTOCOLS = cfg.ALLOW_UNKNOWN_PROTOCOLS || false; // Default false
+        ALLOW_SELF_CLOSE_IN_ATTR = cfg.ALLOW_SELF_CLOSE_IN_ATTR !== false; // Default true
+        SAFE_FOR_TEMPLATES = cfg.SAFE_FOR_TEMPLATES || false; // Default false
+        SAFE_FOR_XML = cfg.SAFE_FOR_XML !== false; // Default true
+        WHOLE_DOCUMENT = cfg.WHOLE_DOCUMENT || false; // Default false
+        RETURN_DOM = cfg.RETURN_DOM || false; // Default false
+        RETURN_DOM_FRAGMENT = cfg.RETURN_DOM_FRAGMENT || false; // Default false
+        RETURN_TRUSTED_TYPE = cfg.RETURN_TRUSTED_TYPE || false; // Default false
+        FORCE_BODY = cfg.FORCE_BODY || false; // Default false
+        SANITIZE_DOM = cfg.SANITIZE_DOM !== false; // Default true
+        SANITIZE_NAMED_PROPS = cfg.SANITIZE_NAMED_PROPS || false; // Default false
+        KEEP_CONTENT = cfg.KEEP_CONTENT !== false; // Default true
+        IN_PLACE = cfg.IN_PLACE || false; // Default false
         IS_ALLOWED_URI$1 = cfg.ALLOWED_URI_REGEXP || IS_ALLOWED_URI;
         NAMESPACE = cfg.NAMESPACE || HTML_NAMESPACE;
+        MATHML_TEXT_INTEGRATION_POINTS = cfg.MATHML_TEXT_INTEGRATION_POINTS || MATHML_TEXT_INTEGRATION_POINTS;
+        HTML_INTEGRATION_POINTS = cfg.HTML_INTEGRATION_POINTS || HTML_INTEGRATION_POINTS;
         CUSTOM_ELEMENT_HANDLING = cfg.CUSTOM_ELEMENT_HANDLING || {};
         if (cfg.CUSTOM_ELEMENT_HANDLING && isRegexOrFunction(cfg.CUSTOM_ELEMENT_HANDLING.tagNameCheck)) {
           CUSTOM_ELEMENT_HANDLING.tagNameCheck = cfg.CUSTOM_ELEMENT_HANDLING.tagNameCheck;
@@ -10158,8 +9777,9 @@
         if (RETURN_DOM_FRAGMENT) {
           RETURN_DOM = true;
         }
+        /* Parse profile info */
         if (USE_PROFILES) {
-          ALLOWED_TAGS = addToSet({}, [...text$1]);
+          ALLOWED_TAGS = addToSet({}, text$1);
           ALLOWED_ATTR = [];
           if (USE_PROFILES.html === true) {
             addToSet(ALLOWED_TAGS, html$1);
@@ -10181,6 +9801,7 @@
             addToSet(ALLOWED_ATTR, xml);
           }
         }
+        /* Merge configuration parameters */
         if (cfg.ADD_TAGS) {
           if (ALLOWED_TAGS === DEFAULT_ALLOWED_TAGS) {
             ALLOWED_TAGS = clone(ALLOWED_TAGS);
@@ -10202,16 +9823,15 @@
           }
           addToSet(FORBID_CONTENTS, cfg.FORBID_CONTENTS, transformCaseFunc);
         }
+        /* Add #text in case KEEP_CONTENT is set to true */
         if (KEEP_CONTENT) {
           ALLOWED_TAGS['#text'] = true;
         }
+        /* Add html, head and body to ALLOWED_TAGS in case WHOLE_DOCUMENT is true */
         if (WHOLE_DOCUMENT) {
-          addToSet(ALLOWED_TAGS, [
-            'html',
-            'head',
-            'body'
-          ]);
+          addToSet(ALLOWED_TAGS, ['html', 'head', 'body']);
         }
+        /* Add tbody to ALLOWED_TAGS in case tables are permitted, see #286, #365 */
         if (ALLOWED_TAGS.table) {
           addToSet(ALLOWED_TAGS, ['tbody']);
           delete FORBID_TAGS.tbody;
@@ -10223,48 +9843,42 @@
           if (typeof cfg.TRUSTED_TYPES_POLICY.createScriptURL !== 'function') {
             throw typeErrorCreate('TRUSTED_TYPES_POLICY configuration option must provide a "createScriptURL" hook.');
           }
+          // Overwrite existing TrustedTypes policy.
           trustedTypesPolicy = cfg.TRUSTED_TYPES_POLICY;
+          // Sign local variables required by `sanitize`.
           emptyHTML = trustedTypesPolicy.createHTML('');
         } else {
+          // Uninitialized policy, attempt to initialize the internal dompurify policy.
           if (trustedTypesPolicy === undefined) {
             trustedTypesPolicy = _createTrustedTypesPolicy(trustedTypes, currentScript);
           }
+          // If creating the internal policy succeeded sign internal variables.
           if (trustedTypesPolicy !== null && typeof emptyHTML === 'string') {
             emptyHTML = trustedTypesPolicy.createHTML('');
           }
         }
+        // Prevent further manipulation of configuration.
+        // Not available in IE8, Safari 5, etc.
         if (freeze) {
           freeze(cfg);
         }
         CONFIG = cfg;
       };
-      const MATHML_TEXT_INTEGRATION_POINTS = addToSet({}, [
-        'mi',
-        'mo',
-        'mn',
-        'ms',
-        'mtext'
-      ]);
-      const HTML_INTEGRATION_POINTS = addToSet({}, [
-        'foreignobject',
-        'desc',
-        'title',
-        'annotation-xml'
-      ]);
-      const COMMON_SVG_AND_HTML_ELEMENTS = addToSet({}, [
-        'title',
-        'style',
-        'font',
-        'a',
-        'script'
-      ]);
-      const ALL_SVG_TAGS = addToSet({}, svg$1);
-      addToSet(ALL_SVG_TAGS, svgFilters);
-      addToSet(ALL_SVG_TAGS, svgDisallowed);
-      const ALL_MATHML_TAGS = addToSet({}, mathMl$1);
-      addToSet(ALL_MATHML_TAGS, mathMlDisallowed);
+      /* Keep track of all possible SVG and MathML tags
+       * so that we can perform the namespace checks
+       * correctly. */
+      const ALL_SVG_TAGS = addToSet({}, [...svg$1, ...svgFilters, ...svgDisallowed]);
+      const ALL_MATHML_TAGS = addToSet({}, [...mathMl$1, ...mathMlDisallowed]);
+      /**
+       * @param element a DOM element whose namespace is being checked
+       * @returns Return false if the element has a
+       *  namespace that a spec-compliant parser would never
+       *  return. Return true otherwise.
+       */
       const _checkValidNamespace = function _checkValidNamespace(element) {
         let parent = getParentNode(element);
+        // In JSDOM, if we're inside shadow DOM, then parentNode
+        // can be null. We just simulate parent in this case.
         if (!parent || !parent.tagName) {
           parent = {
             namespaceURI: NAMESPACE,
@@ -10277,313 +9891,499 @@
           return false;
         }
         if (element.namespaceURI === SVG_NAMESPACE) {
+          // The only way to switch from HTML namespace to SVG
+          // is via <svg>. If it happens via any other tag, then
+          // it should be killed.
           if (parent.namespaceURI === HTML_NAMESPACE) {
             return tagName === 'svg';
           }
+          // The only way to switch from MathML to SVG is via`
+          // svg if parent is either <annotation-xml> or MathML
+          // text integration points.
           if (parent.namespaceURI === MATHML_NAMESPACE) {
             return tagName === 'svg' && (parentTagName === 'annotation-xml' || MATHML_TEXT_INTEGRATION_POINTS[parentTagName]);
           }
+          // We only allow elements that are defined in SVG
+          // spec. All others are disallowed in SVG namespace.
           return Boolean(ALL_SVG_TAGS[tagName]);
         }
         if (element.namespaceURI === MATHML_NAMESPACE) {
+          // The only way to switch from HTML namespace to MathML
+          // is via <math>. If it happens via any other tag, then
+          // it should be killed.
           if (parent.namespaceURI === HTML_NAMESPACE) {
             return tagName === 'math';
           }
+          // The only way to switch from SVG to MathML is via
+          // <math> and HTML integration points
           if (parent.namespaceURI === SVG_NAMESPACE) {
             return tagName === 'math' && HTML_INTEGRATION_POINTS[parentTagName];
           }
+          // We only allow elements that are defined in MathML
+          // spec. All others are disallowed in MathML namespace.
           return Boolean(ALL_MATHML_TAGS[tagName]);
         }
         if (element.namespaceURI === HTML_NAMESPACE) {
+          // The only way to switch from SVG to HTML is via
+          // HTML integration points, and from MathML to HTML
+          // is via MathML text integration points
           if (parent.namespaceURI === SVG_NAMESPACE && !HTML_INTEGRATION_POINTS[parentTagName]) {
             return false;
           }
           if (parent.namespaceURI === MATHML_NAMESPACE && !MATHML_TEXT_INTEGRATION_POINTS[parentTagName]) {
             return false;
           }
+          // We disallow tags that are specific for MathML
+          // or SVG and should never appear in HTML namespace
           return !ALL_MATHML_TAGS[tagName] && (COMMON_SVG_AND_HTML_ELEMENTS[tagName] || !ALL_SVG_TAGS[tagName]);
         }
+        // For XHTML and XML documents that support custom namespaces
         if (PARSER_MEDIA_TYPE === 'application/xhtml+xml' && ALLOWED_NAMESPACES[element.namespaceURI]) {
           return true;
         }
+        // The code should never reach this place (this means
+        // that the element somehow got namespace that is not
+        // HTML, SVG, MathML or allowed via ALLOWED_NAMESPACES).
+        // Return false just in case.
         return false;
       };
+      /**
+       * _forceRemove
+       *
+       * @param node a DOM node
+       */
       const _forceRemove = function _forceRemove(node) {
-        arrayPush(DOMPurify.removed, { element: node });
+        arrayPush(DOMPurify.removed, {
+          element: node
+        });
         try {
-          node.parentNode.removeChild(node);
+          // eslint-disable-next-line unicorn/prefer-dom-node-remove
+          getParentNode(node).removeChild(node);
         } catch (_) {
-          node.remove();
+          remove(node);
         }
       };
-      const _removeAttribute = function _removeAttribute(name, node) {
+      /**
+       * _removeAttribute
+       *
+       * @param name an Attribute name
+       * @param element a DOM node
+       */
+      const _removeAttribute = function _removeAttribute(name, element) {
         try {
           arrayPush(DOMPurify.removed, {
-            attribute: node.getAttributeNode(name),
-            from: node
+            attribute: element.getAttributeNode(name),
+            from: element
           });
         } catch (_) {
           arrayPush(DOMPurify.removed, {
             attribute: null,
-            from: node
+            from: element
           });
         }
-        node.removeAttribute(name);
-        if (name === 'is' && !ALLOWED_ATTR[name]) {
+        element.removeAttribute(name);
+        // We void attribute values for unremovable "is" attributes
+        if (name === 'is') {
           if (RETURN_DOM || RETURN_DOM_FRAGMENT) {
             try {
-              _forceRemove(node);
-            } catch (_) {
-            }
+              _forceRemove(element);
+            } catch (_) {}
           } else {
             try {
-              node.setAttribute(name, '');
-            } catch (_) {
-            }
+              element.setAttribute(name, '');
+            } catch (_) {}
           }
         }
       };
+      /**
+       * _initDocument
+       *
+       * @param dirty - a string of dirty markup
+       * @return a DOM, filled with the dirty markup
+       */
       const _initDocument = function _initDocument(dirty) {
-        let doc;
-        let leadingWhitespace;
+        /* Create a HTML document */
+        let doc = null;
+        let leadingWhitespace = null;
         if (FORCE_BODY) {
           dirty = '<remove></remove>' + dirty;
         } else {
+          /* If FORCE_BODY isn't used, leading whitespace needs to be preserved manually */
           const matches = stringMatch(dirty, /^[\r\n\t ]+/);
           leadingWhitespace = matches && matches[0];
         }
         if (PARSER_MEDIA_TYPE === 'application/xhtml+xml' && NAMESPACE === HTML_NAMESPACE) {
+          // Root of XHTML doc must contain xmlns declaration (see https://www.w3.org/TR/xhtml1/normative.html#strict)
           dirty = '<html xmlns="http://www.w3.org/1999/xhtml"><head></head><body>' + dirty + '</body></html>';
         }
         const dirtyPayload = trustedTypesPolicy ? trustedTypesPolicy.createHTML(dirty) : dirty;
+        /*
+         * Use the DOMParser API by default, fallback later if needs be
+         * DOMParser not work for svg when has multiple root element.
+         */
         if (NAMESPACE === HTML_NAMESPACE) {
           try {
             doc = new DOMParser().parseFromString(dirtyPayload, PARSER_MEDIA_TYPE);
-          } catch (_) {
-          }
+          } catch (_) {}
         }
+        /* Use createHTMLDocument in case DOMParser is not available */
         if (!doc || !doc.documentElement) {
           doc = implementation.createDocument(NAMESPACE, 'template', null);
           try {
             doc.documentElement.innerHTML = IS_EMPTY_INPUT ? emptyHTML : dirtyPayload;
           } catch (_) {
+            // Syntax error if dirtyPayload is invalid xml
           }
         }
         const body = doc.body || doc.documentElement;
         if (dirty && leadingWhitespace) {
           body.insertBefore(document.createTextNode(leadingWhitespace), body.childNodes[0] || null);
         }
+        /* Work on whole document or just its body */
         if (NAMESPACE === HTML_NAMESPACE) {
           return getElementsByTagName.call(doc, WHOLE_DOCUMENT ? 'html' : 'body')[0];
         }
         return WHOLE_DOCUMENT ? doc.documentElement : body;
       };
-      const _createIterator = function _createIterator(root) {
-        return createNodeIterator.call(root.ownerDocument || root, root, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_COMMENT | NodeFilter.SHOW_TEXT, null, false);
+      /**
+       * Creates a NodeIterator object that you can use to traverse filtered lists of nodes or elements in a document.
+       *
+       * @param root The root element or node to start traversing on.
+       * @return The created NodeIterator
+       */
+      const _createNodeIterator = function _createNodeIterator(root) {
+        return createNodeIterator.call(root.ownerDocument || root, root,
+        // eslint-disable-next-line no-bitwise
+        NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_COMMENT | NodeFilter.SHOW_TEXT | NodeFilter.SHOW_PROCESSING_INSTRUCTION | NodeFilter.SHOW_CDATA_SECTION, null);
       };
-      const _isClobbered = function _isClobbered(elm) {
-        return elm instanceof HTMLFormElement && (typeof elm.nodeName !== 'string' || typeof elm.textContent !== 'string' || typeof elm.removeChild !== 'function' || !(elm.attributes instanceof NamedNodeMap) || typeof elm.removeAttribute !== 'function' || typeof elm.setAttribute !== 'function' || typeof elm.namespaceURI !== 'string' || typeof elm.insertBefore !== 'function' || typeof elm.hasChildNodes !== 'function');
+      /**
+       * _isClobbered
+       *
+       * @param element element to check for clobbering attacks
+       * @return true if clobbered, false if safe
+       */
+      const _isClobbered = function _isClobbered(element) {
+        return element instanceof HTMLFormElement && (typeof element.nodeName !== 'string' || typeof element.textContent !== 'string' || typeof element.removeChild !== 'function' || !(element.attributes instanceof NamedNodeMap) || typeof element.removeAttribute !== 'function' || typeof element.setAttribute !== 'function' || typeof element.namespaceURI !== 'string' || typeof element.insertBefore !== 'function' || typeof element.hasChildNodes !== 'function');
       };
-      const _isNode = function _isNode(object) {
-        return typeof Node === 'object' ? object instanceof Node : object && typeof object === 'object' && typeof object.nodeType === 'number' && typeof object.nodeName === 'string';
+      /**
+       * Checks whether the given object is a DOM node.
+       *
+       * @param value object to check whether it's a DOM node
+       * @return true is object is a DOM node
+       */
+      const _isNode = function _isNode(value) {
+        return typeof Node === 'function' && value instanceof Node;
       };
-      const _executeHook = function _executeHook(entryPoint, currentNode, data) {
-        if (!hooks[entryPoint]) {
-          return;
-        }
-        arrayForEach(hooks[entryPoint], hook => {
+      function _executeHooks(hooks, currentNode, data) {
+        arrayForEach(hooks, hook => {
           hook.call(DOMPurify, currentNode, data, CONFIG);
         });
-      };
+      }
+      /**
+       * _sanitizeElements
+       *
+       * @protect nodeName
+       * @protect textContent
+       * @protect removeChild
+       * @param currentNode to check for permission to exist
+       * @return true if node was killed, false if left alive
+       */
       const _sanitizeElements = function _sanitizeElements(currentNode) {
-        let content;
-        _executeHook('beforeSanitizeElements', currentNode, null);
+        let content = null;
+        /* Execute a hook if present */
+        _executeHooks(hooks.beforeSanitizeElements, currentNode, null);
+        /* Check if element is clobbered or can clobber */
         if (_isClobbered(currentNode)) {
           _forceRemove(currentNode);
           return true;
         }
+        /* Now let's check the element's type and name */
         const tagName = transformCaseFunc(currentNode.nodeName);
-        _executeHook('uponSanitizeElement', currentNode, {
+        /* Execute a hook if present */
+        _executeHooks(hooks.uponSanitizeElement, currentNode, {
           tagName,
           allowedTags: ALLOWED_TAGS
         });
-        if (currentNode.hasChildNodes() && !_isNode(currentNode.firstElementChild) && (!_isNode(currentNode.content) || !_isNode(currentNode.content.firstElementChild)) && regExpTest(/<[/\w]/g, currentNode.innerHTML) && regExpTest(/<[/\w]/g, currentNode.textContent)) {
+        /* Detect mXSS attempts abusing namespace confusion */
+        if (currentNode.hasChildNodes() && !_isNode(currentNode.firstElementChild) && regExpTest(/<[/\w]/g, currentNode.innerHTML) && regExpTest(/<[/\w]/g, currentNode.textContent)) {
           _forceRemove(currentNode);
           return true;
         }
+        /* Remove any occurrence of processing instructions */
+        if (currentNode.nodeType === NODE_TYPE.progressingInstruction) {
+          _forceRemove(currentNode);
+          return true;
+        }
+        /* Remove any kind of possibly harmful comments */
+        if (SAFE_FOR_XML && currentNode.nodeType === NODE_TYPE.comment && regExpTest(/<[/\w]/g, currentNode.data)) {
+          _forceRemove(currentNode);
+          return true;
+        }
+        /* Remove element if anything forbids its presence */
         if (!ALLOWED_TAGS[tagName] || FORBID_TAGS[tagName]) {
-          if (!FORBID_TAGS[tagName] && _basicCustomElementTest(tagName)) {
-            if (CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof RegExp && regExpTest(CUSTOM_ELEMENT_HANDLING.tagNameCheck, tagName))
+          /* Check if we have a custom element to handle */
+          if (!FORBID_TAGS[tagName] && _isBasicCustomElement(tagName)) {
+            if (CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof RegExp && regExpTest(CUSTOM_ELEMENT_HANDLING.tagNameCheck, tagName)) {
               return false;
-            if (CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof Function && CUSTOM_ELEMENT_HANDLING.tagNameCheck(tagName))
+            }
+            if (CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof Function && CUSTOM_ELEMENT_HANDLING.tagNameCheck(tagName)) {
               return false;
+            }
           }
+          /* Keep content except for bad-listed elements */
           if (KEEP_CONTENT && !FORBID_CONTENTS[tagName]) {
             const parentNode = getParentNode(currentNode) || currentNode.parentNode;
             const childNodes = getChildNodes(currentNode) || currentNode.childNodes;
             if (childNodes && parentNode) {
               const childCount = childNodes.length;
               for (let i = childCount - 1; i >= 0; --i) {
-                parentNode.insertBefore(cloneNode(childNodes[i], true), getNextSibling(currentNode));
+                const childClone = cloneNode(childNodes[i], true);
+                childClone.__removalCount = (currentNode.__removalCount || 0) + 1;
+                parentNode.insertBefore(childClone, getNextSibling(currentNode));
               }
             }
           }
           _forceRemove(currentNode);
           return true;
         }
+        /* Check whether element has a valid namespace */
         if (currentNode instanceof Element && !_checkValidNamespace(currentNode)) {
           _forceRemove(currentNode);
           return true;
         }
+        /* Make sure that older browsers don't get fallback-tag mXSS */
         if ((tagName === 'noscript' || tagName === 'noembed' || tagName === 'noframes') && regExpTest(/<\/no(script|embed|frames)/i, currentNode.innerHTML)) {
           _forceRemove(currentNode);
           return true;
         }
-        if (SAFE_FOR_TEMPLATES && currentNode.nodeType === 3) {
+        /* Sanitize element content to be template-safe */
+        if (SAFE_FOR_TEMPLATES && currentNode.nodeType === NODE_TYPE.text) {
+          /* Get the element's text content */
           content = currentNode.textContent;
-          content = stringReplace(content, MUSTACHE_EXPR, ' ');
-          content = stringReplace(content, ERB_EXPR, ' ');
-          content = stringReplace(content, TMPLIT_EXPR, ' ');
+          arrayForEach([MUSTACHE_EXPR, ERB_EXPR, TMPLIT_EXPR], expr => {
+            content = stringReplace(content, expr, ' ');
+          });
           if (currentNode.textContent !== content) {
-            arrayPush(DOMPurify.removed, { element: currentNode.cloneNode() });
+            arrayPush(DOMPurify.removed, {
+              element: currentNode.cloneNode()
+            });
             currentNode.textContent = content;
           }
         }
-        _executeHook('afterSanitizeElements', currentNode, null);
+        /* Execute a hook if present */
+        _executeHooks(hooks.afterSanitizeElements, currentNode, null);
         return false;
       };
+      /**
+       * _isValidAttribute
+       *
+       * @param lcTag Lowercase tag name of containing element.
+       * @param lcName Lowercase attribute name.
+       * @param value Attribute value.
+       * @return Returns true if `value` is valid, otherwise false.
+       */
+      // eslint-disable-next-line complexity
       const _isValidAttribute = function _isValidAttribute(lcTag, lcName, value) {
+        /* Make sure attribute cannot clobber */
         if (SANITIZE_DOM && (lcName === 'id' || lcName === 'name') && (value in document || value in formElement)) {
           return false;
         }
-        if (ALLOW_DATA_ATTR && !FORBID_ATTR[lcName] && regExpTest(DATA_ATTR, lcName));
-        else if (ALLOW_ARIA_ATTR && regExpTest(ARIA_ATTR, lcName));
-        else if (!ALLOWED_ATTR[lcName] || FORBID_ATTR[lcName]) {
-          if (_basicCustomElementTest(lcTag) && (CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof RegExp && regExpTest(CUSTOM_ELEMENT_HANDLING.tagNameCheck, lcTag) || CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof Function && CUSTOM_ELEMENT_HANDLING.tagNameCheck(lcTag)) && (CUSTOM_ELEMENT_HANDLING.attributeNameCheck instanceof RegExp && regExpTest(CUSTOM_ELEMENT_HANDLING.attributeNameCheck, lcName) || CUSTOM_ELEMENT_HANDLING.attributeNameCheck instanceof Function && CUSTOM_ELEMENT_HANDLING.attributeNameCheck(lcName)) || lcName === 'is' && CUSTOM_ELEMENT_HANDLING.allowCustomizedBuiltInElements && (CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof RegExp && regExpTest(CUSTOM_ELEMENT_HANDLING.tagNameCheck, value) || CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof Function && CUSTOM_ELEMENT_HANDLING.tagNameCheck(value)));
-          else {
+        /* Allow valid data-* attributes: At least one character after "-"
+            (https://html.spec.whatwg.org/multipage/dom.html#embedding-custom-non-visible-data-with-the-data-*-attributes)
+            XML-compatible (https://html.spec.whatwg.org/multipage/infrastructure.html#xml-compatible and http://www.w3.org/TR/xml/#d0e804)
+            We don't need to check the value; it's always URI safe. */
+        if (ALLOW_DATA_ATTR && !FORBID_ATTR[lcName] && regExpTest(DATA_ATTR, lcName)) ; else if (ALLOW_ARIA_ATTR && regExpTest(ARIA_ATTR, lcName)) ; else if (!ALLOWED_ATTR[lcName] || FORBID_ATTR[lcName]) {
+          if (
+          // First condition does a very basic check if a) it's basically a valid custom element tagname AND
+          // b) if the tagName passes whatever the user has configured for CUSTOM_ELEMENT_HANDLING.tagNameCheck
+          // and c) if the attribute name passes whatever the user has configured for CUSTOM_ELEMENT_HANDLING.attributeNameCheck
+          _isBasicCustomElement(lcTag) && (CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof RegExp && regExpTest(CUSTOM_ELEMENT_HANDLING.tagNameCheck, lcTag) || CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof Function && CUSTOM_ELEMENT_HANDLING.tagNameCheck(lcTag)) && (CUSTOM_ELEMENT_HANDLING.attributeNameCheck instanceof RegExp && regExpTest(CUSTOM_ELEMENT_HANDLING.attributeNameCheck, lcName) || CUSTOM_ELEMENT_HANDLING.attributeNameCheck instanceof Function && CUSTOM_ELEMENT_HANDLING.attributeNameCheck(lcName)) ||
+          // Alternative, second condition checks if it's an `is`-attribute, AND
+          // the value passes whatever the user has configured for CUSTOM_ELEMENT_HANDLING.tagNameCheck
+          lcName === 'is' && CUSTOM_ELEMENT_HANDLING.allowCustomizedBuiltInElements && (CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof RegExp && regExpTest(CUSTOM_ELEMENT_HANDLING.tagNameCheck, value) || CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof Function && CUSTOM_ELEMENT_HANDLING.tagNameCheck(value))) ; else {
             return false;
           }
-        } else if (URI_SAFE_ATTRIBUTES[lcName]);
-        else if (regExpTest(IS_ALLOWED_URI$1, stringReplace(value, ATTR_WHITESPACE, '')));
-        else if ((lcName === 'src' || lcName === 'xlink:href' || lcName === 'href') && lcTag !== 'script' && stringIndexOf(value, 'data:') === 0 && DATA_URI_TAGS[lcTag]);
-        else if (ALLOW_UNKNOWN_PROTOCOLS && !regExpTest(IS_SCRIPT_OR_DATA, stringReplace(value, ATTR_WHITESPACE, '')));
-        else if (value) {
+          /* Check value is safe. First, is attr inert? If so, is safe */
+        } else if (URI_SAFE_ATTRIBUTES[lcName]) ; else if (regExpTest(IS_ALLOWED_URI$1, stringReplace(value, ATTR_WHITESPACE, ''))) ; else if ((lcName === 'src' || lcName === 'xlink:href' || lcName === 'href') && lcTag !== 'script' && stringIndexOf(value, 'data:') === 0 && DATA_URI_TAGS[lcTag]) ; else if (ALLOW_UNKNOWN_PROTOCOLS && !regExpTest(IS_SCRIPT_OR_DATA, stringReplace(value, ATTR_WHITESPACE, ''))) ; else if (value) {
           return false;
         } else ;
         return true;
       };
-      const _basicCustomElementTest = function _basicCustomElementTest(tagName) {
-        return tagName.indexOf('-') > 0;
+      /**
+       * _isBasicCustomElement
+       * checks if at least one dash is included in tagName, and it's not the first char
+       * for more sophisticated checking see https://github.com/sindresorhus/validate-element-name
+       *
+       * @param tagName name of the tag of the node to sanitize
+       * @returns Returns true if the tag name meets the basic criteria for a custom element, otherwise false.
+       */
+      const _isBasicCustomElement = function _isBasicCustomElement(tagName) {
+        return tagName !== 'annotation-xml' && stringMatch(tagName, CUSTOM_ELEMENT);
       };
+      /**
+       * _sanitizeAttributes
+       *
+       * @protect attributes
+       * @protect nodeName
+       * @protect removeAttribute
+       * @protect setAttribute
+       *
+       * @param currentNode to sanitize
+       */
       const _sanitizeAttributes = function _sanitizeAttributes(currentNode) {
-        let attr;
-        let value;
-        let lcName;
-        let l;
-        _executeHook('beforeSanitizeAttributes', currentNode, null);
-        const {attributes} = currentNode;
-        if (!attributes) {
+        /* Execute a hook if present */
+        _executeHooks(hooks.beforeSanitizeAttributes, currentNode, null);
+        const {
+          attributes
+        } = currentNode;
+        /* Check if we have attributes; if not we might have a text node */
+        if (!attributes || _isClobbered(currentNode)) {
           return;
         }
         const hookEvent = {
           attrName: '',
           attrValue: '',
           keepAttr: true,
-          allowedAttributes: ALLOWED_ATTR
+          allowedAttributes: ALLOWED_ATTR,
+          forceKeepAttr: undefined
         };
-        l = attributes.length;
+        let l = attributes.length;
+        /* Go backwards over all attributes; safely remove bad ones */
         while (l--) {
-          attr = attributes[l];
-          const {name, namespaceURI} = attr;
-          value = name === 'value' ? attr.value : stringTrim(attr.value);
+          const attr = attributes[l];
+          const {
+            name,
+            namespaceURI,
+            value: attrValue
+          } = attr;
+          const lcName = transformCaseFunc(name);
+          let value = name === 'value' ? attrValue : stringTrim(attrValue);
           const initValue = value;
-          lcName = transformCaseFunc(name);
+          /* Execute a hook if present */
           hookEvent.attrName = lcName;
           hookEvent.attrValue = value;
           hookEvent.keepAttr = true;
-          hookEvent.forceKeepAttr = undefined;
-          _executeHook('uponSanitizeAttribute', currentNode, hookEvent);
+          hookEvent.forceKeepAttr = undefined; // Allows developers to see this is a property they can set
+          _executeHooks(hooks.uponSanitizeAttribute, currentNode, hookEvent);
           value = hookEvent.attrValue;
+          /* Full DOM Clobbering protection via namespace isolation,
+           * Prefix id and name attributes with `user-content-`
+           */
+          if (SANITIZE_NAMED_PROPS && (lcName === 'id' || lcName === 'name')) {
+            // Remove the attribute with this value
+            _removeAttribute(name, currentNode);
+            // Prefix the value and later re-create the attribute with the sanitized value
+            value = SANITIZE_NAMED_PROPS_PREFIX + value;
+          }
+          /* Work around a security issue with comments inside attributes */
+          if (SAFE_FOR_XML && regExpTest(/((--!?|])>)|<\/(style|title)/i, value)) {
+            _removeAttribute(name, currentNode);
+            continue;
+          }
+          /* Did the hooks approve of the attribute? */
           if (hookEvent.forceKeepAttr) {
             continue;
           }
+          /* Remove attribute */
+          /* Did the hooks approve of the attribute? */
           if (!hookEvent.keepAttr) {
             _removeAttribute(name, currentNode);
             continue;
           }
+          /* Work around a security issue in jQuery 3.0 */
           if (!ALLOW_SELF_CLOSE_IN_ATTR && regExpTest(/\/>/i, value)) {
             _removeAttribute(name, currentNode);
             continue;
           }
+          /* Sanitize attribute content to be template-safe */
           if (SAFE_FOR_TEMPLATES) {
-            value = stringReplace(value, MUSTACHE_EXPR, ' ');
-            value = stringReplace(value, ERB_EXPR, ' ');
-            value = stringReplace(value, TMPLIT_EXPR, ' ');
+            arrayForEach([MUSTACHE_EXPR, ERB_EXPR, TMPLIT_EXPR], expr => {
+              value = stringReplace(value, expr, ' ');
+            });
           }
+          /* Is `value` valid for this attribute? */
           const lcTag = transformCaseFunc(currentNode.nodeName);
           if (!_isValidAttribute(lcTag, lcName, value)) {
             _removeAttribute(name, currentNode);
             continue;
           }
-          if (SANITIZE_NAMED_PROPS && (lcName === 'id' || lcName === 'name')) {
-            _removeAttribute(name, currentNode);
-            value = SANITIZE_NAMED_PROPS_PREFIX + value;
-          }
+          /* Handle attributes that require Trusted Types */
           if (trustedTypesPolicy && typeof trustedTypes === 'object' && typeof trustedTypes.getAttributeType === 'function') {
-            if (namespaceURI);
-            else {
+            if (namespaceURI) ; else {
               switch (trustedTypes.getAttributeType(lcTag, lcName)) {
-              case 'TrustedHTML': {
-                  value = trustedTypesPolicy.createHTML(value);
-                  break;
-                }
-              case 'TrustedScriptURL': {
-                  value = trustedTypesPolicy.createScriptURL(value);
-                  break;
-                }
+                case 'TrustedHTML':
+                  {
+                    value = trustedTypesPolicy.createHTML(value);
+                    break;
+                  }
+                case 'TrustedScriptURL':
+                  {
+                    value = trustedTypesPolicy.createScriptURL(value);
+                    break;
+                  }
               }
             }
           }
+          /* Handle invalid data-* attribute set by try-catching it */
           if (value !== initValue) {
             try {
               if (namespaceURI) {
                 currentNode.setAttributeNS(namespaceURI, name, value);
               } else {
+                /* Fallback to setAttribute() for browser-unrecognized namespaces e.g. "x-schema". */
                 currentNode.setAttribute(name, value);
               }
-            } catch (_) {
-              _removeAttribute(name, currentNode);
-            }
+              if (_isClobbered(currentNode)) {
+                _forceRemove(currentNode);
+              } else {
+                arrayPop(DOMPurify.removed);
+              }
+            } catch (_) {}
           }
         }
-        _executeHook('afterSanitizeAttributes', currentNode, null);
+        /* Execute a hook if present */
+        _executeHooks(hooks.afterSanitizeAttributes, currentNode, null);
       };
+      /**
+       * _sanitizeShadowDOM
+       *
+       * @param fragment to iterate over recursively
+       */
       const _sanitizeShadowDOM = function _sanitizeShadowDOM(fragment) {
-        let shadowNode;
-        const shadowIterator = _createIterator(fragment);
-        _executeHook('beforeSanitizeShadowDOM', fragment, null);
+        let shadowNode = null;
+        const shadowIterator = _createNodeIterator(fragment);
+        /* Execute a hook if present */
+        _executeHooks(hooks.beforeSanitizeShadowDOM, fragment, null);
         while (shadowNode = shadowIterator.nextNode()) {
-          _executeHook('uponSanitizeShadowNode', shadowNode, null);
-          if (_sanitizeElements(shadowNode)) {
-            continue;
-          }
+          /* Execute a hook if present */
+          _executeHooks(hooks.uponSanitizeShadowNode, shadowNode, null);
+          /* Sanitize tags and elements */
+          _sanitizeElements(shadowNode);
+          /* Check attributes next */
+          _sanitizeAttributes(shadowNode);
+          /* Deep shadow DOM detected */
           if (shadowNode.content instanceof DocumentFragment) {
             _sanitizeShadowDOM(shadowNode.content);
           }
-          _sanitizeAttributes(shadowNode);
         }
-        _executeHook('afterSanitizeShadowDOM', fragment, null);
+        /* Execute a hook if present */
+        _executeHooks(hooks.afterSanitizeShadowDOM, fragment, null);
       };
+      // eslint-disable-next-line complexity
       DOMPurify.sanitize = function (dirty) {
         let cfg = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-        let body;
-        let importedNode;
-        let currentNode;
-        let returnNode;
+        let body = null;
+        let importedNode = null;
+        let currentNode = null;
+        let returnNode = null;
+        /* Make sure we have a string to sanitize.
+          DO NOT return early, as this will return the wrong type if
+          the user has requested a DOM object rather than a string */
         IS_EMPTY_INPUT = !dirty;
         if (IS_EMPTY_INPUT) {
           dirty = '<!-->';
         }
+        /* Stringify, in case dirty is an object */
         if (typeof dirty !== 'string' && !_isNode(dirty)) {
           if (typeof dirty.toString === 'function') {
             dirty = dirty.toString();
@@ -10594,17 +10394,22 @@
             throw typeErrorCreate('toString is not a function');
           }
         }
+        /* Return dirty HTML if DOMPurify cannot run */
         if (!DOMPurify.isSupported) {
           return dirty;
         }
+        /* Assign config vars */
         if (!SET_CONFIG) {
           _parseConfig(cfg);
         }
+        /* Clean up removed elements */
         DOMPurify.removed = [];
+        /* Check if dirty is correctly typed for IN_PLACE */
         if (typeof dirty === 'string') {
           IN_PLACE = false;
         }
         if (IN_PLACE) {
+          /* Do some early pre-sanitization to avoid unsafe root nodes */
           if (dirty.nodeName) {
             const tagName = transformCaseFunc(dirty.nodeName);
             if (!ALLOWED_TAGS[tagName] || FORBID_TAGS[tagName]) {
@@ -10612,66 +10417,92 @@
             }
           }
         } else if (dirty instanceof Node) {
+          /* If dirty is a DOM element, append to an empty document to avoid
+             elements being stripped by the parser */
           body = _initDocument('<!---->');
           importedNode = body.ownerDocument.importNode(dirty, true);
-          if (importedNode.nodeType === 1 && importedNode.nodeName === 'BODY') {
+          if (importedNode.nodeType === NODE_TYPE.element && importedNode.nodeName === 'BODY') {
+            /* Node is already a body, use as is */
             body = importedNode;
           } else if (importedNode.nodeName === 'HTML') {
             body = importedNode;
           } else {
+            // eslint-disable-next-line unicorn/prefer-dom-node-append
             body.appendChild(importedNode);
           }
         } else {
-          if (!RETURN_DOM && !SAFE_FOR_TEMPLATES && !WHOLE_DOCUMENT && dirty.indexOf('<') === -1) {
+          /* Exit directly if we have nothing to do */
+          if (!RETURN_DOM && !SAFE_FOR_TEMPLATES && !WHOLE_DOCUMENT &&
+          // eslint-disable-next-line unicorn/prefer-includes
+          dirty.indexOf('<') === -1) {
             return trustedTypesPolicy && RETURN_TRUSTED_TYPE ? trustedTypesPolicy.createHTML(dirty) : dirty;
           }
+          /* Initialize the document to work on */
           body = _initDocument(dirty);
+          /* Check we have a DOM node from the data */
           if (!body) {
             return RETURN_DOM ? null : RETURN_TRUSTED_TYPE ? emptyHTML : '';
           }
         }
+        /* Remove first element node (ours) if FORCE_BODY is set */
         if (body && FORCE_BODY) {
           _forceRemove(body.firstChild);
         }
-        const nodeIterator = _createIterator(IN_PLACE ? dirty : body);
+        /* Get node iterator */
+        const nodeIterator = _createNodeIterator(IN_PLACE ? dirty : body);
+        /* Now start iterating over the created document */
         while (currentNode = nodeIterator.nextNode()) {
-          if (_sanitizeElements(currentNode)) {
-            continue;
-          }
+          /* Sanitize tags and elements */
+          _sanitizeElements(currentNode);
+          /* Check attributes next */
+          _sanitizeAttributes(currentNode);
+          /* Shadow DOM detected, sanitize it */
           if (currentNode.content instanceof DocumentFragment) {
             _sanitizeShadowDOM(currentNode.content);
           }
-          _sanitizeAttributes(currentNode);
         }
+        /* If we sanitized `dirty` in-place, return it. */
         if (IN_PLACE) {
           return dirty;
         }
+        /* Return sanitized string or DOM */
         if (RETURN_DOM) {
           if (RETURN_DOM_FRAGMENT) {
             returnNode = createDocumentFragment.call(body.ownerDocument);
             while (body.firstChild) {
+              // eslint-disable-next-line unicorn/prefer-dom-node-append
               returnNode.appendChild(body.firstChild);
             }
           } else {
             returnNode = body;
           }
           if (ALLOWED_ATTR.shadowroot || ALLOWED_ATTR.shadowrootmode) {
+            /*
+              AdoptNode() is not used because internal state is not reset
+              (e.g. the past names map of a HTMLFormElement), this is safe
+              in theory but we would rather not risk another attack vector.
+              The state that is cloned by importNode() is explicitly defined
+              by the specs.
+            */
             returnNode = importNode.call(originalDocument, returnNode, true);
           }
           return returnNode;
         }
         let serializedHTML = WHOLE_DOCUMENT ? body.outerHTML : body.innerHTML;
+        /* Serialize doctype if allowed */
         if (WHOLE_DOCUMENT && ALLOWED_TAGS['!doctype'] && body.ownerDocument && body.ownerDocument.doctype && body.ownerDocument.doctype.name && regExpTest(DOCTYPE_NAME, body.ownerDocument.doctype.name)) {
           serializedHTML = '<!DOCTYPE ' + body.ownerDocument.doctype.name + '>\n' + serializedHTML;
         }
+        /* Sanitize final string template-safe */
         if (SAFE_FOR_TEMPLATES) {
-          serializedHTML = stringReplace(serializedHTML, MUSTACHE_EXPR, ' ');
-          serializedHTML = stringReplace(serializedHTML, ERB_EXPR, ' ');
-          serializedHTML = stringReplace(serializedHTML, TMPLIT_EXPR, ' ');
+          arrayForEach([MUSTACHE_EXPR, ERB_EXPR, TMPLIT_EXPR], expr => {
+            serializedHTML = stringReplace(serializedHTML, expr, ' ');
+          });
         }
         return trustedTypesPolicy && RETURN_TRUSTED_TYPE ? trustedTypesPolicy.createHTML(serializedHTML) : serializedHTML;
       };
-      DOMPurify.setConfig = function (cfg) {
+      DOMPurify.setConfig = function () {
+        let cfg = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
         _parseConfig(cfg);
         SET_CONFIG = true;
       };
@@ -10680,6 +10511,7 @@
         SET_CONFIG = false;
       };
       DOMPurify.isValidAttribute = function (tag, attr, value) {
+        /* Initialize shared config vars if necessary. */
         if (!CONFIG) {
           _parseConfig({});
         }
@@ -10691,21 +10523,20 @@
         if (typeof hookFunction !== 'function') {
           return;
         }
-        hooks[entryPoint] = hooks[entryPoint] || [];
         arrayPush(hooks[entryPoint], hookFunction);
       };
-      DOMPurify.removeHook = function (entryPoint) {
-        if (hooks[entryPoint]) {
-          return arrayPop(hooks[entryPoint]);
+      DOMPurify.removeHook = function (entryPoint, hookFunction) {
+        if (hookFunction !== undefined) {
+          const index = arrayLastIndexOf(hooks[entryPoint], hookFunction);
+          return index === -1 ? undefined : arraySplice(hooks[entryPoint], index, 1)[0];
         }
+        return arrayPop(hooks[entryPoint]);
       };
       DOMPurify.removeHooks = function (entryPoint) {
-        if (hooks[entryPoint]) {
-          hooks[entryPoint] = [];
-        }
+        hooks[entryPoint] = [];
       };
       DOMPurify.removeAllHooks = function () {
-        hooks = {};
+        hooks = _createHooksMap();
       };
       return DOMPurify;
     }
@@ -10851,8 +10682,8 @@
       };
       const iconChoices = flatten([
         detail.icon.toArray(),
-        detail.level.toArray(),
-        detail.level.bind(level => Optional.from(notificationIconMap[level])).toArray()
+        [detail.level],
+        Optional.from(notificationIconMap[detail.level]).toArray()
       ]);
       const memButton = record(Button.sketch({
         dom: {
@@ -10901,14 +10732,11 @@
             'role': 'alert',
             'aria-labelledby': notificationTextId
           },
-          classes: detail.level.map(level => [
+          classes: [
             'tox-notification',
             'tox-notification--in',
-            `tox-notification--${ level }`
-          ]).getOr([
-            'tox-notification',
-            'tox-notification--in'
-          ])
+            `tox-notification--${ detail.level }`
+          ]
         },
         behaviours: derive$1([
           Tabstopping.config({}),
@@ -10929,7 +10757,13 @@
       name: 'Notification',
       factory: factory$m,
       configFields: [
-        option$3('level'),
+        defaultedStringEnum('level', 'info', [
+          'success',
+          'error',
+          'warning',
+          'warn',
+          'info'
+        ]),
         required$1('progress'),
         option$3('icon'),
         required$1('onAction'),
@@ -10949,13 +10783,15 @@
 
     var NotificationManagerImpl = (editor, extras, uiMothership, notificationRegion) => {
       const sharedBackstage = extras.backstage.shared;
+      const getBoundsContainer = () => SugarElement.fromDom(editor.queryCommandValue('ToggleView') === '' ? editor.getContentAreaContainer() : editor.getContainer());
       const getBounds = () => {
-        const contentArea = box$1(SugarElement.fromDom(editor.getContentAreaContainer()));
+        const contentArea = box$1(getBoundsContainer());
         return Optional.some(contentArea);
       };
       const clampComponentsToBounds = components => {
         getBounds().each(bounds => {
           each$1(components, comp => {
+            remove$7(comp.element, 'width');
             if (get$d(comp.element) > bounds.width) {
               set$8(comp.element, 'width', bounds.width + 'px');
             }
@@ -10994,6 +10830,7 @@
             manageRegionVisibility(region, editorOrUIFocused);
           });
         };
+        const shouldApplyDocking = () => !isStickyToolbar(editor) || !sharedBackstage.header.isPositionedAtTop();
         const notification = build$1(Notification.sketch({
           text: settings.text,
           level: contains$2([
@@ -11028,9 +10865,9 @@
                 selector: '.tox-notification, .tox-notification a, .tox-notification button'
               }),
               Replacing.config({}),
-              ...isStickyToolbar(editor) && !sharedBackstage.header.isPositionedAtTop() ? [] : [Docking.config({
+              ...shouldApplyDocking() ? [Docking.config({
                   contextual: {
-                    lazyContext: () => Optional.some(box$1(SugarElement.fromDom(editor.getContentAreaContainer()))),
+                    lazyContext: () => Optional.some(box$1(getBoundsContainer())),
                     fadeInClass: 'tox-notification-container-dock-fadein',
                     fadeOutClass: 'tox-notification-container-dock-fadeout',
                     transitionClass: 'tox-notification-container-dock-transition'
@@ -11052,7 +10889,7 @@
                       optScrollEnv: Optional.none()
                     }));
                   }
-                })]
+                })] : []
             ])
           }));
           const notificationSpec = premade(notification);
@@ -11069,7 +10906,9 @@
           notificationRegion.on(notificationWrapper => {
             Replacing.append(notificationWrapper, notificationSpec);
             InlineView.reposition(notificationWrapper);
-            Docking.refresh(notificationWrapper);
+            if (notification.hasConfigured(Docking)) {
+              Docking.refresh(notificationWrapper);
+            }
             clampComponentsToBounds(notificationWrapper.components());
           });
         }
@@ -11081,7 +10920,9 @@
         const reposition = () => {
           notificationRegion.on(region => {
             InlineView.reposition(region);
-            Docking.refresh(region);
+            if (region.hasConfigured(Docking)) {
+              Docking.refresh(region);
+            }
             clampComponentsToBounds(region.components());
           });
         };
@@ -11242,12 +11083,15 @@
     };
 
     const schema$l = constant$1([
+      defaultedString('type', 'text'),
       option$3('data'),
       defaulted('inputAttributes', {}),
       defaulted('inputStyles', {}),
       defaulted('tag', 'input'),
       defaulted('inputClasses', []),
       onHandler('onSetValue'),
+      defaultedFunction('fromInputValue', identity),
+      defaultedFunction('toInputValue', identity),
       defaulted('styles', {}),
       defaulted('eventOrder', {}),
       field('inputBehaviours', [
@@ -11260,7 +11104,9 @@
         onFocus: !detail.selectOnFocus ? noop : component => {
           const input = component.element;
           const value = get$7(input);
-          input.dom.setSelectionRange(0, value.length);
+          if (detail.type !== 'range') {
+            input.dom.setSelectionRange(0, value.length);
+          }
         }
       })]);
     const behaviours = detail => ({
@@ -11270,12 +11116,12 @@
             mode: 'manual',
             ...detail.data.map(data => ({ initialValue: data })).getOr({}),
             getValue: input => {
-              return get$7(input.element);
+              return detail.fromInputValue(get$7(input.element));
             },
             setValue: (input, data) => {
               const current = get$7(input.element);
               if (current !== data) {
-                set$5(input.element, data);
+                set$5(input.element, detail.toInputValue(data));
               }
             }
           },
@@ -11285,7 +11131,7 @@
     const dom = detail => ({
       tag: detail.tag,
       attributes: {
-        type: 'text',
+        type: detail.type,
         ...detail.inputAttributes
       },
       styles: detail.inputStyles,
@@ -11643,6 +11489,7 @@
     const onSetup = defaultedFunction('onSetup', () => noop);
     const optionalName = optionString('name');
     const optionalText = optionString('text');
+    const optionalRole = optionString('role');
     const optionalIcon = optionString('icon');
     const optionalTooltip = optionString('tooltip');
     const optionalLabel = optionString('label');
@@ -11682,7 +11529,8 @@
       optionalTooltip,
       optionalIcon,
       optionalText,
-      onSetup
+      onSetup,
+      defaultedString('context', 'mode:design')
     ];
     const toolbarButtonSchema = objOf([
       type,
@@ -11714,12 +11562,14 @@
 
     const contextButtonFields = baseToolbarButtonFields.concat([
       defaultedType('contextformbutton'),
+      defaultedString('align', 'end'),
       primary,
       onAction,
       customField('original', identity)
     ]);
     const contextToggleButtonFields = baseToolbarToggleButtonFields.concat([
       defaultedType('contextformbutton'),
+      defaultedString('align', 'end'),
       primary,
       onAction,
       customField('original', identity)
@@ -11730,22 +11580,67 @@
       contextformbutton: contextButtonFields,
       contextformtogglebutton: contextToggleButtonFields
     });
-    const contextFormSchema = objOf([
-      defaultedType('contextform'),
-      defaultedFunction('initValue', constant$1('')),
+    const baseContextFormFields = [
       optionalLabel,
       requiredArrayOf('commands', toggleOrNormal),
       optionOf('launch', choose$1('type', {
         contextformbutton: launchButtonFields,
         contextformtogglebutton: launchToggleButtonFields
+      })),
+      defaultedFunction('onInput', noop),
+      defaultedFunction('onSetup', noop)
+    ];
+    const contextFormFields = [
+      ...contextBarFields,
+      ...baseContextFormFields,
+      requiredStringEnum('type', ['contextform']),
+      defaultedFunction('initValue', constant$1('')),
+      optionString('placeholder')
+    ];
+    const contextSliderFormFields = [
+      ...contextBarFields,
+      ...baseContextFormFields,
+      requiredStringEnum('type', ['contextsliderform']),
+      defaultedFunction('initValue', constant$1(0)),
+      defaultedFunction('min', constant$1(0)),
+      defaultedFunction('max', constant$1(100))
+    ];
+    const contextSizeInputFormFields = [
+      ...contextBarFields,
+      ...baseContextFormFields,
+      requiredStringEnum('type', ['contextsizeinputform']),
+      defaultedFunction('initValue', constant$1({
+        width: '',
+        height: ''
       }))
-    ].concat(contextBarFields));
+    ];
+    const contextFormSchema = choose$1('type', {
+      contextform: contextFormFields,
+      contextsliderform: contextSliderFormFields,
+      contextsizeinputform: contextSizeInputFormFields
+    });
     const createContextForm = spec => asRaw('ContextForm', contextFormSchema, spec);
 
     const contextToolbarSchema = objOf([
       defaultedType('contexttoolbar'),
-      requiredString('items')
+      requiredOf('items', oneOf([
+        string,
+        arrOfObj([
+          optionString('name'),
+          optionString('label'),
+          requiredArrayOf('items', string)
+        ])
+      ]))
     ].concat(contextBarFields));
+    const toolbarGroupBackToSpec = toolbarGroup => ({
+      name: toolbarGroup.name.getOrUndefined(),
+      label: toolbarGroup.label.getOrUndefined(),
+      items: toolbarGroup.items
+    });
+    const contextToolbarToSpec = contextToolbar => ({
+      ...contextToolbar,
+      items: isString(contextToolbar.items) ? contextToolbar.items : map$2(contextToolbar.items, toolbarGroupBackToSpec)
+    });
     const createContextToolbar = spec => asRaw('ContextToolbar', contextToolbarSchema, spec);
 
     const cardImageFields = [
@@ -11780,9 +11675,11 @@
     const commonMenuItemFields = [
       enabled,
       optionalText,
+      optionalRole,
       optionalShortcut,
       generatedValue('menuitem'),
-      defaultedMeta
+      defaultedMeta,
+      defaultedString('context', 'mode:design')
     ];
 
     const cardMenuItemSchema = objOf([
@@ -11872,46 +11769,6 @@
 
     const escape = text => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-    const ReadOnlyChannel = 'silver.readonly';
-    const ReadOnlyDataSchema = objOf([requiredBoolean('readonly')]);
-    const broadcastReadonly = (uiRefs, readonly) => {
-      const outerContainer = uiRefs.mainUi.outerContainer;
-      const target = outerContainer.element;
-      const motherships = [
-        uiRefs.mainUi.mothership,
-        ...uiRefs.uiMotherships
-      ];
-      if (readonly) {
-        each$1(motherships, m => {
-          m.broadcastOn([dismissPopups()], { target });
-        });
-      }
-      each$1(motherships, m => {
-        m.broadcastOn([ReadOnlyChannel], { readonly });
-      });
-    };
-    const setupReadonlyModeSwitch = (editor, uiRefs) => {
-      editor.on('init', () => {
-        if (editor.mode.isReadOnly()) {
-          broadcastReadonly(uiRefs, true);
-        }
-      });
-      editor.on('SwitchMode', () => broadcastReadonly(uiRefs, editor.mode.isReadOnly()));
-      if (isReadOnly(editor)) {
-        editor.mode.set('readonly');
-      }
-    };
-    const receivingConfig = () => Receiving.config({
-      channels: {
-        [ReadOnlyChannel]: {
-          schema: ReadOnlyDataSchema,
-          onReceive: (comp, data) => {
-            Disabling.set(comp, data.readonly);
-          }
-        }
-      }
-    });
-
     const item = disabled => Disabling.config({
       disabled,
       disableClass: 'tox-collection__item--state-disabled'
@@ -11940,6 +11797,9 @@
       };
     };
     const onControlAttached = (info, editorOffCell) => runOnAttached(comp => {
+      if (isFunction(info.onBeforeSetup)) {
+        info.onBeforeSetup(comp);
+      }
       const run = runWithApi(info, comp);
       run(api => {
         const onDestroy = info.onSetup(api);
@@ -11949,6 +11809,73 @@
       });
     });
     const onControlDetached = (getApi, editorOffCell) => runOnDetached(comp => runWithApi(getApi, comp)(editorOffCell.get()));
+    const onContextFormControlDetached = (getApi, editorOffCell, valueState) => runOnDetached(comp => {
+      valueState.set(Representing.getValue(comp));
+      return runWithApi(getApi, comp)(editorOffCell.get());
+    });
+
+    const UiStateChannel = 'silver.uistate';
+    const messageSetDisabled = 'setDisabled';
+    const messageSetEnabled = 'setEnabled';
+    const messageInit = 'init';
+    const messageSwitchMode = 'switchmode';
+    const modeContextMessages = [
+      messageSwitchMode,
+      messageInit
+    ];
+    const broadcastEvents = (uiRefs, messageType) => {
+      const outerContainer = uiRefs.mainUi.outerContainer;
+      const motherships = [
+        uiRefs.mainUi.mothership,
+        ...uiRefs.uiMotherships
+      ];
+      if (messageType === messageSetDisabled) {
+        each$1(motherships, m => {
+          m.broadcastOn([dismissPopups()], { target: outerContainer.element });
+        });
+      }
+      each$1(motherships, m => {
+        m.broadcastOn([UiStateChannel], messageType);
+      });
+    };
+    const setupEventsForUi = (editor, uiRefs) => {
+      editor.on('init SwitchMode', event => {
+        broadcastEvents(uiRefs, event.type);
+      });
+      editor.on('DisabledStateChange', event => {
+        if (!event.isDefaultPrevented()) {
+          const messageType = event.state ? messageSetDisabled : messageInit;
+          broadcastEvents(uiRefs, messageType);
+          if (!event.state) {
+            editor.nodeChanged();
+          }
+        }
+      });
+      editor.on('NodeChange', e => {
+        const messageType = editor.ui.isEnabled() ? e.type : messageSetDisabled;
+        broadcastEvents(uiRefs, messageType);
+      });
+      if (isReadOnly(editor)) {
+        editor.mode.set('readonly');
+      }
+    };
+    const toggleOnReceive = getContext => Receiving.config({
+      channels: {
+        [UiStateChannel]: {
+          onReceive: (comp, messageType) => {
+            if (messageType === messageSetDisabled || messageType === messageSetEnabled) {
+              Disabling.set(comp, messageType === messageSetDisabled);
+              return;
+            }
+            const {contextType, shouldDisable} = getContext();
+            if (contextType === 'mode' && !contains$2(modeContextMessages, messageType)) {
+              return;
+            }
+            Disabling.set(comp, shouldDisable);
+          }
+        }
+      }
+    });
 
     const onMenuItemExecute = (info, itemResponse) => runOnExecute$1((comp, simulatedEvent) => {
       runWithApi(info, comp)(info.onAction);
@@ -11984,8 +11911,8 @@
             onControlAttached(spec, editorOffCell),
             onControlDetached(spec, editorOffCell)
           ]),
-          DisablingConfigs.item(() => !spec.enabled || providersBackstage.isDisabled()),
-          receivingConfig(),
+          DisablingConfigs.item(() => !spec.enabled || providersBackstage.checkUiComponentContext(spec.context).shouldDisable),
+          toggleOnReceive(() => providersBackstage.checkUiComponentContext(spec.context)),
           Replacing.config({})
         ].concat(spec.itemBehaviours))
       };
@@ -12249,6 +12176,7 @@
       }, sharedBackstage.providers, renderIcons, spec.icon);
       const tooltipString = spec.text.filter(text => !useText && text !== '');
       return renderCommonItem({
+        context: 'mode:design',
         data: buildData(spec),
         enabled: spec.enabled,
         getApi: constant$1({}),
@@ -12299,6 +12227,7 @@
           })]
       };
       return renderCommonItem({
+        context: 'mode:design',
         data: buildData({
           text: Optional.none(),
           ...spec
@@ -12334,6 +12263,7 @@
       }, providersBackstage, renderIcons);
       const optTooltipping = spec.text.filter(constant$1(!useText)).map(t => Tooltipping.config(providersBackstage.tooltips.getConfig({ tooltipText: providersBackstage.translate(t) })));
       return deepMerge(renderCommonItem({
+        context: spec.context,
         data: buildData(spec),
         enabled: spec.enabled,
         getApi,
@@ -12388,8 +12318,8 @@
     const min = Math.min;
     const max = Math.max;
     const round$1 = Math.round;
-    const rgbRegex = /^\s*rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)\s*$/i;
-    const rgbaRegex = /^\s*rgba\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d?(?:\.\d+)?)\s*\)\s*$/i;
+    const rgbRegex = /^\s*rgb\s*\(\s*(\d+)\s*[,\s]\s*(\d+)\s*[,\s]\s*(\d+)\s*\)\s*$/i;
+    const rgbaRegex = /^\s*rgba\s*\(\s*(\d+)\s*[,\s]\s*(\d+)\s*[,\s]\s*(\d+)\s*[,\s]\s*((?:\d?\.\d+|\d+)%?)\s*\)\s*$/i;
     const rgbaColour = (red, green, blue, alpha) => ({
       red,
       green,
@@ -12471,9 +12401,6 @@
       return rgbaColour(r, g, b, a);
     };
     const fromString = rgbaString => {
-      if (rgbaString === 'transparent') {
-        return Optional.some(rgbaColour(0, 0, 0, 0));
-      }
       const rgbMatch = rgbRegex.exec(rgbaString);
       if (rgbMatch !== null) {
         return Optional.some(fromStringValues(rgbMatch[1], rgbMatch[2], rgbMatch[3], '1'));
@@ -12532,6 +12459,18 @@
     };
     const fireFontFamilyTextUpdate = (editor, data) => {
       editor.dispatch('FontFamilyTextUpdate', data);
+    };
+    const fireToggleSidebar = editor => {
+      editor.dispatch('ToggleSidebar');
+    };
+    const fireToggleView = editor => {
+      editor.dispatch('ToggleView');
+    };
+    const fireContextToolbarClose = editor => {
+      editor.dispatch('ContextToolbarClose');
+    };
+    const fireContextFormSlideBack = editor => {
+      editor.dispatch('ContextFormSlideBack');
     };
 
     const composeUnbinders = (f, g) => () => {
@@ -12679,12 +12618,18 @@
     const foregroundId = 'forecolor';
     const backgroundId = 'hilitecolor';
     const fallbackCols = 5;
-    const mapColors = colorMap => {
+    const mapColors = colorMap => mapColorsRaw(colorMap.map((color, index) => {
+      if (index % 2 === 0) {
+        return '#' + anyToHex(color).value;
+      }
+      return color;
+    }));
+    const mapColorsRaw = colorMap => {
       const colors = [];
       for (let i = 0; i < colorMap.length; i += 2) {
         colors.push({
           text: colorMap[i + 1],
-          value: '#' + anyToHex(colorMap[i]).value,
+          value: colorMap[i],
           icon: 'checkmark',
           type: 'choiceitem'
         });
@@ -12693,12 +12638,25 @@
     };
     const option$1 = name => editor => editor.options.get(name);
     const fallbackColor = '#000000';
-    const register$d = editor => {
+    const register$e = editor => {
       const registerOption = editor.options.register;
       const colorProcessor = value => {
         if (isArrayOf(value, isString)) {
           return {
             value: mapColors(value),
+            valid: true
+          };
+        } else {
+          return {
+            valid: false,
+            message: 'Must be an array of strings.'
+          };
+        }
+      };
+      const colorProcessorRaw = value => {
+        if (isArrayOf(value, isString)) {
+          return {
+            value: mapColorsRaw(value),
             valid: true
           };
         } else {
@@ -12770,6 +12728,7 @@
           'White'
         ]
       });
+      registerOption('color_map_raw', { processor: colorProcessorRaw });
       registerOption('color_map_background', { processor: colorProcessor });
       registerOption('color_map_foreground', { processor: colorProcessor });
       registerOption('color_cols', {
@@ -12802,6 +12761,8 @@
         return option$1('color_map_foreground')(editor);
       } else if (id === backgroundId && editor.options.isSet('color_map_background')) {
         return option$1('color_map_background')(editor);
+      } else if (editor.options.isSet('color_map_raw')) {
+        return option$1('color_map_raw')(editor);
       } else {
         return option$1('color_map')(editor);
       }
@@ -13050,7 +13011,7 @@
         }
       });
     };
-    const register$c = editor => {
+    const register$d = editor => {
       registerCommands(editor);
       const fallbackColorForeground = getDefaultForegroundColor(editor);
       const fallbackColorBackground = getDefaultBackgroundColor(editor);
@@ -13142,7 +13103,7 @@
         ...menuSpec,
         markers: markers(presets),
         movement: deriveMenuMovement(columns, presets),
-        menuRole: false
+        showMenuRole: false
       };
       return {
         type: 'widget',
@@ -13264,11 +13225,11 @@
                 }),
                 runWithTarget(cellExecuteEvent, (c, _, e) => {
                   const {row, col} = e.event;
+                  emit(c, sandboxClose());
                   spec.onAction({
                     numRows: row + 1,
                     numColumns: col + 1
                   });
-                  emit(c, sandboxClose());
                 })
               ]),
               Keying.config({
@@ -13316,6 +13277,7 @@
         shortcutContent: spec.shortcut
       }, providersBackstage, renderIcons);
       return renderCommonItem({
+        context: spec.context,
         data: buildData(spec),
         getApi,
         enabled: spec.enabled,
@@ -13342,6 +13304,7 @@
         shortcutContent: spec.shortcut
       }, providersBackstage, renderIcons);
       return renderCommonItem({
+        context: spec.context,
         data: buildData(spec),
         getApi,
         enabled: spec.enabled,
@@ -13385,6 +13348,7 @@
         meta: spec.meta
       }, providersBackstage, renderIcons);
       return deepMerge(renderCommonItem({
+        context: spec.context,
         data: buildData(spec),
         enabled: spec.enabled,
         getApi,
@@ -13397,7 +13361,8 @@
           toggleClass: tickedClass,
           toggleOnExecute: false,
           selected: spec.active
-        }
+        },
+        role: spec.role.getOrUndefined()
       });
     };
 
@@ -13601,44 +13566,52 @@
     const openF = (detail, mapFetch, anchor, component, sandbox, externals, highlightOnOpen) => {
       const futureData = fetch(detail, mapFetch, component);
       const getLazySink = getSink(component, detail);
-      return futureData.map(tdata => tdata.bind(data => Optional.from(tieredMenu.sketch({
-        ...externals.menu(),
-        uid: generate$5(''),
-        data,
-        highlightOnOpen,
-        onOpenMenu: (tmenu, menu) => {
-          const sink = getLazySink().getOrDie();
-          Positioning.position(sink, menu, { anchor });
-          Sandboxing.decloak(sandbox);
-        },
-        onOpenSubmenu: (tmenu, item, submenu) => {
-          const sink = getLazySink().getOrDie();
-          Positioning.position(sink, submenu, {
-            anchor: {
-              type: 'submenu',
-              item
-            }
+      return futureData.map(tdata => tdata.bind(data => {
+        const primaryMenu = data.menus[data.primary];
+        Optional.from(primaryMenu).each(menu => {
+          detail.listRole.each(listRole => {
+            menu.role = listRole;
           });
-          Sandboxing.decloak(sandbox);
-        },
-        onRepositionMenu: (tmenu, primaryMenu, submenuTriggers) => {
-          const sink = getLazySink().getOrDie();
-          Positioning.position(sink, primaryMenu, { anchor });
-          each$1(submenuTriggers, st => {
-            Positioning.position(sink, st.triggeredMenu, {
+        });
+        return Optional.from(tieredMenu.sketch({
+          ...externals.menu(),
+          uid: generate$5(''),
+          data,
+          highlightOnOpen,
+          onOpenMenu: (tmenu, menu) => {
+            const sink = getLazySink().getOrDie();
+            Positioning.position(sink, menu, { anchor });
+            Sandboxing.decloak(sandbox);
+          },
+          onOpenSubmenu: (tmenu, item, submenu) => {
+            const sink = getLazySink().getOrDie();
+            Positioning.position(sink, submenu, {
               anchor: {
                 type: 'submenu',
-                item: st.triggeringItem
+                item
               }
             });
-          });
-        },
-        onEscape: () => {
-          Focusing.focus(component);
-          Sandboxing.close(sandbox);
-          return Optional.some(true);
-        }
-      }))));
+            Sandboxing.decloak(sandbox);
+          },
+          onRepositionMenu: (tmenu, primaryMenu, submenuTriggers) => {
+            const sink = getLazySink().getOrDie();
+            Positioning.position(sink, primaryMenu, { anchor });
+            each$1(submenuTriggers, st => {
+              Positioning.position(sink, st.triggeredMenu, {
+                anchor: {
+                  type: 'submenu',
+                  item: st.triggeringItem
+                }
+              });
+            });
+          },
+          onEscape: () => {
+            Focusing.focus(component);
+            Sandboxing.close(sandbox);
+            return Optional.some(true);
+          }
+        }));
+      }));
     };
     const open = (detail, mapFetch, hotspot, sandbox, externals, onOpenSync, highlightOnOpen) => {
       const anchor = getAnchor(detail, hotspot);
@@ -13706,10 +13679,7 @@
         dom: {
           tag: 'div',
           classes: detail.sandboxClasses,
-          attributes: {
-            id: ariaControls.id,
-            role: 'listbox'
-          }
+          attributes: { id: ariaControls.id }
         },
         behaviours: SketchBehaviours.augment(detail.sandboxBehaviours, [
           Representing.config({
@@ -13776,7 +13746,8 @@
       option$3('lazySink'),
       defaulted('matchWidth', false),
       defaulted('useMinWidth', false),
-      option$3('role')
+      option$3('role'),
+      option$3('listRole')
     ].concat(sandboxFields()));
     const parts$e = constant$1([
       external({
@@ -13896,7 +13867,7 @@
         apis,
         domModification: {
           attributes: {
-            'aria-haspopup': 'true',
+            'aria-haspopup': detail.listRole.getOr('true'),
             ...detail.role.fold(() => ({}), role => ({ role })),
             ...detail.dom.tag === 'button' ? { type: lookupAttr('type').getOr('button') } : {}
           }
@@ -14067,7 +14038,7 @@
     };
 
     const rangeToSimRange = r => SimRange.create(SugarElement.fromDom(r.startContainer), r.startOffset, SugarElement.fromDom(r.endContainer), r.endOffset);
-    const register$b = (editor, sharedBackstage) => {
+    const register$c = (editor, sharedBackstage) => {
       const autocompleterId = generate$6('autocompleter');
       const processingAction = Cell(false);
       const activeState = Cell(false);
@@ -14096,8 +14067,8 @@
           editor.dom.remove(autocompleterId, false);
           const editorBody = SugarElement.fromDom(editor.getBody());
           getOpt(editorBody, 'aria-owns').filter(ariaOwnsAttr => ariaOwnsAttr === autocompleterId).each(() => {
-            remove$7(editorBody, 'aria-owns');
-            remove$7(editorBody, 'aria-activedescendant');
+            remove$8(editorBody, 'aria-owns');
+            remove$8(editorBody, 'aria-activedescendant');
           });
         }
       };
@@ -14170,8 +14141,8 @@
         });
         editor.dom.add(docElm, newElm.dom);
         descendant(newElm, '[role="menu"]').each(child => {
-          remove$6(child, 'position');
-          remove$6(child, 'max-height');
+          remove$7(child, 'position');
+          remove$7(child, 'max-height');
         });
       };
       editor.on('AutocompleterStart', ({lookupData}) => {
@@ -14196,7 +14167,7 @@
       };
       AutocompleterEditorEvents.setup(autocompleterUiApi, editor);
     };
-    const Autocompleter = { register: register$b };
+    const Autocompleter = { register: register$c };
 
     const closest = (scope, selector, isRoot) => closest$1(scope, selector, isRoot).isSome();
 
@@ -14687,7 +14658,7 @@
       };
       const destroy = () => {
         domEvents.unbind();
-        remove$5(root.element);
+        remove$6(root.element);
       };
       const broadcastData = data => {
         const receivers = registry.filter(receive());
@@ -14878,6 +14849,7 @@
     });
 
     const formChangeEvent = generate$6('form-component-change');
+    const formInputEvent = generate$6('form-component-input');
     const formCloseEvent = generate$6('form-close');
     const formCancelEvent = generate$6('form-cancel');
     const formActionEvent = generate$6('form-action');
@@ -14900,6 +14872,8 @@
         });
       };
       const setContents = (comp, items) => {
+        const disabled = providersBackstage.checkUiComponentContext('mode:design').shouldDisable || providersBackstage.isDisabled();
+        const disabledClass = disabled ? ' tox-collection__item--state-disabled' : '';
         const htmlLines = map$2(items, item => {
           const itemText = global$5.translate(item.text);
           const textContent = spec.columns === 1 ? `<div class="tox-collection__item-label">${ itemText }</div>` : '';
@@ -14910,7 +14884,6 @@
             '-': ' '
           };
           const ariaLabel = itemText.replace(/\_| \- |\-/g, match => mapItemName[match]);
-          const disabledClass = providersBackstage.isDisabled() ? ' tox-collection__item--state-disabled' : '';
           return `<div data-mce-tooltip="${ ariaLabel }" class="tox-collection__item${ disabledClass }" tabindex="-1" data-collection-item-value="${ global$3.encodeAllRaw(item.value) }" aria-label="${ ariaLabel }">${ iconContent }${ textContent }</div>`;
         });
         const chunks = spec.columns !== 'auto' && spec.columns > 1 ? chunk$1(htmlLines, spec.columns) : [htmlLines];
@@ -14919,7 +14892,7 @@
       };
       const onClick = runOnItem((comp, se, tgt, itemValue) => {
         se.stop();
-        if (!providersBackstage.isDisabled()) {
+        if (!(providersBackstage.checkUiComponentContext('mode:design').shouldDisable || providersBackstage.isDisabled())) {
           emitWith(comp, formActionEvent, {
             name: spec.name,
             value: itemValue
@@ -14928,19 +14901,19 @@
       });
       const collectionEvents = [
         run$1(mouseover(), runOnItem((comp, se, tgt) => {
-          focus$3(tgt);
+          focus$3(tgt, true);
         })),
         run$1(click(), onClick),
         run$1(tap(), onClick),
         run$1(focusin(), runOnItem((comp, se, tgt) => {
           descendant(comp.element, '.' + activeClass).each(currentActive => {
-            remove$2(currentActive, activeClass);
+            remove$3(currentActive, activeClass);
           });
           add$2(tgt, activeClass);
         })),
         run$1(focusout(), runOnItem(comp => {
           descendant(comp.element, '.' + activeClass).each(currentActive => {
-            remove$2(currentActive, activeClass);
+            remove$3(currentActive, activeClass);
             blur$1(currentActive);
           });
         })),
@@ -14961,7 +14934,7 @@
         factory: { sketch: identity },
         behaviours: derive$1([
           Disabling.config({
-            disabled: providersBackstage.isDisabled,
+            disabled: () => providersBackstage.checkUiComponentContext(spec.context).shouldDisable,
             onDisabled: comp => {
               iterCollectionItems(comp, childElm => {
                 add$2(childElm, 'tox-collection__item--state-disabled');
@@ -14970,12 +14943,12 @@
             },
             onEnabled: comp => {
               iterCollectionItems(comp, childElm => {
-                remove$2(childElm, 'tox-collection__item--state-disabled');
-                remove$7(childElm, 'aria-disabled');
+                remove$3(childElm, 'tox-collection__item--state-disabled');
+                remove$8(childElm, 'aria-disabled');
               });
             }
           }),
-          receivingConfig(),
+          toggleOnReceive(() => providersBackstage.checkUiComponentContext(spec.context)),
           Replacing.config({}),
           Tooltipping.config({
             ...providersBackstage.tooltips.getConfig({
@@ -15059,7 +15032,7 @@
     };
     const markValid = (component, invalidConfig) => {
       const elem = invalidConfig.getRoot(component).getOr(component.element);
-      remove$2(elem, invalidConfig.invalidClass);
+      remove$3(elem, invalidConfig.invalidClass);
       invalidConfig.notify.each(notifyInfo => {
         if (isAriaElement(component.element)) {
           set$9(component.element, 'aria-invalid', false);
@@ -15188,8 +15161,8 @@
       components: spec.components,
       toggleClass: 'mce-active',
       dropdownBehaviours: derive$1([
-        DisablingConfigs.button(sharedBackstage.providers.isDisabled),
-        receivingConfig(),
+        DisablingConfigs.button(() => sharedBackstage.providers.isDisabled() || sharedBackstage.providers.checkUiComponentContext(spec.context).shouldDisable),
+        toggleOnReceive(() => sharedBackstage.providers.checkUiComponentContext(spec.context)),
         Unselecting.config({}),
         Tabstopping.config({})
       ]),
@@ -15212,8 +15185,8 @@
         data: initialData,
         onSetValue: c => Invalidating.run(c).get(noop),
         inputBehaviours: derive$1([
-          Disabling.config({ disabled: sharedBackstage.providers.isDisabled }),
-          receivingConfig(),
+          Disabling.config({ disabled: () => sharedBackstage.providers.isDisabled() || sharedBackstage.providers.checkUiComponentContext(spec.context).shouldDisable }),
+          toggleOnReceive(() => sharedBackstage.providers.checkUiComponentContext(spec.context)),
           Tabstopping.config({}),
           Invalidating.config({
             invalidClass: 'tox-textbox-field-invalid',
@@ -15283,7 +15256,8 @@
         fetch: getFetch$1(colorInputBackstage.getColors(spec.storageKey), spec.storageKey, colorInputBackstage.hasCustomColors()),
         columns: colorInputBackstage.getColorCols(spec.storageKey),
         presets: 'color',
-        onItemAction
+        onItemAction,
+        context: spec.context
       }, sharedBackstage));
       return FormField.sketch({
         dom: {
@@ -16188,20 +16162,40 @@
     const invalidInput = generate$6('invalid-input');
     const validatingInput = generate$6('validating-input');
     const translatePrefix = 'colorcustom.rgb.';
-    const rgbFormFactory = (translate, getClass, onValidHexx, onInvalidHexx) => {
-      const invalidation = (label, isValid) => Invalidating.config({
+    const uninitiatedTooltipApi = {
+      isEnabled: always,
+      setEnabled: noop,
+      immediatelyShow: noop,
+      immediatelyHide: noop
+    };
+    const rgbFormFactory = (translate, getClass, onValidHexx, onInvalidHexx, tooltipGetConfig, makeIcon) => {
+      const setTooltipEnabled = (enabled, tooltipApi) => {
+        const api = tooltipApi.get();
+        if (enabled === api.isEnabled()) {
+          return;
+        }
+        api.setEnabled(enabled);
+        if (enabled) {
+          api.immediatelyShow();
+        } else {
+          api.immediatelyHide();
+        }
+      };
+      const invalidation = (label, isValid, tooltipApi) => Invalidating.config({
         invalidClass: getClass('invalid'),
         notify: {
           onValidate: comp => {
             emitWith(comp, validatingInput, { type: label });
           },
           onValid: comp => {
+            setTooltipEnabled(false, tooltipApi);
             emitWith(comp, validInput, {
               type: label,
               value: Representing.getValue(comp)
             });
           },
           onInvalid: comp => {
+            setTooltipEnabled(true, tooltipApi);
             emitWith(comp, invalidInput, {
               type: label,
               value: Representing.getValue(comp)
@@ -16218,25 +16212,55 @@
         }
       });
       const renderTextField = (isValid, name, label, description, data) => {
+        const tooltipApi = Cell(uninitiatedTooltipApi);
         const helptext = translate(translatePrefix + 'range');
         const pLabel = FormField.parts.label({
-          dom: {
-            tag: 'label',
-            attributes: { 'aria-label': description }
-          },
+          dom: { tag: 'label' },
           components: [text$2(label)]
         });
         const pField = FormField.parts.field({
           data,
           factory: Input,
           inputAttributes: {
-            type: 'text',
+            'type': 'text',
+            'aria-label': description,
             ...name === 'hex' ? { 'aria-live': 'polite' } : {}
           },
           inputClasses: [getClass('textfield')],
           inputBehaviours: derive$1([
-            invalidation(name, isValid),
-            Tabstopping.config({})
+            invalidation(name, isValid, tooltipApi),
+            Tabstopping.config({}),
+            Tooltipping.config({
+              ...tooltipGetConfig({
+                tooltipText: '',
+                onSetup: comp => {
+                  tooltipApi.set({
+                    isEnabled: () => {
+                      return Tooltipping.isEnabled(comp);
+                    },
+                    setEnabled: enabled => {
+                      return Tooltipping.setEnabled(comp, enabled);
+                    },
+                    immediatelyShow: () => {
+                      return Tooltipping.immediateOpenClose(comp, true);
+                    },
+                    immediatelyHide: () => {
+                      return Tooltipping.immediateOpenClose(comp, false);
+                    }
+                  });
+                  Tooltipping.setEnabled(comp, false);
+                },
+                onShow: (component, _tooltip) => {
+                  Tooltipping.setComponents(component, [{
+                      dom: {
+                        tag: 'p',
+                        classes: [getClass('rgb-warning-note')]
+                      },
+                      components: [text$2(translate(name === 'hex' ? 'colorcustom.rgb.invalidHex' : 'colorcustom.rgb.invalid'))]
+                    }]);
+                }
+              })
+            })
           ]),
           onSetValue: input => {
             if (Invalidating.isInvalid(input)) {
@@ -16245,16 +16269,27 @@
             }
           }
         });
+        const errorId = generate$6('aria-invalid');
+        const memInvalidIcon = record(makeIcon('invalid', Optional.some(errorId), 'warning'));
+        const memStatus = record({
+          dom: {
+            tag: 'div',
+            classes: [getClass('invalid-icon')]
+          },
+          components: [memInvalidIcon.asSpec()]
+        });
         const comps = [
           pLabel,
-          pField
+          pField,
+          memStatus.asSpec()
         ];
         const concats = name !== 'hex' ? [FormField.parts['aria-descriptor']({ text: helptext })] : [];
         const components = comps.concat(concats);
         return {
           dom: {
             tag: 'div',
-            attributes: { role: 'presentation' }
+            attributes: { role: 'presentation' },
+            classes: [getClass('rgb-container')]
           },
           components
         };
@@ -16524,9 +16559,9 @@
       return saturationBrightnessPaletteSketcher;
     };
 
-    const makeFactory = (translate, getClass) => {
+    const makeFactory = (translate, getClass, tooltipConfig, makeIcon) => {
       const factory = detail => {
-        const rgbForm = rgbFormFactory(translate, getClass, detail.onValidHex, detail.onInvalidHex);
+        const rgbForm = rgbFormFactory(translate, getClass, detail.onValidHex, detail.onInvalidHex, tooltipConfig, makeIcon);
         const sbPalette = paletteFactory(translate, getClass);
         const hueSliderToDegrees = hue => (100 - hue) / 100 * 360;
         const hueDegreesToSlider = hue => 100 - hue / 360 * 100;
@@ -16685,14 +16720,16 @@
 
     const english = {
       'colorcustom.rgb.red.label': 'R',
-      'colorcustom.rgb.red.description': 'Red component',
+      'colorcustom.rgb.red.description': 'Red channel',
       'colorcustom.rgb.green.label': 'G',
-      'colorcustom.rgb.green.description': 'Green component',
+      'colorcustom.rgb.green.description': 'Green channel',
       'colorcustom.rgb.blue.label': 'B',
-      'colorcustom.rgb.blue.description': 'Blue component',
+      'colorcustom.rgb.blue.description': 'Blue channel',
       'colorcustom.rgb.hex.label': '#',
       'colorcustom.rgb.hex.description': 'Hex color code',
       'colorcustom.rgb.range': 'Range 0 to 255',
+      'colorcustom.rgb.invalid': 'Numbers only, 0 to 255',
+      'colorcustom.rgb.invalidHex': 'Hexadecimal only, 000000 to FFFFFF',
       'aria.color.picker': 'Color Picker',
       'aria.input.invalid': 'Invalid input'
     };
@@ -16705,7 +16742,19 @@
     };
     const renderColorPicker = (_spec, providerBackstage, initialData) => {
       const getClass = key => 'tox-' + key;
-      const colourPickerFactory = makeFactory(translate$1(providerBackstage), getClass);
+      const renderIcon = (name, errId, icon = name, label = name) => render$3(icon, {
+        tag: 'div',
+        classes: [
+          'tox-icon',
+          'tox-control-wrap__status-icon-' + name
+        ],
+        attributes: {
+          'title': providerBackstage.translate(label),
+          'aria-live': 'polite',
+          ...errId.fold(() => ({}), id => ({ id }))
+        }
+      }, providerBackstage.icons);
+      const colourPickerFactory = makeFactory(translate$1(providerBackstage), getClass, providerBackstage.tooltips.getConfig, renderIcon);
       const onValidHex = form => {
         emitWith(form, formActionEvent, {
           name: 'hex-valid',
@@ -16803,6 +16852,7 @@
 
     var global$1 = tinymce.util.Tools.resolve('tinymce.util.Tools');
 
+    const browseFilesEvent = generate$6('browse.files.event');
     const filterByExtension = (files, providersBackstage) => {
       const allowedImageFileTypes = global$1.explode(providersBackstage.getOption('images_file_types'));
       const isFileInAllowedTypes = file => exists(allowedImageFileTypes, type => endsWith(file.name.toLowerCase(), `.${ type.toLowerCase() }`));
@@ -16821,12 +16871,12 @@
         var _a;
         if (!Disabling.isDisabled(comp)) {
           const transferEvent = se.event.raw;
-          handleFiles(comp, (_a = transferEvent.dataTransfer) === null || _a === void 0 ? void 0 : _a.files);
+          emitWith(comp, browseFilesEvent, { files: (_a = transferEvent.dataTransfer) === null || _a === void 0 ? void 0 : _a.files });
         }
       };
       const onSelect = (component, simulatedEvent) => {
         const input = simulatedEvent.event.raw.target;
-        handleFiles(component, input.files);
+        emitWith(component, browseFilesEvent, { files: input.files });
       };
       const handleFiles = (component, files) => {
         if (files) {
@@ -16848,16 +16898,41 @@
             cutter(tap())
           ])])
       });
-      const renderField = s => ({
-        uid: s.uid,
+      const pLabel = spec.label.map(label => renderLabel$3(label, providersBackstage));
+      const pField = FormField.parts.field({
+        factory: Button,
+        dom: {
+          tag: 'button',
+          styles: { position: 'relative' },
+          classes: [
+            'tox-button',
+            'tox-button--secondary'
+          ]
+        },
+        components: [
+          text$2(providersBackstage.translate('Browse for an image')),
+          memInput.asSpec()
+        ],
+        action: comp => {
+          const inputComp = memInput.get(comp);
+          inputComp.element.dom.click();
+        },
+        buttonBehaviours: derive$1([
+          ComposingConfigs.self(),
+          memory(initialData.getOr([])),
+          Tabstopping.config({}),
+          DisablingConfigs.button(() => providersBackstage.checkUiComponentContext(spec.context).shouldDisable),
+          toggleOnReceive(() => providersBackstage.checkUiComponentContext(spec.context))
+        ])
+      });
+      const wrapper = {
         dom: {
           tag: 'div',
           classes: ['tox-dropzone-container']
         },
         behaviours: derive$1([
-          memory(initialData.getOr([])),
-          ComposingConfigs.self(),
-          Disabling.config({}),
+          Disabling.config({ disabled: () => providersBackstage.checkUiComponentContext(spec.context).shouldDisable }),
+          toggleOnReceive(() => providersBackstage.checkUiComponentContext(spec.context)),
           Toggling.config({
             toggleClass: 'dragenter',
             toggleOnExecute: false
@@ -16890,35 +16965,15 @@
                 dom: { tag: 'p' },
                 components: [text$2(providersBackstage.translate('Drop an image here'))]
               },
-              Button.sketch({
-                dom: {
-                  tag: 'button',
-                  styles: { position: 'relative' },
-                  classes: [
-                    'tox-button',
-                    'tox-button--secondary'
-                  ]
-                },
-                components: [
-                  text$2(providersBackstage.translate('Browse for an image')),
-                  memInput.asSpec()
-                ],
-                action: comp => {
-                  const inputComp = memInput.get(comp);
-                  inputComp.element.dom.click();
-                },
-                buttonBehaviours: derive$1([
-                  Tabstopping.config({}),
-                  DisablingConfigs.button(providersBackstage.isDisabled),
-                  receivingConfig()
-                ])
-              })
+              pField
             ]
           }]
-      });
-      const pLabel = spec.label.map(label => renderLabel$3(label, providersBackstage));
-      const pField = FormField.parts.field({ factory: { sketch: renderField } });
-      return renderFormFieldWith(pLabel, pField, ['tox-form__group--stretched'], []);
+      };
+      return renderFormFieldWith(pLabel, wrapper, ['tox-form__group--stretched'], [config('handle-files', [run$1(browseFilesEvent, (comp, se) => {
+            FormField.getField(comp).each(field => {
+              handleFiles(field, se.event.files);
+            });
+          })])]);
     };
 
     const renderGrid = (spec, backstage) => ({
@@ -17158,7 +17213,7 @@
                 onReceive: (comp, message) => {
                   message.newFocus.each(newFocus => {
                     parentElement(comp.element).each(parent => {
-                      const f = eq(comp.element, newFocus) ? add$2 : remove$2;
+                      const f = eq(comp.element, newFocus) ? add$2 : remove$3;
                       f(parent, 'tox-navobj-bordered-focus');
                     });
                   });
@@ -17247,7 +17302,7 @@
           const img = imageComponent.element;
           if (data.url !== get$g(img, 'src')) {
             set$9(img, 'src', data.url);
-            remove$2(frameComponent.element, 'tox-imagepreview__loaded');
+            remove$3(frameComponent.element, 'tox-imagepreview__loaded');
           }
           applyFramePositioning();
           image(img).then(img => {
@@ -17283,11 +17338,11 @@
       };
     };
 
-    const renderLabel$2 = (spec, backstageShared) => {
+    const renderLabel$2 = (spec, backstageShared, getCompByName) => {
       const baseClass = 'tox-label';
       const centerClass = spec.align === 'center' ? [`${ baseClass }--center`] : [];
       const endClass = spec.align === 'end' ? [`${ baseClass }--end`] : [];
-      const label = {
+      const label = record({
         dom: {
           tag: 'label',
           classes: [
@@ -17297,7 +17352,7 @@
           ]
         },
         components: [text$2(backstageShared.providers.translate(spec.label))]
-      };
+      });
       const comps = map$2(spec.items, backstageShared.interpreter);
       return {
         dom: {
@@ -17305,14 +17360,26 @@
           classes: ['tox-form__group']
         },
         components: [
-          label,
+          label.asSpec(),
           ...comps
         ],
         behaviours: derive$1([
           ComposingConfigs.self(),
           Replacing.config({}),
           domHtml(Optional.none()),
-          Keying.config({ mode: 'acyclic' })
+          Keying.config({ mode: 'acyclic' }),
+          config('label', [runOnAttached(comp => {
+              spec.for.each(name => {
+                getCompByName(name).each(target => {
+                  label.getOpt(comp).each(labelComp => {
+                    var _a;
+                    const id = (_a = get$g(target.element, 'id')) !== null && _a !== void 0 ? _a : generate$6('form-field');
+                    set$9(target.element, 'id', id);
+                    set$9(labelComp.element, 'for', id);
+                  });
+                });
+              });
+            })])
         ])
       };
     };
@@ -17384,6 +17451,7 @@
         return Optional.some(true);
       };
       const role = spec.role.fold(() => ({}), role => ({ role }));
+      const listRole = Optional.from(spec.listRole).map(listRole => ({ listRole })).getOr({});
       const ariaLabelAttribute = spec.ariaLabel.fold(() => ({}), ariaLabel => {
         const translatedAriaLabel = sharedBackstage.providers.translate(ariaLabel);
         return { 'aria-label': translatedAriaLabel };
@@ -17397,6 +17465,7 @@
       const memDropdown = record(Dropdown.sketch({
         ...spec.uid ? { uid: spec.uid } : {},
         ...role,
+        ...listRole,
         dom: {
           tag: 'button',
           classes: [
@@ -17422,8 +17491,8 @@
         },
         dropdownBehaviours: derive$1([
           ...spec.dropdownBehaviours,
-          DisablingConfigs.button(() => spec.disabled || sharedBackstage.providers.isDisabled()),
-          receivingConfig(),
+          DisablingConfigs.button(() => spec.disabled || sharedBackstage.providers.checkUiComponentContext(spec.context).shouldDisable),
+          toggleOnReceive(() => sharedBackstage.providers.checkUiComponentContext(spec.context)),
           Unselecting.config({}),
           Replacing.config({}),
           ...spec.tooltip.map(t => Tooltipping.config(sharedBackstage.providers.tooltips.getConfig({ tooltipText: sharedBackstage.providers.translate(t) }))).toArray(),
@@ -17431,7 +17500,12 @@
             onControlAttached(spec, editorOffCell),
             onControlDetached(spec, editorOffCell)
           ]),
-          config(fixWidthBehaviourName, [runOnAttached((comp, _se) => forceInitialSize(comp))]),
+          config(fixWidthBehaviourName, [runOnAttached((comp, _se) => {
+              if (spec.listRole !== 'listbox') {
+                forceInitialSize(comp);
+              }
+            })]),
+          config('update-dropdown-width-variable', [run$1(windowResize(), (comp, _se) => Dropdown.close(comp))]),
           config('menubutton-update-display-text', [
             run$1(updateMenuText, (comp, se) => {
               optMemDisplayText.bind(mem => mem.getOpt(comp)).each(displayText => {
@@ -17482,13 +17556,15 @@
           menu: {
             ...part(false, spec.columns, spec.presets),
             fakeFocus: spec.searchable,
-            onHighlightItem: updateAriaOnHighlight,
-            onCollapseMenu: (tmenuComp, itemCompCausingCollapse, nowActiveMenuComp) => {
-              Highlighting.getHighlighted(nowActiveMenuComp).each(itemComp => {
-                updateAriaOnHighlight(tmenuComp, nowActiveMenuComp, itemComp);
-              });
-            },
-            onDehighlightItem: updateAriaOnDehighlight
+            ...spec.listRole === 'listbox' ? {} : {
+              onHighlightItem: updateAriaOnHighlight,
+              onCollapseMenu: (tmenuComp, itemCompCausingCollapse, nowActiveMenuComp) => {
+                Highlighting.getHighlighted(nowActiveMenuComp).each(itemComp => {
+                  updateAriaOnHighlight(tmenuComp, nowActiveMenuComp, itemComp);
+                });
+              },
+              onDehighlightItem: updateAriaOnDehighlight
+            }
           }
         },
         getAnchorOverrides: () => {
@@ -17598,16 +17674,17 @@
 
     const isSingleListItem = item => !has$2(item, 'items');
     const dataAttribute = 'data-value';
-    const fetchItems = (dropdownComp, name, items, selectedValue) => map$2(items, item => {
+    const fetchItems = (dropdownComp, name, items, selectedValue, hasNestedItems) => map$2(items, item => {
       if (!isSingleListItem(item)) {
         return {
           type: 'nestedmenuitem',
           text: item.text,
-          getSubmenuItems: () => fetchItems(dropdownComp, name, item.items, selectedValue)
+          getSubmenuItems: () => fetchItems(dropdownComp, name, item.items, selectedValue, hasNestedItems)
         };
       } else {
         return {
           type: 'togglemenuitem',
+          ...hasNestedItems ? {} : { role: 'option' },
           text: item.text,
           value: item.value,
           active: item.value === selectedValue,
@@ -17627,6 +17704,7 @@
       }
     });
     const renderListBox = (spec, backstage, initialData) => {
+      const hasNestedItems = exists(spec.items, item => !isSingleListItem(item));
       const providersBackstage = backstage.shared.providers;
       const initialItem = initialData.bind(value => findItemByValue(spec.items, value)).orThunk(() => head(spec.items).filter(isSingleListItem));
       const pLabel = spec.label.map(label => renderLabel$3(label, providersBackstage));
@@ -17634,14 +17712,16 @@
         dom: {},
         factory: {
           sketch: sketchSpec => renderCommonDropdown({
+            context: spec.context,
             uid: sketchSpec.uid,
             text: initialItem.map(item => item.text),
             icon: Optional.none(),
             tooltip: Optional.none(),
-            role: Optional.none(),
+            role: someIf(!hasNestedItems, 'combobox'),
+            ...hasNestedItems ? {} : { listRole: 'listbox' },
             ariaLabel: spec.label,
             fetch: (comp, callback) => {
-              const items = fetchItems(comp, spec.name, spec.items, Representing.getValue(comp));
+              const items = fetchItems(comp, spec.name, spec.items, Representing.getValue(comp), hasNestedItems);
               callback(build(items, ItemResponse$1.CLOSE_ON_EXECUTE, backstage, {
                 isHorizontalMenu: false,
                 search: Optional.none()
@@ -17681,7 +17761,7 @@
           [listBoxWrap]
         ]),
         fieldBehaviours: derive$1([Disabling.config({
-            disabled: constant$1(!spec.enabled),
+            disabled: () => !spec.enabled || providersBackstage.checkUiComponentContext(spec.context).shouldDisable,
             onDisabled: comp => {
               FormField.getField(comp).each(Disabling.disable);
             },
@@ -17768,7 +17848,7 @@
         options: translatedOptions,
         factory: HtmlSelect,
         selectBehaviours: derive$1([
-          Disabling.config({ disabled: () => !spec.enabled || providersBackstage.isDisabled() }),
+          Disabling.config({ disabled: () => !spec.enabled || providersBackstage.checkUiComponentContext(spec.context).shouldDisable }),
           Tabstopping.config({}),
           config('selectbox-change', [run$1(change(), (component, _) => {
               emitWith(component, formChangeEvent, { name: spec.name });
@@ -17800,7 +17880,7 @@
         ]),
         fieldBehaviours: derive$1([
           Disabling.config({
-            disabled: () => !spec.enabled || providersBackstage.isDisabled(),
+            disabled: () => !spec.enabled || providersBackstage.checkUiComponentContext(spec.context).shouldDisable,
             onDisabled: comp => {
               FormField.getField(comp).each(Disabling.disable);
             },
@@ -17808,7 +17888,7 @@
               FormField.getField(comp).each(Disabling.enable);
             }
           }),
-          receivingConfig()
+          toggleOnReceive(() => providersBackstage.checkUiComponentContext(spec.context))
         ])
       });
     };
@@ -17822,7 +17902,8 @@
       SketchBehaviours.field('coupledFieldBehaviours', [
         Composing,
         Representing
-      ])
+      ]),
+      defaultedFunction('onInput', noop)
     ]);
     const getField = (comp, detail, partName) => getPart(comp, detail, partName).bind(Composing.getCurrent);
     const coupledPart = (selfName, otherName) => required({
@@ -17836,6 +17917,7 @@
                     if (Toggling.isOn(lock)) {
                       detail.onLockedChange(me, other, lock);
                     }
+                    detail.onInput(me);
                   });
                 });
               })])])
@@ -17993,6 +18075,8 @@
           'tox-lock-icon__' + iconName
         ]
       }, providersBackstage.icons);
+      const disabled = () => !spec.enabled || providersBackstage.checkUiComponentContext(spec.context).shouldDisable;
+      const toggleOnReceive$1 = toggleOnReceive(() => providersBackstage.checkUiComponentContext(spec.context));
       const label = spec.label.getOr('Constrain proportions');
       const translatedLabel = providersBackstage.translate(label);
       const pLock = FormCoupledInputs.parts.lock({
@@ -18014,8 +18098,8 @@
           makeIcon('unlock')
         ],
         buttonBehaviours: derive$1([
-          Disabling.config({ disabled: () => !spec.enabled || providersBackstage.isDisabled() }),
-          receivingConfig(),
+          Disabling.config({ disabled }),
+          toggleOnReceive$1,
           Tabstopping.config({}),
           Tooltipping.config(providersBackstage.tooltips.getConfig({ tooltipText: translatedLabel }))
         ])
@@ -18031,8 +18115,8 @@
         factory: Input,
         inputClasses: ['tox-textfield'],
         inputBehaviours: derive$1([
-          Disabling.config({ disabled: () => !spec.enabled || providersBackstage.isDisabled() }),
-          receivingConfig(),
+          Disabling.config({ disabled }),
+          toggleOnReceive$1,
           Tabstopping.config({}),
           config('size-input-events', [
             run$1(focusin(), (component, _simulatedEvent) => {
@@ -18092,7 +18176,7 @@
         },
         coupledFieldBehaviours: derive$1([
           Disabling.config({
-            disabled: () => !spec.enabled || providersBackstage.isDisabled(),
+            disabled,
             onDisabled: comp => {
               FormCoupledInputs.getField1(comp).bind(FormField.getField).each(Disabling.disable);
               FormCoupledInputs.getField2(comp).bind(FormField.getField).each(Disabling.disable);
@@ -18104,7 +18188,7 @@
               FormCoupledInputs.getLock(comp).each(Disabling.enable);
             }
           }),
-          receivingConfig(),
+          toggleOnReceive(() => providersBackstage.checkUiComponentContext('mode:design')),
           config('size-input-events2', [run$1(ratioEvent, (component, simulatedEvent) => {
               const isField1 = simulatedEvent.event.isField1;
               const optCurrent = isField1 ? FormCoupledInputs.getField1(component) : FormCoupledInputs.getField2(component);
@@ -18165,6 +18249,12 @@
             name: spec.name,
             value
           });
+        },
+        onChange: (component, thumb, value) => {
+          emitWith(component, formChangeEvent, {
+            name: spec.name,
+            value
+          });
         }
       });
     };
@@ -18216,8 +18306,8 @@
     const renderTextField = (spec, providersBackstage) => {
       const pLabel = spec.label.map(label => renderLabel$3(label, providersBackstage));
       const baseInputBehaviours = [
-        Disabling.config({ disabled: () => spec.disabled || providersBackstage.isDisabled() }),
-        receivingConfig(),
+        Disabling.config({ disabled: () => spec.disabled || providersBackstage.checkUiComponentContext(spec.context).shouldDisable }),
+        toggleOnReceive(() => providersBackstage.checkUiComponentContext(spec.context)),
         Keying.config({
           mode: 'execution',
           useEnter: spec.multiline !== true,
@@ -18255,7 +18345,8 @@
       const inputMode = spec.inputMode.fold(constant$1({}), mode => ({ inputmode: mode }));
       const inputAttributes = {
         ...placeholder,
-        ...inputMode
+        ...inputMode,
+        'data-mce-name': spec.name
       };
       const pField = FormField.parts.field({
         tag: spec.multiline === true ? 'textarea' : 'input',
@@ -18280,7 +18371,7 @@
       const extraClasses2 = extraClasses.concat(spec.maximized ? ['tox-form-group--maximize'] : []);
       const extraBehaviours = [
         Disabling.config({
-          disabled: () => spec.disabled || providersBackstage.isDisabled(),
+          disabled: () => spec.disabled || providersBackstage.checkUiComponentContext(spec.context).shouldDisable,
           onDisabled: comp => {
             FormField.getField(comp).each(Disabling.disable);
           },
@@ -18288,7 +18379,7 @@
             FormField.getField(comp).each(Disabling.enable);
           }
         }),
-        receivingConfig()
+        toggleOnReceive(() => providersBackstage.checkUiComponentContext(spec.context))
       ];
       return renderFormFieldWith(pLabel, pTextField, extraClasses2, extraBehaviours);
     };
@@ -18303,7 +18394,8 @@
       classname: 'tox-textfield',
       validation: Optional.none(),
       maximized: spec.maximized,
-      data: initialData
+      data: initialData,
+      context: spec.context
     }, providersBackstage);
     const renderTextarea = (spec, providersBackstage, initialData) => renderTextField({
       name: spec.name,
@@ -18316,7 +18408,8 @@
       classname: 'tox-textarea',
       validation: Optional.none(),
       maximized: spec.maximized,
-      data: initialData
+      data: initialData,
+      context: spec.context
     }, providersBackstage);
 
     const getAnimationRoot = (component, slideConfig) => slideConfig.getAnimationRoot.fold(() => component.element, get => get(component));
@@ -18325,21 +18418,21 @@
     const getDimension = (slideConfig, elem) => slideConfig.dimension.getDimension(elem);
     const disableTransitions = (component, slideConfig) => {
       const root = getAnimationRoot(component, slideConfig);
-      remove$1(root, [
+      remove$2(root, [
         slideConfig.shrinkingClass,
         slideConfig.growingClass
       ]);
     };
     const setShrunk = (component, slideConfig) => {
-      remove$2(component.element, slideConfig.openClass);
+      remove$3(component.element, slideConfig.openClass);
       add$2(component.element, slideConfig.closedClass);
       set$8(component.element, getDimensionProperty(slideConfig), '0px');
       reflow(component.element);
     };
     const setGrown = (component, slideConfig) => {
-      remove$2(component.element, slideConfig.closedClass);
+      remove$3(component.element, slideConfig.closedClass);
       add$2(component.element, slideConfig.openClass);
-      remove$6(component.element, getDimensionProperty(slideConfig));
+      remove$7(component.element, getDimensionProperty(slideConfig));
     };
     const doImmediateShrink = (component, slideConfig, slideState, _calculatedSize) => {
       slideState.setCollapsed();
@@ -18355,7 +18448,7 @@
       set$8(component.element, getDimensionProperty(slideConfig), size);
       reflow(component.element);
       const root = getAnimationRoot(component, slideConfig);
-      remove$2(root, slideConfig.growingClass);
+      remove$3(root, slideConfig.growingClass);
       add$2(root, slideConfig.shrinkingClass);
       setShrunk(component, slideConfig);
       slideConfig.onStartShrink(component);
@@ -18380,7 +18473,7 @@
       };
       const setStartSize = wasShrinking ? startPartialGrow : startCompleteGrow;
       setStartSize();
-      remove$2(root, slideConfig.shrinkingClass);
+      remove$3(root, slideConfig.shrinkingClass);
       add$2(root, slideConfig.growingClass);
       setGrown(component, slideConfig);
       set$8(component.element, getDimensionProperty(slideConfig), fullSize);
@@ -18389,7 +18482,7 @@
     };
     const refresh$3 = (component, slideConfig, slideState) => {
       if (slideState.isExpanded()) {
-        remove$6(component.element, getDimensionProperty(slideConfig));
+        remove$7(component.element, getDimensionProperty(slideConfig));
         const fullSize = getDimension(slideConfig, component.element);
         set$8(component.element, getDimensionProperty(slideConfig), fullSize);
       }
@@ -18466,7 +18559,7 @@
         if (raw.propertyName === slideConfig.dimension.property) {
           disableTransitions(component, slideConfig);
           if (slideState.isExpanded()) {
-            remove$6(component.element, slideConfig.dimension.property);
+            remove$7(component.element, slideConfig.dimension.property);
           }
           const notify = slideState.isExpanded() ? slideConfig.onGrown : slideConfig.onShrunk;
           notify(component);
@@ -18536,8 +18629,8 @@
           add$2(elm, 'tox-tbtn--enabled');
           set$9(elm, 'aria-pressed', true);
         } else {
-          remove$2(elm, 'tox-tbtn--enabled');
-          remove$7(elm, 'aria-pressed');
+          remove$3(elm, 'tox-tbtn--enabled');
+          remove$8(elm, 'aria-pressed');
         }
       },
       isActive: () => has(component.element, 'tox-tbtn--enabled'),
@@ -18568,7 +18661,8 @@
         columns: 1,
         presets: 'normal',
         classes: [],
-        dropdownBehaviours: [...tabstopping ? [Tabstopping.config({})] : []]
+        dropdownBehaviours: [...tabstopping ? [Tabstopping.config({})] : []],
+        context: spec.context
       }, prefix, backstage.shared, btnName);
     };
     const getFetch = (items, getButton, backstage) => {
@@ -18596,6 +18690,7 @@
             type: item.type,
             active: false,
             ...text,
+            context: item.context,
             onAction: getMenuItemAction(item),
             onSetup: getMenuItemSetup(item)
           };
@@ -18611,10 +18706,14 @@
       },
       components: [text$2(text)]
     });
+    const renderCustomStateIcon = (container, components, backstage) => {
+      container.customStateIcon.each(icon => components.push(renderIcon(icon, backstage.shared.providers.icons, container.customStateIconTooltip.fold(() => [], tooltip => [Tooltipping.config(backstage.shared.providers.tooltips.getConfig({ tooltipText: tooltip }))]), ['tox-icon-custom-state'])));
+    };
     const leafLabelEventsId = generate$6('leaf-label-event-id');
     const renderLeafLabel = ({leaf, onLeafAction, visible, treeId, selectedId, backstage}) => {
       const internalMenuButton = leaf.menu.map(btn => renderMenuButton(btn, 'tox-mbtn', backstage, Optional.none(), visible));
       const components = [renderLabel(leaf.title)];
+      renderCustomStateIcon(leaf, components, backstage);
       internalMenuButton.each(btn => components.push(btn));
       return Button.sketch({
         dom: {
@@ -18679,13 +18778,14 @@
         ])
       });
     };
-    const renderIcon = (iconName, iconsProvider, behaviours) => render$3(iconName, {
+    const renderIcon = (iconName, iconsProvider, behaviours, extraClasses, extraAttributes) => render$3(iconName, {
       tag: 'span',
       classes: [
         'tox-tree__icon-wrap',
         'tox-icon'
-      ],
-      behaviours
+      ].concat(extraClasses || []),
+      behaviours,
+      attributes: extraAttributes
     }, iconsProvider);
     const renderIconFromPack = (iconName, iconsProvider) => renderIcon(iconName, iconsProvider, []);
     const directoryLabelEventsId = generate$6('directory-label-event-id');
@@ -18701,6 +18801,7 @@
         },
         renderLabel(directory.title)
       ];
+      renderCustomStateIcon(directory, components, backstage);
       internalMenuButton.each(btn => {
         components.push(btn);
       });
@@ -19179,7 +19280,7 @@
               return makeSandbox$1(detail, hotspot, {
                 onOpen: () => Toggling.on(hotspot),
                 onClose: () => {
-                  detail.lazyTypeaheadComp.get().each(input => remove$7(input.element, 'aria-activedescendant'));
+                  detail.lazyTypeaheadComp.get().each(input => remove$8(input.element, 'aria-activedescendant'));
                   Toggling.off(hotspot);
                 }
               });
@@ -19263,6 +19364,7 @@
       defaulted('dismissOnBlur', true),
       markers$1(['openClass']),
       option$3('initialData'),
+      option$3('listRole'),
       field('typeaheadBehaviours', [
         Focusing,
         Representing,
@@ -19413,14 +19515,11 @@
       const action = actionOpt.fold(() => ({}), action => ({ action }));
       const common = {
         buttonBehaviours: derive$1([
-          DisablingConfigs.button(() => !spec.enabled || providersBackstage.isDisabled()),
-          receivingConfig(),
+          DisablingConfigs.item(() => !spec.enabled || providersBackstage.checkUiComponentContext(spec.context).shouldDisable),
+          toggleOnReceive(() => providersBackstage.checkUiComponentContext(spec.context)),
           Tabstopping.config({}),
           ...tooltip.map(t => Tooltipping.config(providersBackstage.tooltips.getConfig({ tooltipText: providersBackstage.translate(t) }))).toArray(),
-          config('button press', [
-            preventDefault('click'),
-            preventDefault('mousedown')
-          ])
+          config('button press', [preventDefault('click')])
         ].concat(extraBehaviours)),
         eventOrder: {
           click: [
@@ -19579,6 +19678,7 @@
         const action = getAction(spec.name, buttonType);
         const buttonSpec = {
           ...spec,
+          context: buttonType === 'cancel' ? 'any' : spec.context,
           borderless: false
         };
         return renderButton$1(buttonSpec, action, backstage.shared.providers, []);
@@ -19721,7 +19821,7 @@
               validateOnLoad: false
             }
           })).toArray(),
-          Disabling.config({ disabled: () => !spec.enabled || providersBackstage.isDisabled() }),
+          Disabling.config({ disabled: () => !spec.enabled || providersBackstage.checkUiComponentContext(spec.context).shouldDisable }),
           Tabstopping.config({}),
           config('urlinput-events', [
             run$1(input(), comp => {
@@ -19803,9 +19903,10 @@
           pField,
           memStatus.asSpec()
         ],
-        behaviours: derive$1([Disabling.config({ disabled: () => !spec.enabled || providersBackstage.isDisabled() })])
+        behaviours: derive$1([Disabling.config({ disabled: () => !spec.enabled || providersBackstage.checkUiComponentContext(spec.context).shouldDisable })])
       });
       const memUrlPickerButton = record(renderButton$1({
+        context: spec.context,
         name: spec.name,
         icon: Optional.some('browse'),
         text: spec.picker_text.or(spec.label).getOr(''),
@@ -19844,7 +19945,7 @@
         components: pLabel.toArray().concat([controlHWrapper()]),
         fieldBehaviours: derive$1([
           Disabling.config({
-            disabled: () => !spec.enabled || providersBackstage.isDisabled(),
+            disabled: () => !spec.enabled || providersBackstage.checkUiComponentContext(spec.context).shouldDisable,
             onDisabled: comp => {
               FormField.getField(comp).each(Disabling.disable);
               memUrlPickerButton.getOpt(comp).each(Disabling.disable);
@@ -19854,7 +19955,7 @@
               memUrlPickerButton.getOpt(comp).each(Disabling.enable);
             }
           }),
-          receivingConfig(),
+          toggleOnReceive(() => providersBackstage.checkUiComponentContext(spec.context)),
           config('url-input-events', [run$1(browseUrlEvent, openUrlPicker)])
         ])
       });
@@ -19928,12 +20029,12 @@
         behaviours: derive$1([
           ComposingConfigs.self(),
           Disabling.config({
-            disabled: () => !spec.enabled || providerBackstage.isDisabled(),
+            disabled: () => !spec.enabled || providerBackstage.checkUiComponentContext(spec.context).shouldDisable,
             onDisabled: component => {
               parentElement(component.element).each(element => add$2(element, 'tox-checkbox--disabled'));
             },
             onEnabled: component => {
-              parentElement(component.element).each(element => remove$2(element, 'tox-checkbox--disabled'));
+              parentElement(component.element).each(element => remove$3(element, 'tox-checkbox--disabled'));
             }
           }),
           Tabstopping.config({}),
@@ -19989,21 +20090,29 @@
           pLabel
         ],
         fieldBehaviours: derive$1([
-          Disabling.config({ disabled: () => !spec.enabled || providerBackstage.isDisabled() }),
-          receivingConfig()
+          Disabling.config({ disabled: () => !spec.enabled || providerBackstage.checkUiComponentContext(spec.context).shouldDisable }),
+          toggleOnReceive(() => providerBackstage.checkUiComponentContext(spec.context))
         ])
       });
     };
 
     const renderHtmlPanel = (spec, providersBackstage) => {
+      const classes = [
+        'tox-form__group',
+        ...spec.stretched ? ['tox-form__group--stretched'] : []
+      ];
+      const init = config('htmlpanel', [runOnAttached(comp => {
+          spec.onInit(comp.element.dom);
+        })]);
       if (spec.presets === 'presentation') {
         return Container.sketch({
           dom: {
             tag: 'div',
-            classes: ['tox-form__group'],
+            classes,
             innerHtml: spec.html
           },
-          containerBehaviours: derive$1([Tooltipping.config({
+          containerBehaviours: derive$1([
+            Tooltipping.config({
               ...providersBackstage.tooltips.getConfig({
                 tooltipText: '',
                 onShow: comp => {
@@ -20039,30 +20148,33 @@
                 },
                 bubble: nu$5(0, -2, {})
               })
-            })])
+            }),
+            init
+          ])
         });
       } else {
         return Container.sketch({
           dom: {
             tag: 'div',
-            classes: ['tox-form__group'],
+            classes,
             innerHtml: spec.html,
             attributes: { role: 'document' }
           },
           containerBehaviours: derive$1([
             Tabstopping.config({}),
-            Focusing.config({})
+            Focusing.config({}),
+            init
           ])
         });
       }
     };
 
     const make$2 = render => {
-      return (parts, spec, dialogData, backstage) => get$h(spec, 'name').fold(() => render(spec, backstage, Optional.none()), fieldName => parts.field(fieldName, render(spec, backstage, get$h(dialogData, fieldName))));
+      return (parts, spec, dialogData, backstage, getCompByName) => get$h(spec, 'name').fold(() => render(spec, backstage, Optional.none(), getCompByName), fieldName => parts.field(fieldName, render(spec, backstage, get$h(dialogData, fieldName), getCompByName)));
     };
-    const makeIframe = render => (parts, spec, dialogData, backstage) => {
+    const makeIframe = render => (parts, spec, dialogData, backstage, getCompByName) => {
       const iframeSpec = deepMerge(spec, { source: 'dynamic' });
-      return make$2(render)(parts, iframeSpec, dialogData, backstage);
+      return make$2(render)(parts, iframeSpec, dialogData, backstage, getCompByName);
     };
     const factories = {
       bar: make$2((spec, backstage) => renderBar(spec, backstage.shared)),
@@ -20070,7 +20182,7 @@
       alertbanner: make$2((spec, backstage) => renderAlertBanner(spec, backstage.shared.providers)),
       input: make$2((spec, backstage, data) => renderInput(spec, backstage.shared.providers, data)),
       textarea: make$2((spec, backstage, data) => renderTextarea(spec, backstage.shared.providers, data)),
-      label: make$2((spec, backstage) => renderLabel$2(spec, backstage.shared)),
+      label: make$2((spec, backstage, _data, getCompByName) => renderLabel$2(spec, backstage.shared, getCompByName)),
       iframe: makeIframe((spec, backstage, data) => renderIFrame(spec, backstage.shared.providers, data)),
       button: make$2((spec, backstage) => renderDialogButton(spec, backstage.shared.providers)),
       checkbox: make$2((spec, backstage, data) => renderCheckbox(spec, backstage.shared.providers, data)),
@@ -20094,15 +20206,15 @@
       field: (_name, spec) => spec,
       record: constant$1([])
     };
-    const interpretInForm = (parts, spec, dialogData, oldBackstage) => {
-      const newBackstage = deepMerge(oldBackstage, { shared: { interpreter: childSpec => interpretParts(parts, childSpec, dialogData, newBackstage) } });
-      return interpretParts(parts, spec, dialogData, newBackstage);
+    const interpretInForm = (parts, spec, dialogData, oldBackstage, getCompByName) => {
+      const newBackstage = deepMerge(oldBackstage, { shared: { interpreter: childSpec => interpretParts(parts, childSpec, dialogData, newBackstage, getCompByName) } });
+      return interpretParts(parts, spec, dialogData, newBackstage, getCompByName);
     };
-    const interpretParts = (parts, spec, dialogData, backstage) => get$h(factories, spec.type).fold(() => {
+    const interpretParts = (parts, spec, dialogData, backstage, getCompByName) => get$h(factories, spec.type).fold(() => {
       console.error(`Unknown factory type "${ spec.type }", defaulting to container: `, spec);
       return spec;
-    }, factory => factory(parts, spec, dialogData, backstage));
-    const interpretWithoutForm = (spec, dialogData, backstage) => interpretParts(noFormParts, spec, dialogData, backstage);
+    }, factory => factory(parts, spec, dialogData, backstage, getCompByName));
+    const interpretWithoutForm = (spec, dialogData, backstage, getCompByName) => interpretParts(noFormParts, spec, dialogData, backstage, getCompByName);
 
     const labelPrefix = 'layout-inset';
     const westEdgeX = anchor => anchor.x;
@@ -20522,7 +20634,7 @@
       isSelected: isSelectedFor(item.format),
       getStylePreview: getPreviewFor(item.format)
     });
-    const register$a = (editor, formats, isSelectedFor, getPreviewFor) => {
+    const register$b = (editor, formats, isSelectedFor, getPreviewFor) => {
       const enrichSupported = item => processBasic(item, isSelectedFor, getPreviewFor);
       const enrichMenu = item => {
         const newItems = doEnrich(item.items);
@@ -20576,11 +20688,11 @@
       const replaceSettings = Cell(false);
       editor.on('PreInit', _e => {
         const formats = getStyleFormats(editor);
-        const enriched = register$a(editor, formats, isSelectedFor, getPreviewFor);
+        const enriched = register$b(editor, formats, isSelectedFor, getPreviewFor);
         settingsFormats.set(enriched);
       });
       editor.on('addStyleModifications', e => {
-        const modifications = register$a(editor, e.items, isSelectedFor, getPreviewFor);
+        const modifications = register$b(editor, e.items, isSelectedFor, getPreviewFor);
         eventsFormats.set(modifications);
         replaceSettings.set(e.replace);
       });
@@ -20626,9 +20738,13 @@
               spec.onShow(comp, tooltip);
             }
           },
-          onHide: () => {
+          onHide: (comp, tooltip) => {
             numActiveTooltips--;
-          }
+            if (spec.onHide) {
+              spec.onHide(comp, tooltip);
+            }
+          },
+          onSetup: spec.onSetup
         };
       };
       return {
@@ -20842,9 +20958,24 @@
         icons: () => editor.ui.registry.getAll().icons,
         menuItems: () => editor.ui.registry.getAll().menuItems,
         translate: global$5.translate,
-        isDisabled: () => editor.mode.isReadOnly() || !editor.ui.isEnabled(),
+        isDisabled: () => !editor.ui.isEnabled(),
         getOption: editor.options.get,
-        tooltips: TooltipsBackstage(lazySinks.dialog)
+        tooltips: TooltipsBackstage(lazySinks.dialog),
+        checkUiComponentContext: specContext => {
+          if (isDisabled(editor)) {
+            return {
+              contextType: 'disabled',
+              shouldDisable: true
+            };
+          }
+          const [key, value = ''] = specContext.split(':');
+          const contexts = editor.ui.registry.getAll().contexts;
+          const enabledInContext = get$h(contexts, key).fold(() => get$h(contexts, 'mode').map(pred => pred('design')).getOr(false), pred => value.charAt(0) === '!' ? !pred(value.slice(1)) : pred(value));
+          return {
+            contextType: key,
+            shouldDisable: !enabledInContext
+          };
+        }
       };
       const urlinput = UrlInputBackstage(editor);
       const styles = init$6(editor);
@@ -20865,11 +20996,12 @@
         isContextMenuOpen,
         setContextMenuState
       };
+      const getCompByName = _name => Optional.none();
       const popupBackstage = {
         ...commonBackstage,
         shared: {
           ...commonBackstage.shared,
-          interpreter: s => interpretWithoutForm(s, {}, popupBackstage),
+          interpreter: s => interpretWithoutForm(s, {}, popupBackstage, getCompByName),
           getSink: lazySinks.popup
         }
       };
@@ -20877,7 +21009,7 @@
         ...commonBackstage,
         shared: {
           ...commonBackstage.shared,
-          interpreter: s => interpretWithoutForm(s, {}, dialogBackstage),
+          interpreter: s => interpretWithoutForm(s, {}, dialogBackstage, getCompByName),
           getSink: lazySinks.dialog
         }
       };
@@ -21185,20 +21317,20 @@
           set$8(elm, 'width', parentWidth + 'px');
           set$8(parentElem, padding, getOccupiedHeight(elm) + 'px');
         } else {
-          remove$6(elm, 'width');
-          remove$6(parentElem, padding);
+          remove$7(elm, 'width');
+          remove$7(parentElem, padding);
         }
       });
     };
     const updateSinkVisibility = (sinkElem, visible) => {
       if (visible) {
-        remove$2(sinkElem, visibility.fadeOutClass);
+        remove$3(sinkElem, visibility.fadeOutClass);
         add$1(sinkElem, [
           visibility.transitionClass,
           visibility.fadeInClass
         ]);
       } else {
-        remove$2(sinkElem, visibility.fadeInClass);
+        remove$3(sinkElem, visibility.fadeInClass);
         add$1(sinkElem, [
           visibility.fadeOutClass,
           visibility.transitionClass
@@ -21209,10 +21341,10 @@
       const editorContainer = SugarElement.fromDom(editor.getContainer());
       if (docked) {
         add$2(editorContainer, editorStickyOnClass);
-        remove$2(editorContainer, editorStickyOffClass);
+        remove$3(editorContainer, editorStickyOffClass);
       } else {
         add$2(editorContainer, editorStickyOffClass);
-        remove$2(editorContainer, editorStickyOnClass);
+        remove$3(editorContainer, editorStickyOnClass);
       }
     };
     const restoreFocus = (headerElem, focusedElem) => {
@@ -21294,7 +21426,7 @@
               runOnSinkElement(elem => updateSinkVisibility(elem, true));
             },
             onShown: comp => {
-              runOnSinkElement(elem => remove$1(elem, [
+              runOnSinkElement(elem => remove$2(elem, [
                 visibility.transitionClass,
                 visibility.fadeInClass
               ]));
@@ -21308,7 +21440,7 @@
               runOnSinkElement(elem => updateSinkVisibility(elem, false));
             },
             onHidden: () => {
-              runOnSinkElement(elem => remove$1(elem, [visibility.transitionClass]));
+              runOnSinkElement(elem => remove$2(elem, [visibility.transitionClass]));
             },
             ...visibility
           },
@@ -21317,7 +21449,7 @@
             return optScrollingContext.fold(() => {
               const boundsWithoutOffset = win();
               const offset = getStickyToolbarOffset(editor);
-              const top = boundsWithoutOffset.y + (isDockedMode(comp, 'top') ? offset : 0);
+              const top = boundsWithoutOffset.y + (isDockedMode(comp, 'top') && !isFullscreen(editor) ? offset : 0);
               const height = boundsWithoutOffset.height - (isDockedMode(comp, 'bottom') ? offset : 0);
               return {
                 bounds: bounds(boundsWithoutOffset.x, top, boundsWithoutOffset.width, height),
@@ -21387,7 +21519,8 @@
         }
       })),
       requiredFunction('fetch'),
-      defaultedFunction('onSetup', () => noop)
+      defaultedFunction('onSetup', () => noop),
+      defaultedString('context', 'mode:design')
     ];
 
     const MenuButtonSchema = objOf([
@@ -21411,7 +21544,8 @@
       ]),
       defaultedColumns(1),
       onAction,
-      onItemAction
+      onItemAction,
+      defaultedString('context', 'mode:design')
     ]);
     const createSplitButton = spec => asRaw('SplitButton', splitButtonSchema, spec);
 
@@ -21423,7 +21557,8 @@
             text: m.text,
             fetch: callback => {
               callback(m.getItems());
-            }
+            },
+            context: 'any'
           };
           const internal = createMenuButton(buttonSpec).mapError(errInfo => formatError(errInfo)).getOrDie();
           return renderMenuButton(internal, 'tox-mbtn', spec.backstage, Optional.some('menuitem'));
@@ -21560,8 +21695,8 @@
       const doShow = (comp, key) => {
         if (!doShowing(comp)) {
           const element = comp.element;
-          remove$6(element, 'display');
-          remove$7(element, 'aria-hidden');
+          remove$7(element, 'display');
+          remove$8(element, 'aria-hidden');
           emitWith(comp, slotVisibility(), {
             name: key,
             visible: true
@@ -21641,7 +21776,8 @@
             return () => {
               editor.off('ToggleSidebar', handleToggle);
             };
-          }
+          },
+          context: 'any'
         });
       });
     };
@@ -21697,7 +21833,7 @@
           Composing.getCurrent(slider).each(slotContainer => {
             SlotContainer.showSlot(slotContainer, configKey);
             Sliding.immediateGrow(slider);
-            remove$6(slider.element, 'width');
+            remove$7(slider.element, 'width');
             updateSidebarRoleOnToggle(sidebar.element, 'region');
           });
         }
@@ -21796,7 +21932,7 @@
             set$8(comp.element, 'width', se.event.width);
           }),
           run$1(autoSize, (comp, _se) => {
-            remove$6(comp.element, 'width');
+            remove$7(comp.element, 'width');
           })
         ])
       ])
@@ -21825,7 +21961,7 @@
       state.blockWith(() => Replacing.remove(root, blocker));
     };
     const unblock = (component, config, state) => {
-      remove$7(component.element, 'aria-busy');
+      remove$8(component.element, 'aria-busy');
       if (state.isBlocked()) {
         config.onUnblock(component);
       }
@@ -21892,10 +22028,10 @@
           getOpt(iframe, tabIndexAttr).each(tabIndex => set$9(iframe, dataTabIndexAttr, tabIndex));
           set$9(iframe, tabIndexAttr, -1);
         } else {
-          remove$7(iframe, tabIndexAttr);
+          remove$8(iframe, tabIndexAttr);
           getOpt(iframe, dataTabIndexAttr).each(tabIndex => {
             set$9(iframe, tabIndexAttr, tabIndex);
-            remove$7(iframe, dataTabIndexAttr);
+            remove$8(iframe, dataTabIndexAttr);
           });
         }
       });
@@ -21905,8 +22041,8 @@
       toggleEditorTabIndex(editor, state);
       if (state) {
         Blocking.block(comp, getBusySpec$1(providerBackstage));
-        remove$6(element, 'display');
-        remove$7(element, 'aria-hidden');
+        remove$7(element, 'display');
+        remove$8(element, 'aria-hidden');
         if (editor.hasFocus()) {
           focusBusyComponent(comp);
         }
@@ -22076,7 +22212,7 @@
         setGroups$1(primary, overflows.within);
         setOverflow(overflows.extra);
       }
-      remove$6(primary.element, 'visibility');
+      remove$7(primary.element, 'visibility');
       reflow(primary.element);
       focusedComp.each(Focusing.focus);
     };
@@ -22615,19 +22751,33 @@
     });
 
     const renderToolbarGroupCommon = toolbarGroup => {
-      const attributes = toolbarGroup.title.fold(() => ({}), title => ({ attributes: { title } }));
+      const attributes = toolbarGroup.label.isNone() ? toolbarGroup.title.fold(() => ({}), title => ({ attributes: { 'aria-label': title } })) : toolbarGroup.label.fold(() => ({}), label => ({ attributes: { 'aria-label': label } }));
       return {
         dom: {
           tag: 'div',
-          classes: ['tox-toolbar__group'],
+          classes: ['tox-toolbar__group'].concat(toolbarGroup.label.isSome() ? ['tox-toolbar__group_with_label'] : []),
           ...attributes
         },
-        components: [ToolbarGroup.parts.items({})],
+        components: [
+          ...toolbarGroup.label.map(label => {
+            return {
+              dom: {
+                tag: 'span',
+                classes: [
+                  'tox-label',
+                  'tox-label--context-toolbar'
+                ]
+              },
+              components: [text$2(label)]
+            };
+          }).toArray(),
+          ToolbarGroup.parts.items({})
+        ],
         items: toolbarGroup.items,
-        markers: { itemSelector: '*:not(.tox-split-button) > .tox-tbtn:not([disabled]), ' + '.tox-split-button:not([disabled]), ' + '.tox-toolbar-nav-js:not([disabled]), ' + '.tox-number-input:not([disabled])' },
+        markers: { itemSelector: '*:not(.tox-split-button) > .tox-tbtn:not([disabled]), ' + '.tox-split-button:not([disabled]), ' + '.tox-toolbar-nav-item:not([disabled]), ' + '.tox-number-input:not([disabled])' },
         tgroupBehaviours: derive$1([
           Tabstopping.config({}),
-          Focusing.config({})
+          Focusing.config({ ignore: true })
         ])
       };
     };
@@ -22638,11 +22788,12 @@
         Toolbar.setGroups(component, groups);
       });
       return derive$1([
-        DisablingConfigs.toolbarButton(toolbarSpec.providers.isDisabled),
-        receivingConfig(),
+        DisablingConfigs.toolbarButton(() => toolbarSpec.providers.checkUiComponentContext('any').shouldDisable),
+        toggleOnReceive(() => toolbarSpec.providers.checkUiComponentContext('any')),
         Keying.config({
           mode: modeName,
           onEscape: toolbarSpec.onEscape,
+          visibilitySelector: '.tox-toolbar__overflow',
           selector: '.tox-toolbar__group'
         }),
         config('toolbar-events', [onAttached])
@@ -22659,9 +22810,11 @@
         parts: {
           'overflow-group': renderToolbarGroupCommon({
             title: Optional.none(),
+            label: Optional.none(),
             items: []
           }),
           'overflow-button': renderIconButtonSpec({
+            context: 'any',
             name: 'more',
             icon: Optional.some('more-drawer'),
             enabled: true,
@@ -22769,7 +22922,8 @@
         'secondary'
       ]),
       defaultedBoolean('borderless', false),
-      requiredFunction('onAction')
+      requiredFunction('onAction'),
+      defaultedString('context', 'mode:design')
     ];
     const normalButtonFields = [
       ...baseButtonFields,
@@ -22817,16 +22971,18 @@
             add$2(elm, 'tox-button--enabled');
             set$9(elm, 'aria-pressed', true);
           } else {
-            remove$2(elm, 'tox-button--enabled');
-            remove$7(elm, 'aria-pressed');
+            remove$3(elm, 'tox-button--enabled');
+            remove$8(elm, 'aria-pressed');
           }
         };
         const isActive = () => has(comp.element, 'tox-button--enabled');
+        const focus = () => focus$3(comp.element);
         if (isToggleButton) {
           return spec.onAction({
             setIcon,
             setActive,
-            isActive
+            isActive,
+            focus
           });
         }
         if (spec.type === 'button') {
@@ -23021,8 +23177,8 @@
     };
     const showContainer = comp => {
       const element = comp.element;
-      remove$6(element, 'display');
-      remove$7(element, 'aria-hidden');
+      remove$7(element, 'display');
+      remove$8(element, 'aria-hidden');
     };
     const makeViewInstanceApi = slot => ({ getContainer: constant$1(slot) });
     const runOnPaneWithInstanceApi = (slotContainer, name, get) => {
@@ -23105,8 +23261,8 @@
       const toggleStatusbar = editorContainer => {
         sibling(editorContainer, '.tox-statusbar').each(statusBar => {
           if (get$f(statusBar, 'display') === 'none' && get$g(statusBar, 'aria-hidden') === 'true') {
-            remove$6(statusBar, 'display');
-            remove$7(statusBar, 'aria-hidden');
+            remove$7(statusBar, 'display');
+            remove$8(statusBar, 'aria-hidden');
           } else {
             set$8(statusBar, 'display', 'none');
             set$9(statusBar, 'aria-hidden', 'true');
@@ -23210,8 +23366,8 @@
           parts$a.getPart(comp, detail, 'editorContainer').each(editorContainer => {
             const element = editorContainer.element;
             toggleStatusbar(element);
-            remove$6(element, 'display');
-            remove$7(element, 'aria-hidden');
+            remove$7(element, 'display');
+            remove$8(element, 'aria-hidden');
           });
         }
       };
@@ -23525,6 +23681,14 @@
     };
     const fireSkinLoadError = (editor, err) => () => fireSkinLoadError$1(editor, { message: err });
 
+    const getSkinResourceIdentifier = editor => {
+      const skin = getSkin(editor);
+      if (!skin) {
+        return Optional.none();
+      } else {
+        return Optional.from(skin);
+      }
+    };
     const loadStylesheet = (editor, stylesheetUrl, styleSheetLoader) => {
       editor.on('remove', () => styleSheetLoader.unload(stylesheetUrl));
       return styleSheetLoader.load(stylesheetUrl);
@@ -23533,51 +23697,88 @@
       editor.on('remove', () => styleSheetLoader.unloadRawCss(key));
       return styleSheetLoader.loadRawCss(key, css);
     };
-    const loadUiSkins = async (editor, skinUrl) => {
-      const skinResourceIdentifier = getSkinUrlOption(editor).getOr('default');
-      const skinUiCss = 'ui/' + skinResourceIdentifier + '/skin.css';
-      const css = tinymce.Resource.get(skinUiCss);
-      if (isString(css)) {
-        loadRawCss(editor, skinUiCss, css, editor.ui.styleSheetLoader);
-      } else {
+    const skinIdentifierToResourceKey = (identifier, filename) => 'ui/' + identifier + '/' + filename;
+    const getResourceValue = resourceKey => Optional.from(tinymce.Resource.get(resourceKey)).filter(isString);
+    const determineCSSDecision = (editor, filenameBase, skinUrl = '') => {
+      const resourceKey = getSkinResourceIdentifier(editor).map(identifier => skinIdentifierToResourceKey(identifier, `${ filenameBase }.css`));
+      const resourceValue = resourceKey.bind(getResourceValue);
+      return lift2(resourceKey, resourceValue, (key, css) => {
+        return {
+          _kind: 'load-raw',
+          key,
+          css
+        };
+      }).getOrThunk(() => {
         const suffix = editor.editorManager.suffix;
-        const skinUiCss = skinUrl + `/skin${ suffix }.css`;
-        return loadStylesheet(editor, skinUiCss, editor.ui.styleSheetLoader);
+        const skinUiCssUrl = skinUrl + `/${ filenameBase }${ suffix }.css`;
+        return {
+          _kind: 'load-stylesheet',
+          url: skinUiCssUrl
+        };
+      });
+    };
+    const loadUiSkins = (editor, skinUrl) => {
+      const loader = editor.ui.styleSheetLoader;
+      const decision = determineCSSDecision(editor, 'skin', skinUrl);
+      switch (decision._kind) {
+      case 'load-raw':
+        const {key, css} = decision;
+        loadRawCss(editor, key, css, loader);
+        return Promise.resolve();
+      case 'load-stylesheet':
+        const {url} = decision;
+        return loadStylesheet(editor, url, loader);
+      default:
+        return Promise.resolve();
       }
     };
-    const loadShadowDomUiSkins = async (editor, skinUrl) => {
+    const loadShadowDomUiSkins = (editor, skinUrl) => {
       const isInShadowRoot$1 = isInShadowRoot(SugarElement.fromDom(editor.getElement()));
-      if (isInShadowRoot$1) {
-        const skinResourceIdentifier = getSkinUrlOption(editor).getOr('default');
-        const shadowDomSkinCss = 'ui/' + skinResourceIdentifier + '/skin.shadowdom.css';
-        const css = tinymce.Resource.get(shadowDomSkinCss);
-        if (isString(css)) {
-          loadRawCss(editor, shadowDomSkinCss, css, global$8.DOM.styleSheetLoader);
-        } else {
-          const suffix = editor.editorManager.suffix;
-          const shadowDomSkinCss = skinUrl + `/skin.shadowdom${ suffix }.css`;
-          return loadStylesheet(editor, shadowDomSkinCss, global$8.DOM.styleSheetLoader);
+      if (!isInShadowRoot$1) {
+        return Promise.resolve();
+      } else {
+        const loader = global$8.DOM.styleSheetLoader;
+        const decision = determineCSSDecision(editor, 'skin.shadowdom', skinUrl);
+        switch (decision._kind) {
+        case 'load-raw':
+          const {key, css} = decision;
+          loadRawCss(editor, key, css, loader);
+          return Promise.resolve();
+        case 'load-stylesheet':
+          const {url} = decision;
+          return loadStylesheet(editor, url, loader);
+        default:
+          return Promise.resolve();
         }
+      }
+    };
+    const loadUiContentCSS = (editor, isInline, skinUrl) => {
+      const filenameBase = isInline ? 'content.inline' : 'content';
+      const decision = determineCSSDecision(editor, filenameBase, skinUrl);
+      switch (decision._kind) {
+      case 'load-raw':
+        const {key, css} = decision;
+        if (isInline) {
+          loadRawCss(editor, key, css, editor.ui.styleSheetLoader);
+        } else {
+          editor.on('PostRender', () => {
+            loadRawCss(editor, key, css, editor.dom.styleSheetLoader);
+          });
+        }
+        return Promise.resolve();
+      case 'load-stylesheet':
+        const {url} = decision;
+        if (skinUrl) {
+          editor.contentCSS.push(url);
+        }
+        return Promise.resolve();
+      default:
+        return Promise.resolve();
       }
     };
     const loadUrlSkin = async (isInline, editor) => {
-      const unbundled = () => {
-        const skinResourceIdentifier = getSkinUrl(editor);
-        const suffix = editor.editorManager.suffix;
-        if (skinResourceIdentifier) {
-          editor.contentCSS.push(skinResourceIdentifier + (isInline ? '/content.inline' : '/content') + `${ suffix }.css`);
-        }
-      };
-      getSkinUrlOption(editor).fold(unbundled, skinUrl => {
-        const skinContentCss = 'ui/' + skinUrl + (isInline ? '/content.inline' : '/content') + '.css';
-        const css = tinymce.Resource.get(skinContentCss);
-        if (isString(css)) {
-          loadRawCss(editor, skinContentCss, css, editor.ui.styleSheetLoader);
-        } else {
-          unbundled();
-        }
-      });
       const skinUrl = getSkinUrl(editor);
+      await loadUiContentCSS(editor, isInline, skinUrl);
       if (!isSkinDisabled(editor) && isString(skinUrl)) {
         return Promise.all([
           loadUiSkins(editor, skinUrl),
@@ -23684,6 +23885,7 @@
         })(api), () => editor.off(textUpdateEventName, handler));
       };
       return renderCommonDropdown({
+        context: 'mode:design',
         text: spec.icon.isSome() ? Optional.none() : spec.text,
         icon: spec.icon,
         ariaLabel: Optional.some(spec.tooltip),
@@ -24038,11 +24240,11 @@
     const createBespokeNumberInput = (editor, backstage, spec, btnName) => {
       let currentComp = Optional.none();
       const getValueFromCurrentComp = comp => comp.map(alloyComp => Representing.getValue(alloyComp)).getOr('');
-      const onSetup = onSetupEvent(editor, 'NodeChange SwitchMode', api => {
+      const onSetup = onSetupEvent(editor, 'NodeChange SwitchMode DisabledStateChange', api => {
         const comp = api.getComponent();
         currentComp = Optional.some(comp);
         spec.updateInputValue(comp);
-        Disabling.set(comp, !editor.selection.isEditable());
+        Disabling.set(comp, !editor.selection.isEditable() || isDisabled(editor));
       });
       const getApi = comp => ({ getComponent: constant$1(comp) });
       const editorOffCell = Cell(noop);
@@ -24080,8 +24282,8 @@
         const editorOffCellStepButton = Cell(noop);
         const translatedTooltip = backstage.shared.providers.translate(tooltip);
         const altExecuting = generate$6('altExecuting');
-        const onSetup = onSetupEvent(editor, 'NodeChange SwitchMode', api => {
-          Disabling.set(api.getComponent(), !editor.selection.isEditable());
+        const onSetup = onSetupEvent(editor, 'NodeChange SwitchMode DisabledStateChange', api => {
+          Disabling.set(api.getComponent(), !editor.selection.isEditable() || isDisabled(editor));
         });
         const onClick = comp => {
           if (!Disabling.isDisabled(comp)) {
@@ -24479,7 +24681,8 @@
       defaulted('matchWidth', false),
       defaulted('useMinWidth', false),
       defaulted('eventOrder', {}),
-      option$3('role')
+      option$3('role'),
+      option$3('listRole')
     ].concat(sandboxFields()));
     const arrowPart = required({
       factory: Button,
@@ -24678,7 +24881,7 @@
     });
     const getTooltipAttributes = (tooltip, providersBackstage) => tooltip.map(tooltip => ({ 'aria-label': providersBackstage.translate(tooltip) })).getOr({});
     const focusButtonEvent = generate$6('focus-button');
-    const renderCommonStructure = (optIcon, optText, tooltip, behaviours, providersBackstage, btnName) => {
+    const renderCommonStructure = (optIcon, optText, tooltip, behaviours, providersBackstage, context, btnName) => {
       const optMemDisplayText = optText.map(text => record(renderLabel$1(text, 'tox-tbtn', providersBackstage)));
       const optMemDisplayIcon = optIcon.map(icon => record(renderReplaceableIconFromPack(icon, providersBackstage.icons)));
       return {
@@ -24703,11 +24906,16 @@
           [attachedToDom()]: [
             commonButtonDisplayEvent,
             'toolbar-group-button-events'
+          ],
+          [detachedFromDom()]: [
+            commonButtonDisplayEvent,
+            'toolbar-group-button-events',
+            'tooltipping'
           ]
         },
         buttonBehaviours: derive$1([
-          DisablingConfigs.toolbarButton(providersBackstage.isDisabled),
-          receivingConfig(),
+          DisablingConfigs.toolbarButton(() => providersBackstage.checkUiComponentContext(context).shouldDisable),
+          toggleOnReceive(() => providersBackstage.checkUiComponentContext(context)),
           config(commonButtonDisplayEvent, [
             runOnAttached((comp, _se) => forceInitialSize(comp)),
             run$1(updateMenuText, (comp, se) => {
@@ -24736,10 +24944,13 @@
         getApi: getButtonApi,
         onSetup: spec.onSetup
       };
-      const behaviours = [config('toolbar-group-button-events', [
+      const behaviours = [
+        config('toolbar-group-button-events', [
           onControlAttached(specialisation, editorOffCell),
           onControlDetached(specialisation, editorOffCell)
-        ])];
+        ]),
+        ...spec.tooltip.map(t => Tooltipping.config(backstage.shared.providers.tooltips.getConfig({ tooltipText: backstage.shared.providers.translate(t) }))).toArray()
+      ];
       return FloatingToolbarButton.sketch({
         lazySink: sharedBackstage.getSink,
         fetch: () => Future.nu(resolve => {
@@ -24747,7 +24958,7 @@
         }),
         markers: { toggledClass: 'tox-tbtn--enabled' },
         parts: {
-          button: renderCommonStructure(spec.icon, spec.text, spec.tooltip, Optional.some(behaviours), sharedBackstage.providers, btnName),
+          button: renderCommonStructure(spec.icon, spec.text, spec.tooltip, Optional.some(behaviours), sharedBackstage.providers, spec.context, btnName),
           toolbar: {
             dom: {
               tag: 'div',
@@ -24761,7 +24972,7 @@
     const renderCommonToolbarButton = (spec, specialisation, providersBackstage, btnName) => {
       var _d;
       const editorOffCell = Cell(noop);
-      const structure = renderCommonStructure(spec.icon, spec.text, spec.tooltip, Optional.none(), providersBackstage, btnName);
+      const structure = renderCommonStructure(spec.icon, spec.text, spec.tooltip, Optional.none(), providersBackstage, spec.context, btnName);
       return Button.sketch({
         dom: structure.dom,
         components: structure.components,
@@ -24777,8 +24988,8 @@
               onControlDetached(specialisation, editorOffCell)
             ]),
             ...spec.tooltip.map(t => Tooltipping.config(providersBackstage.tooltips.getConfig({ tooltipText: providersBackstage.translate(t) + spec.shortcut.map(shortcut => ` (${ convertText(shortcut) })`).getOr('') }))).toArray(),
-            DisablingConfigs.toolbarButton(() => !spec.enabled || providersBackstage.isDisabled()),
-            receivingConfig()
+            DisablingConfigs.toolbarButton(() => !spec.enabled || providersBackstage.checkUiComponentContext(spec.context).shouldDisable),
+            toggleOnReceive(() => providersBackstage.checkUiComponentContext(spec.context))
           ].concat(specialisation.toolbarButtonBehaviours)),
           [commonButtonDisplayEvent]: (_d = structure.buttonBehaviours) === null || _d === void 0 ? void 0 : _d[commonButtonDisplayEvent]
         }
@@ -24862,14 +25073,14 @@
         onItemExecute: (_a, _b, _c) => {
         },
         splitDropdownBehaviours: derive$1([
-          DisablingConfigs.splitButton(sharedBackstage.providers.isDisabled),
-          receivingConfig(),
           config('split-dropdown-events', [
             runOnAttached((comp, _se) => forceInitialSize(comp)),
             run$1(focusButtonEvent, Focusing.focus),
             onControlAttached(specialisation, editorOffCell),
             onControlDetached(specialisation, editorOffCell)
           ]),
+          DisablingConfigs.splitButton(() => sharedBackstage.providers.isDisabled() || sharedBackstage.providers.checkUiComponentContext(spec.context).shouldDisable),
+          toggleOnReceive(() => sharedBackstage.providers.checkUiComponentContext(spec.context)),
           Unselecting.config({}),
           ...spec.tooltip.map(tooltip => {
             return Tooltipping.config({
@@ -24901,10 +25112,17 @@
         fetch: fetchChoices(getApi, spec, sharedBackstage.providers),
         parts: { menu: part(false, spec.columns, spec.presets) },
         components: [
-          SplitDropdown.parts.button(renderCommonStructure(spec.icon, spec.text, Optional.none(), Optional.some([Toggling.config({
+          SplitDropdown.parts.button(renderCommonStructure(spec.icon, spec.text, Optional.none(), Optional.some([
+            Toggling.config({
               toggleClass: 'tox-tbtn--enabled',
               toggleOnExecute: false
-            })]), sharedBackstage.providers)),
+            }),
+            DisablingConfigs.toolbarButton(never),
+            toggleOnReceive(constant$1({
+              contextType: 'any',
+              shouldDisable: false
+            }))
+          ]), sharedBackstage.providers, spec.context)),
           SplitDropdown.parts.arrow({
             dom: {
               tag: 'button',
@@ -24915,9 +25133,11 @@
               innerHtml: get$3('chevron-down', sharedBackstage.providers.icons)
             },
             buttonBehaviours: derive$1([
-              DisablingConfigs.splitButton(sharedBackstage.providers.isDisabled),
-              receivingConfig(),
-              addFocusableBehaviour()
+              DisablingConfigs.splitButton(never),
+              toggleOnReceive(constant$1({
+                contextType: 'any',
+                shouldDisable: false
+              }))
             ])
           }),
           SplitDropdown.parts['aria-descriptor']({ text: sharedBackstage.providers.translate('To open the popup, press Shift+Enter') })
@@ -25027,7 +25247,7 @@
       const groupsStrings = strToolbar.split('|');
       return map$2(groupsStrings, g => ({ items: g.trim().split(' ') }));
     };
-    const isToolbarGroupSettingArray = toolbar => isArrayOf(toolbar, t => has$2(t, 'name') && has$2(t, 'items'));
+    const isToolbarGroupSettingArray = toolbar => isArrayOf(toolbar, t => (has$2(t, 'name') || has$2(t, 'label')) && has$2(t, 'items'));
     const createToolbar = toolbarConfig => {
       const toolbar = toolbarConfig.toolbar;
       const buttons = toolbarConfig.buttons;
@@ -25060,6 +25280,7 @@
         });
         return {
           title: Optional.from(editor.translate(group.name)),
+          label: someIf(group.label !== undefined, editor.translate(group.label)),
           items
         };
       });
@@ -25122,7 +25343,7 @@
       });
       editor.on('show', () => {
         each$1(uiMotherships, m => {
-          remove$6(m.element, 'display');
+          remove$7(m.element, 'display');
         });
       });
       editor.on('NodeChange', resizeDocument);
@@ -25148,8 +25369,10 @@
       const uiRoot = getContentContainer(getRootNode(eTargetNode));
       attachSystemAfter(eTargetNode, mainUi.mothership);
       attachUiMotherships(editor, uiRoot, uiRefs);
-      editor.on('SkinLoaded', () => {
+      editor.on('PostRender', () => {
         OuterContainer.setSidebar(outerContainer, rawUiConfig.sidebar, getSidebarShow(editor));
+      });
+      editor.on('SkinLoaded', () => {
         setToolbar(editor, uiRefs, rawUiConfig, backstage);
         lastToolbarWidth.set(editor.getWin().innerWidth);
         OuterContainer.setMenubar(outerContainer, identifyMenus(editor, rawUiConfig));
@@ -25168,10 +25391,10 @@
         const unbinder = bind(socket.element, 'scroll', limit.throttle);
         editor.on('remove', unbinder.unbind);
       }
-      setupReadonlyModeSwitch(editor, uiRefs);
+      setupEventsForUi(editor, uiRefs);
       editor.addCommand('ToggleSidebar', (_ui, value) => {
         OuterContainer.toggleSidebar(outerContainer, value);
-        editor.dispatch('ToggleSidebar');
+        fireToggleSidebar(editor);
       });
       editor.addQueryValueHandler('ToggleSidebar', () => {
         var _a;
@@ -25189,6 +25412,7 @@
             editor.nodeChanged();
             OuterContainer.refreshToolbar(outerContainer);
           }
+          fireToggleView(editor);
         }
       });
       editor.addQueryValueHandler('ToggleView', () => {
@@ -25210,7 +25434,8 @@
       }
       const api = {
         setEnabled: state => {
-          broadcastReadonly(uiRefs, !state);
+          const eventType = state ? 'setEnabled' : 'setDisabled';
+          broadcastEvents(uiRefs, eventType);
         },
         isEnabled: () => !Disabling.isDisabled(outerContainer)
       };
@@ -25374,7 +25599,7 @@
           if (toolbarCurrentRightsidePosition >= window.innerWidth - maximumDistanceToEdge || getRaw(mainUi.outerContainer.element, 'width').isSome()) {
             set$8(mainUi.outerContainer.element, 'position', 'absolute');
             set$8(mainUi.outerContainer.element, 'left', '0px');
-            remove$6(mainUi.outerContainer.element, 'width');
+            remove$7(mainUi.outerContainer.element, 'width');
             return true;
           }
         }
@@ -25425,7 +25650,7 @@
         set$8(mainUi.outerContainer.element, 'display', 'flex');
         DOM.addClass(editor.getBody(), 'mce-edit-focus');
         each$1(uiMotherships, m => {
-          remove$6(m.element, 'display');
+          remove$7(m.element, 'display');
         });
         doUpdateMode();
         if (isSplitUiMode(editor)) {
@@ -25565,12 +25790,13 @@
           render();
         }
       });
-      setupReadonlyModeSwitch(editor, uiRefs);
+      setupEventsForUi(editor, uiRefs);
       const api = {
         show: render,
         hide: ui.hide,
         setEnabled: state => {
-          broadcastReadonly(uiRefs, !state);
+          const eventType = state ? 'setEnabled' : 'setDisabled';
+          broadcastEvents(uiRefs, eventType);
         },
         isEnabled: () => !Disabling.isDisabled(mainUi.outerContainer)
       };
@@ -25610,43 +25836,169 @@
     const showContextToolbarEvent = 'contexttoolbar-show';
     const hideContextToolbarEvent = 'contexttoolbar-hide';
 
-    const getFormApi = input => ({
-      hide: () => emit(input, sandboxClose()),
-      getValue: () => Representing.getValue(input)
+    const contextFormInputSelector = '.tox-toolbar-slider__input,.tox-toolbar-textfield';
+    const focusIn = contextbar => {
+      InlineView.getContent(contextbar).each(comp => {
+        descendant(comp.element, contextFormInputSelector).fold(() => Keying.focusIn(comp), focus$3);
+      });
+    };
+    const focusParent = comp => search(comp.element).each(focus => {
+      ancestor(focus, '[tabindex="-1"]').each(parent => {
+        focus$3(parent);
+      });
     });
-    const runOnExecute = (memInput, original) => run$1(internalToolbarButtonExecute, (comp, se) => {
+
+    const forwardSlideEvent = generate$6('forward-slide');
+    const backSlideEvent = generate$6('backward-slide');
+    const changeSlideEvent = generate$6('change-slide-event');
+    const resizingClass = 'tox-pop--resizing';
+    const renderContextToolbar = spec => {
+      const stack = Cell([]);
+      return InlineView.sketch({
+        dom: {
+          tag: 'div',
+          classes: ['tox-pop']
+        },
+        fireDismissalEventInstead: { event: 'doNotDismissYet' },
+        onShow: comp => {
+          stack.set([]);
+          InlineView.getContent(comp).each(c => {
+            remove$7(c.element, 'visibility');
+          });
+          remove$3(comp.element, resizingClass);
+          remove$7(comp.element, 'width');
+        },
+        onHide: () => {
+          spec.onHide();
+        },
+        inlineBehaviours: derive$1([
+          config('context-toolbar-events', [
+            runOnSource(transitionend(), (comp, se) => {
+              if (se.event.raw.propertyName === 'width') {
+                remove$3(comp.element, resizingClass);
+                remove$7(comp.element, 'width');
+              }
+            }),
+            run$1(changeSlideEvent, (comp, se) => {
+              const elem = comp.element;
+              remove$7(elem, 'width');
+              const currentWidth = get$d(elem);
+              remove$7(elem, 'left');
+              remove$7(elem, 'right');
+              remove$7(elem, 'max-width');
+              InlineView.setContent(comp, se.event.contents);
+              add$2(elem, resizingClass);
+              const newWidth = get$d(elem);
+              set$8(elem, 'transition', 'none');
+              InlineView.reposition(comp);
+              remove$7(elem, 'transition');
+              set$8(elem, 'width', currentWidth + 'px');
+              se.event.focus.fold(() => focusIn(comp), f => {
+                focus$3(f);
+                if (search(elem).isNone()) {
+                  focusIn(comp);
+                }
+              });
+              setTimeout(() => {
+                set$8(comp.element, 'width', newWidth + 'px');
+              }, 0);
+            }),
+            run$1(forwardSlideEvent, (comp, se) => {
+              InlineView.getContent(comp).each(oldContents => {
+                stack.set(stack.get().concat([{
+                    bar: oldContents,
+                    focus: active$1(getRootNode(comp.element))
+                  }]));
+              });
+              emitWith(comp, changeSlideEvent, {
+                contents: se.event.forwardContents,
+                focus: Optional.none()
+              });
+            }),
+            run$1(backSlideEvent, (comp, _se) => {
+              spec.onBack();
+              last$1(stack.get()).each(last => {
+                stack.set(stack.get().slice(0, stack.get().length - 1));
+                emitWith(comp, changeSlideEvent, {
+                  contents: premade(last.bar),
+                  focus: last.focus
+                });
+              });
+            })
+          ]),
+          Keying.config({
+            mode: 'special',
+            onEscape: comp => last$1(stack.get()).fold(() => spec.onEscape(), _ => {
+              emit(comp, backSlideEvent);
+              return Optional.some(true);
+            })
+          })
+        ]),
+        lazySink: () => Result.value(spec.sink)
+      });
+    };
+
+    const getFormApi = (input, valueState, focusfallbackElement) => {
+      return {
+        setInputEnabled: state => {
+          if (!state && focusfallbackElement) {
+            focus$3(focusfallbackElement);
+          }
+          Disabling.set(input, !state);
+        },
+        isInputEnabled: () => !Disabling.isDisabled(input),
+        hide: () => {
+          emit(input, sandboxClose());
+        },
+        back: () => {
+          emit(input, backSlideEvent);
+        },
+        getValue: () => {
+          return valueState.get().getOrThunk(() => Representing.getValue(input));
+        },
+        setValue: value => {
+          if (input.getSystem().isConnected()) {
+            Representing.setValue(input, value);
+          } else {
+            valueState.set(value);
+          }
+        }
+      };
+    };
+
+    const runOnExecute = (memInput, original, valueState) => run$1(internalToolbarButtonExecute, (comp, se) => {
       const input = memInput.get(comp);
-      const formApi = getFormApi(input);
+      const formApi = getFormApi(input, valueState, comp.element);
       original.onAction(formApi, se.event.buttonApi);
     });
-    const renderContextButton = (memInput, button, providers) => {
+    const renderContextButton = (memInput, button, providers, valueState) => {
       const {primary, ...rest} = button.original;
       const bridged = getOrDie(createToolbarButton({
         ...rest,
         type: 'button',
         onAction: noop
       }));
-      return renderToolbarButtonWith(bridged, providers, [runOnExecute(memInput, button)]);
+      return renderToolbarButtonWith(bridged, providers, [runOnExecute(memInput, button, valueState)]);
     };
-    const renderContextToggleButton = (memInput, button, providers) => {
+    const renderContextToggleButton = (memInput, button, providers, valueState) => {
       const {primary, ...rest} = button.original;
       const bridged = getOrDie(createToggleButton({
         ...rest,
         type: 'togglebutton',
         onAction: noop
       }));
-      return renderToolbarToggleButtonWith(bridged, providers, [runOnExecute(memInput, button)]);
+      return renderToolbarToggleButtonWith(bridged, providers, [runOnExecute(memInput, button, valueState)]);
     };
     const isToggleButton = button => button.type === 'contextformtogglebutton';
-    const generateOne = (memInput, button, providersBackstage) => {
+    const generateOne = (memInput, button, providersBackstage, valueState) => {
       if (isToggleButton(button)) {
-        return renderContextToggleButton(memInput, button, providersBackstage);
+        return renderContextToggleButton(memInput, button, providersBackstage, valueState);
       } else {
-        return renderContextButton(memInput, button, providersBackstage);
+        return renderContextButton(memInput, button, providersBackstage, valueState);
       }
     };
-    const generate = (memInput, buttons, providersBackstage) => {
-      const mementos = map$2(buttons, button => record(generateOne(memInput, button, providersBackstage)));
+    const generate = (memInput, buttons, providersBackstage, valueState) => {
+      const mementos = map$2(buttons, button => record(generateOne(memInput, button, providersBackstage, valueState)));
       const asSpecs = () => map$2(mementos, mem => mem.asSpec());
       const findPrimary = compInSystem => findMap(buttons, (button, i) => {
         if (button.primary) {
@@ -25661,22 +26013,243 @@
       };
     };
 
-    const buildInitGroups = (ctx, providers) => {
-      const inputAttributes = ctx.label.fold(() => ({}), label => ({ 'aria-label': label }));
-      const memInput = record(Input.sketch({
-        inputClasses: [
-          'tox-toolbar-textfield',
-          'tox-toolbar-nav-js'
+    const renderContextFormSizeInput = (ctx, providersBackstage, onEnter, valueState) => {
+      const {width, height} = ctx.initValue();
+      let converter = noSizeConversion;
+      const enabled = true;
+      const ratioEvent = generate$6('ratio-event');
+      const getApi = comp => getFormApi(comp, valueState);
+      const makeIcon = iconName => render$3(iconName, {
+        tag: 'span',
+        classes: [
+          'tox-icon',
+          'tox-lock-icon__' + iconName
+        ]
+      }, providersBackstage.icons);
+      const disabled = () => !enabled;
+      const label = ctx.label.getOr('Constrain proportions');
+      const translatedLabel = providersBackstage.translate(label);
+      const pLock = FormCoupledInputs.parts.lock({
+        dom: {
+          tag: 'button',
+          classes: [
+            'tox-lock',
+            'tox-button',
+            'tox-button--naked',
+            'tox-button--icon'
+          ],
+          attributes: {
+            'aria-label': translatedLabel,
+            'data-mce-name': label
+          }
+        },
+        components: [
+          makeIcon('lock'),
+          makeIcon('unlock')
         ],
-        data: ctx.initValue(),
-        inputAttributes,
-        selectOnFocus: true,
-        inputBehaviours: derive$1([Keying.config({
+        buttonBehaviours: derive$1([
+          Disabling.config({ disabled }),
+          Tabstopping.config({}),
+          Tooltipping.config(providersBackstage.tooltips.getConfig({ tooltipText: translatedLabel }))
+        ])
+      });
+      const formGroup = components => ({
+        dom: {
+          tag: 'div',
+          classes: ['tox-context-form__group']
+        },
+        components
+      });
+      const goToParent = comp => {
+        const focussableWrapperOpt = ancestor(comp.element, 'div.tox-focusable-wrapper');
+        return focussableWrapperOpt.fold(Optional.none, focussableWrapper => {
+          focus$3(focussableWrapper);
+          return Optional.some(true);
+        });
+      };
+      const getFieldPart = isField1 => FormField.parts.field({
+        factory: Input,
+        inputClasses: [
+          'tox-textfield',
+          'tox-toolbar-textfield',
+          'tox-textfield-size'
+        ],
+        data: isField1 ? width : height,
+        inputBehaviours: derive$1([
+          Disabling.config({ disabled }),
+          Tabstopping.config({}),
+          config('size-input-toolbar-events', [run$1(focusin(), (component, _simulatedEvent) => {
+              emitWith(component, ratioEvent, { isField1 });
+            })]),
+          Keying.config({
             mode: 'special',
-            onEnter: input => commands.findPrimary(input).map(primary => {
-              emitExecute(primary);
-              return true;
+            onEnter,
+            onEscape: goToParent
+          })
+        ]),
+        selectOnFocus: false
+      });
+      const getLabel = label => ({
+        dom: {
+          tag: 'label',
+          classes: ['tox-label']
+        },
+        components: [text$2(providersBackstage.translate(label))]
+      });
+      const focusableWrapper = field => ({
+        dom: {
+          tag: 'div',
+          classes: [
+            'tox-focusable-wrapper',
+            'tox-toolbar-nav-item'
+          ]
+        },
+        components: [field],
+        behaviours: derive$1([
+          Tabstopping.config({}),
+          Focusing.config({}),
+          Keying.config({
+            mode: 'special',
+            onEnter: comp => {
+              const focussableInputOpt = descendant(comp.element, 'input');
+              return focussableInputOpt.fold(Optional.none, focussableInput => {
+                focus$3(focussableInput);
+                return Optional.some(true);
+              });
+            }
+          })
+        ])
+      });
+      const widthField = focusableWrapper(FormCoupledInputs.parts.field1(formGroup([
+        FormField.parts.label(getLabel('Width:')),
+        getFieldPart(true)
+      ])));
+      const heightField = focusableWrapper(FormCoupledInputs.parts.field2(formGroup([
+        FormField.parts.label(getLabel('Height:')),
+        getFieldPart(false)
+      ])));
+      const editorOffCell = Cell(noop);
+      const controlLifecycleHandlers = [
+        onControlAttached({
+          onSetup: ctx.onSetup,
+          getApi
+        }, editorOffCell),
+        onContextFormControlDetached({ getApi }, editorOffCell, valueState)
+      ];
+      return FormCoupledInputs.sketch({
+        dom: {
+          tag: 'div',
+          classes: ['tox-context-form__group']
+        },
+        components: [
+          widthField,
+          heightField,
+          formGroup([
+            getLabel(nbsp),
+            pLock
+          ])
+        ],
+        field1Name: 'width',
+        field2Name: 'height',
+        locked: true,
+        markers: { lockClass: 'tox-locked' },
+        onLockedChange: (current, other, _lock) => {
+          parseSize(Representing.getValue(current)).each(size => {
+            converter(size).each(newSize => {
+              Representing.setValue(other, formatSize(newSize));
+            });
+          });
+        },
+        onInput: current => emit(current, formInputEvent),
+        coupledFieldBehaviours: derive$1([
+          Focusing.config({}),
+          Keying.config({
+            mode: 'flow',
+            focusInside: FocusInsideModes.OnEnterOrSpaceMode,
+            cycles: false,
+            selector: 'button, .tox-focusable-wrapper'
+          }),
+          Disabling.config({
+            disabled,
+            onDisabled: comp => {
+              FormCoupledInputs.getField1(comp).bind(FormField.getField).each(Disabling.disable);
+              FormCoupledInputs.getField2(comp).bind(FormField.getField).each(Disabling.disable);
+              FormCoupledInputs.getLock(comp).each(Disabling.disable);
+            },
+            onEnabled: comp => {
+              FormCoupledInputs.getField1(comp).bind(FormField.getField).each(Disabling.enable);
+              FormCoupledInputs.getField2(comp).bind(FormField.getField).each(Disabling.enable);
+              FormCoupledInputs.getLock(comp).each(Disabling.enable);
+            }
+          }),
+          toggleOnReceive(() => providersBackstage.checkUiComponentContext('mode:design')),
+          config('size-input-toolbar-events2', [
+            run$1(ratioEvent, (component, simulatedEvent) => {
+              const isField1 = simulatedEvent.event.isField1;
+              const optCurrent = isField1 ? FormCoupledInputs.getField1(component) : FormCoupledInputs.getField2(component);
+              const optOther = isField1 ? FormCoupledInputs.getField2(component) : FormCoupledInputs.getField1(component);
+              const value1 = optCurrent.map(Representing.getValue).getOr('');
+              const value2 = optOther.map(Representing.getValue).getOr('');
+              converter = makeRatioConverter(value1, value2);
             }),
+            run$1(formInputEvent, input => ctx.onInput(getApi(input))),
+            ...controlLifecycleHandlers
+          ])
+        ])
+      });
+    };
+
+    const createContextFormFieldFromParts = (pLabel, pField, providers) => FormField.sketch({
+      dom: {
+        tag: 'div',
+        classes: ['tox-context-form__group']
+      },
+      components: [
+        ...pLabel.toArray(),
+        pField
+      ],
+      fieldBehaviours: derive$1([Disabling.config({
+          disabled: () => providers.checkUiComponentContext('mode:design').shouldDisable,
+          onDisabled: comp => {
+            focusParent(comp);
+            FormField.getField(comp).each(Disabling.disable);
+          },
+          onEnabled: comp => {
+            FormField.getField(comp).each(Disabling.enable);
+          }
+        })])
+    });
+
+    const renderContextFormSliderInput = (ctx, providers, onEnter, valueState) => {
+      const editorOffCell = Cell(noop);
+      const getApi = comp => getFormApi(comp, valueState);
+      const pLabel = ctx.label.map(label => FormField.parts.label({
+        dom: {
+          tag: 'label',
+          classes: ['tox-label']
+        },
+        components: [text$2(providers.translate(label))]
+      }));
+      const pField = FormField.parts.field({
+        factory: Input,
+        type: 'range',
+        inputClasses: [
+          'tox-toolbar-slider__input',
+          'tox-toolbar-nav-item'
+        ],
+        inputAttributes: {
+          min: String(ctx.min()),
+          max: String(ctx.max())
+        },
+        data: ctx.initValue().toString(),
+        fromInputValue: value => toFloat(value).getOr(ctx.min()),
+        toInputValue: value => String(value),
+        inputBehaviours: derive$1([
+          Disabling.config({ disabled: () => providers.checkUiComponentContext('mode:design').shouldDisable }),
+          toggleOnReceive(() => providers.checkUiComponentContext('mode:design')),
+          Keying.config({
+            mode: 'special',
+            onEnter,
             onLeft: (comp, se) => {
               se.cut();
               return Optional.none();
@@ -25685,19 +26258,117 @@
               se.cut();
               return Optional.none();
             }
-          })])
+          }),
+          config('slider-events', [
+            onControlAttached({
+              onSetup: ctx.onSetup,
+              getApi,
+              onBeforeSetup: Keying.focusIn
+            }, editorOffCell),
+            onContextFormControlDetached({ getApi }, editorOffCell, valueState),
+            run$1(input(), comp => {
+              ctx.onInput(getApi(comp));
+            })
+          ])
+        ])
+      });
+      return createContextFormFieldFromParts(pLabel, pField, providers);
+    };
+
+    const renderContextFormTextInput = (ctx, providers, onEnter, valueState) => {
+      const editorOffCell = Cell(noop);
+      const getFormApi$1 = comp => getFormApi(comp, valueState);
+      const pLabel = ctx.label.map(label => FormField.parts.label({
+        dom: {
+          tag: 'label',
+          classes: ['tox-label']
+        },
+        components: [text$2(providers.translate(label))]
       }));
-      const commands = generate(memInput, ctx.commands, providers);
-      return [
+      const placeholder = ctx.placeholder.map(p => ({ placeholder: providers.translate(p) })).getOr({});
+      const inputAttributes = { ...placeholder };
+      const pField = FormField.parts.field({
+        factory: Input,
+        inputClasses: [
+          'tox-toolbar-textfield',
+          'tox-toolbar-nav-item'
+        ],
+        inputAttributes,
+        data: ctx.initValue(),
+        selectOnFocus: true,
+        inputBehaviours: derive$1([
+          Disabling.config({ disabled: () => providers.checkUiComponentContext('mode:design').shouldDisable }),
+          toggleOnReceive(() => providers.checkUiComponentContext('mode:design')),
+          Keying.config({
+            mode: 'special',
+            onEnter,
+            onLeft: (comp, se) => {
+              se.cut();
+              return Optional.none();
+            },
+            onRight: (comp, se) => {
+              se.cut();
+              return Optional.none();
+            }
+          }),
+          config('input-events', [
+            onControlAttached({
+              onSetup: ctx.onSetup,
+              getApi: comp => {
+                const closestFocussableOpt = ancestor(comp.element, '.tox-toolbar').bind(toolbar => descendant(toolbar, 'button:enabled'));
+                return closestFocussableOpt.fold(() => getFormApi(comp, valueState), closestFocussable => getFormApi(comp, valueState, closestFocussable));
+              },
+              onBeforeSetup: Keying.focusIn
+            }, editorOffCell),
+            onContextFormControlDetached({ getApi: getFormApi$1 }, editorOffCell, valueState),
+            run$1(input(), comp => {
+              ctx.onInput(getFormApi$1(comp));
+            })
+          ])
+        ])
+      });
+      return createContextFormFieldFromParts(pLabel, pField, providers);
+    };
+
+    const buildInitGroup = (f, ctx, providers) => {
+      const valueState = value$4();
+      const onEnter = input => {
+        return startCommands.findPrimary(input).orThunk(() => endCommands.findPrimary(input)).map(primary => {
+          emitExecute(primary);
+          return true;
+        });
+      };
+      const memInput = record(f(providers, onEnter, valueState));
+      const commandParts = partition$3(ctx.commands, command => command.align === 'start');
+      const startCommands = generate(memInput, commandParts.pass, providers, valueState);
+      const endCommands = generate(memInput, commandParts.fail, providers, valueState);
+      return filter$2([
         {
           title: Optional.none(),
+          label: Optional.none(),
+          items: startCommands.asSpecs()
+        },
+        {
+          title: Optional.none(),
+          label: Optional.none(),
           items: [memInput.asSpec()]
         },
         {
           title: Optional.none(),
-          items: commands.asSpecs()
+          label: Optional.none(),
+          items: endCommands.asSpecs()
         }
-      ];
+      ], group => group.items.length > 0);
+    };
+    const buildInitGroups = (ctx, providers) => {
+      switch (ctx.type) {
+      case 'contextform':
+        return buildInitGroup(curry(renderContextFormTextInput, ctx), ctx, providers);
+      case 'contextsliderform':
+        return buildInitGroup(curry(renderContextFormSliderInput, ctx), ctx, providers);
+      case 'contextsizeinputform':
+        return buildInitGroup(curry(renderContextFormSizeInput, ctx), ctx, providers);
+      }
     };
     const renderContextForm = (toolbarType, ctx, providers) => renderToolbar({
       type: toolbarType,
@@ -26036,7 +26707,7 @@
       const keys$1 = keys(contextToolbars);
       each$1(keys$1, key => {
         const toolbarApi = contextToolbars[key];
-        if (toolbarApi.type === 'contextform') {
+        if (toolbarApi.type === 'contextform' || toolbarApi.type === 'contextsliderform' || toolbarApi.type === 'contextsizeinputform') {
           registerForm(key, toolbarApi);
         } else if (toolbarApi.type === 'contexttoolbar') {
           registerToolbar(key, toolbarApi);
@@ -26051,91 +26722,8 @@
       };
     };
 
-    const forwardSlideEvent = generate$6('forward-slide');
-    const backSlideEvent = generate$6('backward-slide');
-    const changeSlideEvent = generate$6('change-slide-event');
-    const resizingClass = 'tox-pop--resizing';
-    const renderContextToolbar = spec => {
-      const stack = Cell([]);
-      return InlineView.sketch({
-        dom: {
-          tag: 'div',
-          classes: ['tox-pop']
-        },
-        fireDismissalEventInstead: { event: 'doNotDismissYet' },
-        onShow: comp => {
-          stack.set([]);
-          InlineView.getContent(comp).each(c => {
-            remove$6(c.element, 'visibility');
-          });
-          remove$2(comp.element, resizingClass);
-          remove$6(comp.element, 'width');
-        },
-        inlineBehaviours: derive$1([
-          config('context-toolbar-events', [
-            runOnSource(transitionend(), (comp, se) => {
-              if (se.event.raw.propertyName === 'width') {
-                remove$2(comp.element, resizingClass);
-                remove$6(comp.element, 'width');
-              }
-            }),
-            run$1(changeSlideEvent, (comp, se) => {
-              const elem = comp.element;
-              remove$6(elem, 'width');
-              const currentWidth = get$d(elem);
-              InlineView.setContent(comp, se.event.contents);
-              add$2(elem, resizingClass);
-              const newWidth = get$d(elem);
-              set$8(elem, 'width', currentWidth + 'px');
-              InlineView.getContent(comp).each(newContents => {
-                se.event.focus.bind(f => {
-                  focus$3(f);
-                  return search(elem);
-                }).orThunk(() => {
-                  Keying.focusIn(newContents);
-                  return active$1(getRootNode(elem));
-                });
-              });
-              setTimeout(() => {
-                set$8(comp.element, 'width', newWidth + 'px');
-              }, 0);
-            }),
-            run$1(forwardSlideEvent, (comp, se) => {
-              InlineView.getContent(comp).each(oldContents => {
-                stack.set(stack.get().concat([{
-                    bar: oldContents,
-                    focus: active$1(getRootNode(comp.element))
-                  }]));
-              });
-              emitWith(comp, changeSlideEvent, {
-                contents: se.event.forwardContents,
-                focus: Optional.none()
-              });
-            }),
-            run$1(backSlideEvent, (comp, _se) => {
-              last$1(stack.get()).each(last => {
-                stack.set(stack.get().slice(0, stack.get().length - 1));
-                emitWith(comp, changeSlideEvent, {
-                  contents: premade(last.bar),
-                  focus: last.focus
-                });
-              });
-            })
-          ]),
-          Keying.config({
-            mode: 'special',
-            onEscape: comp => last$1(stack.get()).fold(() => spec.onEscape(), _ => {
-              emit(comp, backSlideEvent);
-              return Optional.some(true);
-            })
-          })
-        ]),
-        lazySink: () => Result.value(spec.sink)
-      });
-    };
-
     const transitionClass = 'tox-pop--transition';
-    const register$9 = (editor, registryContextToolbars, sink, extras) => {
+    const register$a = (editor, registryContextToolbars, sink, extras) => {
       const backstage = extras.backstage;
       const sharedBackstage = backstage.shared;
       const isTouch = detect$1().deviceType.isTouch;
@@ -26146,7 +26734,14 @@
         sink,
         onEscape: () => {
           editor.focus();
+          fireContextToolbarClose(editor);
           return Optional.some(true);
+        },
+        onHide: () => {
+          fireContextToolbarClose(editor);
+        },
+        onBack: () => {
+          fireContextFormSlideBack(editor);
         }
       }));
       const getBounds = () => {
@@ -26176,7 +26771,7 @@
       const hideOrRepositionIfNecessary = () => {
         if (InlineView.isOpen(contextbar)) {
           const contextBarEle = contextbar.element;
-          remove$6(contextBarEle, 'display');
+          remove$7(contextBarEle, 'display');
           if (shouldContextToolbarHide()) {
             set$8(contextBarEle, 'display', 'none');
           } else {
@@ -26207,11 +26802,13 @@
         const alloySpec = buildToolbar([toolbarApi]);
         emitWith(contextbar, forwardSlideEvent, { forwardContents: wrapInPopDialog(alloySpec) });
       }));
-      const buildContextToolbarGroups = (allButtons, ctx) => identifyButtons(editor, {
-        buttons: allButtons,
-        toolbar: ctx.items,
-        allowToolbarGroups: false
-      }, extras.backstage, Optional.some(['form:']));
+      const buildContextToolbarGroups = (allButtons, ctx) => {
+        return identifyButtons(editor, {
+          buttons: allButtons,
+          toolbar: ctx.items,
+          allowToolbarGroups: false
+        }, extras.backstage, Optional.some(['form:']));
+      };
       const buildContextFormGroups = (ctx, providers) => ContextForm.buildInitGroups(ctx, providers);
       const buildToolbar = toolbars => {
         const {buttons} = editor.ui.registry.getAll();
@@ -26221,7 +26818,7 @@
           ...scopes.formNavigators
         };
         const toolbarType = getToolbarMode(editor) === ToolbarMode$1.scrolling ? ToolbarMode$1.scrolling : ToolbarMode$1.default;
-        const initGroups = flatten(map$2(toolbars, ctx => ctx.type === 'contexttoolbar' ? buildContextToolbarGroups(allButtons, ctx) : buildContextFormGroups(ctx, sharedBackstage.providers)));
+        const initGroups = flatten(map$2(toolbars, ctx => ctx.type === 'contexttoolbar' ? buildContextToolbarGroups(allButtons, contextToolbarToSpec(ctx)) : buildContextFormGroups(ctx, sharedBackstage.providers)));
         return renderToolbar({
           type: toolbarType,
           uid: generate$6('context-toolbar'),
@@ -26251,9 +26848,9 @@
         lastContextPosition.set(position);
         lastTrigger.set(1);
         const contextBarEle = contextbar.element;
-        remove$6(contextBarEle, 'display');
+        remove$7(contextBarEle, 'display');
         if (!isSameLaunchElement(elem)) {
-          remove$2(contextBarEle, transitionClass);
+          remove$3(contextBarEle, transitionClass);
           Positioning.reset(sink, contextbar);
         }
         InlineView.showWithinBounds(contextbar, wrapInPopDialog(toolbarSpec), {
@@ -26291,7 +26888,7 @@
           const scopes = getScopes();
           get$h(scopes.lookupTable, e.toolbarKey).each(ctx => {
             launchContext([ctx], someIf(e.target !== editor, e.target));
-            InlineView.getContent(contextbar).each(Keying.focusIn);
+            focusIn(contextbar);
           });
         });
         editor.on('focusout', _e => {
@@ -26303,6 +26900,11 @@
         });
         editor.on('SwitchMode', () => {
           if (editor.mode.isReadOnly()) {
+            close();
+          }
+        });
+        editor.on('DisabledStateChange', e => {
+          if (e.state) {
             close();
           }
         });
@@ -26330,7 +26932,7 @@
       });
     };
 
-    const register$8 = editor => {
+    const register$9 = editor => {
       const alignToolbarButtons = [
         {
           name: 'alignleft',
@@ -26469,17 +27071,33 @@
         onMenuSetup: onSetupEditableToggle(editor)
       }));
     };
-    const register$7 = editor => {
+    const register$8 = editor => {
       registerController(editor, lineHeightSpec(editor));
       languageSpec(editor).each(spec => registerController(editor, spec));
     };
 
-    const register$6 = (editor, backstage) => {
+    const register$7 = (editor, backstage) => {
       createAlignMenu(editor, backstage);
       createFontFamilyMenu(editor, backstage);
       createStylesMenu(editor, backstage);
       createBlocksMenu(editor, backstage);
       createFontSizeMenu(editor, backstage);
+    };
+
+    const register$6 = editor => {
+      editor.ui.registry.addContext('editable', () => {
+        return editor.selection.isEditable();
+      });
+      editor.ui.registry.addContext('mode', mode => {
+        return editor.mode.get() === mode;
+      });
+      editor.ui.registry.addContext('any', always);
+      editor.ui.registry.addContext('formatting', format => {
+        return editor.formatter.canApply(format);
+      });
+      editor.ui.registry.addContext('insert', child => {
+        return editor.schema.isValidChild(editor.selection.getNode().tagName, child);
+      });
     };
 
     const onSetupOutdentState = editor => onSetupEvent(editor, 'NodeChange', api => {
@@ -26595,21 +27213,24 @@
           name: 'copy',
           text: 'Copy',
           action: 'Copy',
-          icon: 'copy'
+          icon: 'copy',
+          context: 'any'
         },
         {
           name: 'help',
           text: 'Help',
           action: 'mceHelp',
           icon: 'help',
-          shortcut: 'Alt+0'
+          shortcut: 'Alt+0',
+          context: 'any'
         },
         {
           name: 'selectall',
           text: 'Select all',
           action: 'SelectAll',
           icon: 'select-all',
-          shortcut: 'Meta+A'
+          shortcut: 'Meta+A',
+          context: 'any'
         },
         {
           name: 'newdocument',
@@ -26622,14 +27243,16 @@
           text: 'Print',
           action: 'mcePrint',
           icon: 'print',
-          shortcut: 'Meta+P'
+          shortcut: 'Meta+P',
+          context: 'any'
         }
       ], btn => {
         editor.ui.registry.addButton(btn.name, {
           tooltip: btn.text,
           icon: btn.icon,
           onAction: onActionExecCommand(editor, btn.action),
-          shortcut: btn.shortcut
+          shortcut: btn.shortcut,
+          context: btn.context
         });
       });
       global$1.each([
@@ -26705,28 +27328,32 @@
           text: 'Copy',
           action: 'Copy',
           icon: 'copy',
-          shortcut: 'Meta+C'
+          shortcut: 'Meta+C',
+          context: 'any'
         },
         {
           name: 'selectall',
           text: 'Select all',
           action: 'SelectAll',
           icon: 'select-all',
-          shortcut: 'Meta+A'
+          shortcut: 'Meta+A',
+          context: 'any'
         },
         {
           name: 'print',
           text: 'Print...',
           action: 'mcePrint',
           icon: 'print',
-          shortcut: 'Meta+P'
+          shortcut: 'Meta+P',
+          context: 'any'
         }
       ], menuitem => {
         editor.ui.registry.addMenuItem(menuitem.name, {
           text: menuitem.text,
           icon: menuitem.icon,
           shortcut: menuitem.shortcut,
-          onAction: onActionExecCommand(editor, menuitem.action)
+          onAction: onActionExecCommand(editor, menuitem.action),
+          context: menuitem.context
         });
       });
       global$1.each([
@@ -26865,14 +27492,16 @@
       editor.ui.registry.addToggleMenuItem('visualaid', {
         text: 'Visual aids',
         onSetup: onSetupVisualAidState(editor),
-        onAction: onActionExecCommand(editor, 'mceToggleVisualAid')
+        onAction: onActionExecCommand(editor, 'mceToggleVisualAid'),
+        context: 'any'
       });
     };
     const registerToolbarButton = editor => {
       editor.ui.registry.addButton('visualaid', {
         tooltip: 'Visual aids',
         text: 'Visual aids',
-        onAction: onActionExecCommand(editor, 'mceToggleVisualAid')
+        onAction: onActionExecCommand(editor, 'mceToggleVisualAid'),
+        context: 'any'
       });
     };
     const register$1 = editor => {
@@ -26881,15 +27510,16 @@
     };
 
     const setup$6 = (editor, backstage) => {
-      register$8(editor);
+      register$9(editor);
       register$3(editor);
-      register$6(editor, backstage);
+      register$7(editor, backstage);
       register$2(editor);
-      register$c(editor);
+      register$d(editor);
       register$1(editor);
       register$5(editor);
-      register$7(editor);
+      register$8(editor);
       register$4(editor);
+      register$6(editor);
     };
 
     const patchPipeConfig = config => isString(config) ? config.split(/[ ,]/) : config;
@@ -27362,8 +27992,8 @@
     };
     const clear = (component, snapsInfo) => {
       const element = component.element;
-      remove$7(element, snapsInfo.leftAttr);
-      remove$7(element, snapsInfo.topAttr);
+      remove$8(element, snapsInfo.leftAttr);
+      remove$8(element, snapsInfo.topAttr);
     };
 
     const getCoords = (component, snapInfo, coord, delta) => get$1(component, snapInfo).fold(() => coord, fixed$1 => fixed(fixed$1.left + delta.left, fixed$1.top + delta.top));
@@ -27452,8 +28082,8 @@
     const initialAttribute = 'data-initial-z-index';
     const resetZIndex = blocker => {
       parent(blocker.element).filter(isElement$1).each(root => {
-        getOpt(root, initialAttribute).fold(() => remove$6(root, 'z-index'), zIndex => set$8(root, 'z-index', zIndex));
-        remove$7(root, initialAttribute);
+        getOpt(root, initialAttribute).fold(() => remove$7(root, 'z-index'), zIndex => set$8(root, 'z-index', zIndex));
+        remove$8(root, initialAttribute);
       });
     };
     const changeZIndex = blocker => {
@@ -27876,7 +28506,7 @@
       const bottomRight = build$1(memBottomRight.asSpec());
       const showOrHideHandle = (selector, cell, isAbove, isBelow) => {
         const cellRect = cell.dom.getBoundingClientRect();
-        remove$6(selector.element, 'display');
+        remove$7(selector.element, 'display');
         const viewportHeight = defaultView(SugarElement.fromDom(editor.getBody())).dom.innerHeight;
         const aboveViewport = isAbove(cellRect);
         const belowViewport = isBelow(cellRect, viewportHeight);
@@ -27930,7 +28560,19 @@
       }
     };
 
-    var Logo = "<svg width=\"50px\" height=\"16px\" viewBox=\"0 0 50 16\" xmlns=\"http://www.w3.org/2000/svg\">\n  <path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M10.143 0c2.608.015 5.186 2.178 5.186 5.331 0 0 .077 3.812-.084 4.87-.361 2.41-2.164 4.074-4.65 4.496-1.453.284-2.523.49-3.212.623-.373.071-.634.122-.785.152-.184.038-.997.145-1.35.145-2.732 0-5.21-2.04-5.248-5.33 0 0 0-3.514.03-4.442.093-2.4 1.758-4.342 4.926-4.963 0 0 3.875-.752 4.036-.782.368-.07.775-.1 1.15-.1Zm1.826 2.8L5.83 3.989v2.393l-2.455.475v5.968l6.137-1.189V9.243l2.456-.476V2.8ZM5.83 6.382l3.682-.713v3.574l-3.682.713V6.382Zm27.173-1.64-.084-1.066h-2.226v9.132h2.456V7.743c-.008-1.151.998-2.064 2.149-2.072 1.15-.008 1.987.92 1.995 2.072v5.065h2.455V7.359c-.015-2.18-1.657-3.929-3.837-3.913a3.993 3.993 0 0 0-2.908 1.296Zm-6.3-4.266L29.16 0v2.387l-2.456.475V.476Zm0 3.2v9.132h2.456V3.676h-2.456Zm18.179 11.787L49.11 3.676H46.58l-1.612 4.527-.46 1.382-.384-1.382-1.611-4.527H39.98l3.3 9.132L42.15 16l2.732-.537ZM22.867 9.738c0 .752.568 1.075.921 1.075.353 0 .668-.047.998-.154l.537 1.765c-.23.154-.92.537-2.225.537-1.305 0-2.655-.997-2.686-2.686a136.877 136.877 0 0 1 0-4.374H18.8V3.676h1.612v-1.98l2.455-.476v2.456h2.302V5.9h-2.302v3.837Z\"/>\n</svg>\n";
+    var Logo = "<svg height=\"16\" viewBox=\"0 0 80 16\" width=\"80\" xmlns=\"http://www.w3.org/2000/svg\"><g opacity=\".8\"><path d=\"m80 3.537v-2.202h-7.976v11.585h7.976v-2.25h-5.474v-2.621h4.812v-2.069h-4.812v-2.443zm-10.647 6.929c-.493.217-1.13.337-1.864.337s-1.276-.156-1.805-.47a3.732 3.732 0 0 1 -1.3-1.298c-.324-.554-.48-1.191-.48-1.877s.156-1.335.48-1.877a3.635 3.635 0 0 1 1.3-1.299 3.466 3.466 0 0 1 1.805-.481c.65 0 .914.06 1.263.18.36.12.698.277.986.47.289.192.578.384.842.6l.12.085v-2.586l-.023-.024c-.385-.35-.855-.614-1.384-.818-.53-.205-1.155-.313-1.877-.313-.721 0-1.6.144-2.333.445a5.773 5.773 0 0 0 -1.937 1.251 5.929 5.929 0 0 0 -1.324 1.9c-.324.735-.48 1.565-.48 2.455s.156 1.72.48 2.454c.325.734.758 1.383 1.324 1.913.553.53 1.215.938 1.937 1.25a6.286 6.286 0 0 0 2.333.434c.819 0 1.384-.108 1.961-.313.59-.216 1.083-.505 1.468-.866l.024-.024v-2.49l-.12.096c-.41.337-.878.626-1.396.866zm-14.869-4.15-4.8-5.04-.024-.025h-.902v11.67h2.502v-6.847l2.827 3.08.385.409.397-.41 2.791-3.067v6.845h2.502v-11.679h-.902l-4.788 5.052z\"/><path clip-rule=\"evenodd\" d=\"m15.543 5.137c0-3.032-2.466-5.113-4.957-5.137-.36 0-.745.024-1.094.096-.157.024-3.85.758-3.85.758-3.032.602-4.62 2.466-4.704 4.788-.024.89-.024 4.27-.024 4.27.036 3.165 2.406 5.138 5.017 5.126.337 0 1.119-.109 1.287-.145.144-.024.385-.084.746-.144.661-.12 1.684-.325 3.067-.602 2.37-.409 4.103-2.009 4.44-4.33.156-1.023.084-4.692.084-4.692zm-3.213 3.308-2.346.457v2.31l-5.859 1.143v-5.75l2.346-.458v3.441l3.513-.686v-3.44l-3.513.685v-2.297l5.859-1.143v5.75zm20.09-3.296-.083-1.023h-2.13v8.794h2.346v-4.884c0-1.107.95-1.985 2.057-1.997 1.095 0 1.901.89 1.901 1.997v4.884h2.346v-5.245c-.012-2.105-1.588-3.777-3.67-3.765a3.764 3.764 0 0 0 -2.778 1.25l.012-.011zm-6.014-4.102 2.346-.458v2.298l-2.346.457z\" fill-rule=\"evenodd\"/><path d=\"m28.752 4.126h-2.346v8.794h2.346z\"/><path clip-rule=\"evenodd\" d=\"m43.777 15.483 4.043-11.357h-2.418l-1.54 4.355-.445 1.324-.36-1.324-1.54-4.355h-2.418l3.151 8.794-1.083 3.08zm-21.028-5.51c0 .722.541 1.034.878 1.034s.638-.048.95-.144l.518 1.708c-.217.145-.879.518-2.13.518a2.565 2.565 0 0 1 -2.562-2.587c-.024-1.082-.024-2.49 0-4.21h-1.54v-2.142h1.54v-1.912l2.346-.458v2.37h2.201v2.142h-2.2v3.693-.012z\" fill-rule=\"evenodd\"/></g></svg>\n";
+
+    const describedBy = (describedElement, describeElement) => {
+      const describeId = Optional.from(get$g(describedElement, 'id')).getOrThunk(() => {
+        const id = generate$6('aria');
+        set$9(describeElement, 'id', id);
+        return id;
+      });
+      set$9(describedElement, 'aria-describedby', describeId);
+    };
+    const remove = describedElement => {
+      remove$8(describedElement, 'aria-describedby');
+    };
 
     const isHidden = elm => elm.nodeName === 'BR' || !!elm.getAttribute('data-mce-bogus') || elm.getAttribute('data-mce-type') === 'bookmark';
     const renderElementPath = (editor, settings, providersBackstage) => {
@@ -27940,10 +28582,7 @@
         dom: {
           tag: 'div',
           classes: ['tox-statusbar__path-item'],
-          attributes: {
-            'data-index': index,
-            'aria-level': index + 1
-          }
+          attributes: { 'data-index': index }
         },
         components: [text$2(name)],
         action: _btn => {
@@ -27952,8 +28591,22 @@
           editor.nodeChanged();
         },
         buttonBehaviours: derive$1([
+          Tooltipping.config({
+            ...providersBackstage.tooltips.getConfig({
+              tooltipText: providersBackstage.translate([
+                'Select the {0} element',
+                element.nodeName.toLowerCase()
+              ]),
+              onShow: (comp, tooltip) => {
+                describedBy(comp.element, tooltip.element);
+              },
+              onHide: comp => {
+                remove(comp.element);
+              }
+            })
+          }),
           DisablingConfigs.button(providersBackstage.isDisabled),
-          receivingConfig()
+          toggleOnReceive(() => providersBackstage.checkUiComponentContext('any'))
         ])
       });
       const renderDivider = () => ({
@@ -28007,7 +28660,7 @@
             selector: 'div[role=button]'
           }),
           Disabling.config({ disabled: providersBackstage.isDisabled }),
-          receivingConfig(),
+          toggleOnReceive(() => providersBackstage.checkUiComponentContext('any')),
           Tabstopping.config({}),
           Replacing.config({}),
           config('elementPathEvents', [runOnAttached((comp, _e) => {
@@ -28110,7 +28763,7 @@
         components: [],
         buttonBehaviours: derive$1([
           DisablingConfigs.button(providersBackstage.isDisabled),
-          receivingConfig(),
+          toggleOnReceive(() => providersBackstage.checkUiComponentContext('any')),
           Tabstopping.config({}),
           Replacing.config({}),
           Representing.config({
@@ -28171,12 +28824,15 @@
                   'href': 'https://www.tiny.cloud/powered-by-tiny?utm_campaign=poweredby&utm_source=tiny&utm_medium=referral&utm_content=v7',
                   'rel': 'noopener',
                   'target': '_blank',
-                  'aria-label': global$5.translate([
-                    'Powered by {0}',
-                    'Tiny'
+                  'aria-label': editor.translate([
+                    'Build with {0}',
+                    'TinyMCE'
                   ])
                 },
-                innerHtml: Logo.trim()
+                innerHtml: editor.translate([
+                  'Build with {0}',
+                  Logo.trim()
+                ])
               },
               behaviours: derive$1([Focusing.config({})])
             }]
@@ -28533,7 +29189,7 @@
             partThrobber
           ],
           behaviours: derive$1([
-            receivingConfig(),
+            toggleOnReceive(() => backstages.popup.shared.providers.checkUiComponentContext('any')),
             Disabling.config({ disableClass: 'tox-tinymce--disabled' }),
             Keying.config({
               mode: 'cyclic',
@@ -28603,7 +29259,7 @@
         setup$5(editor, backstages.popup.shared.getSink, backstages.popup);
         setup$8(editor);
         setup$7(editor, lazyThrobber, backstages.popup.shared);
-        register$9(editor, contextToolbars, popupUi.sink, { backstage: backstages.popup });
+        register$a(editor, contextToolbars, popupUi.sink, { backstage: backstages.popup });
         setup$4(editor, popupUi.sink);
         const elm = editor.getElement();
         const height = setEditorSize(mainUi.outerContainer);
@@ -28851,7 +29507,8 @@
       optionStringEnum('buttonType', [
         'primary',
         'secondary'
-      ])
+      ]),
+      defaultedString('context', 'mode:design')
     ];
     const dialogFooterButtonFields = [
       ...baseFooterButtonFields,
@@ -28920,7 +29577,8 @@
         'secondary',
         'toolbar'
       ]),
-      primary
+      primary,
+      defaultedString('context', 'mode:design')
     ];
     const buttonSchema = objOf(buttonFields);
 
@@ -28932,12 +29590,16 @@
 
     const checkboxFields = formComponentFields.concat([
       label,
-      enabled
+      enabled,
+      defaultedString('context', 'mode:design')
     ]);
     const checkboxSchema = objOf(checkboxFields);
     const checkboxDataProcessor = boolean;
 
-    const collectionFields = formComponentWithLabelFields.concat([defaultedColumns('auto')]);
+    const collectionFields = formComponentWithLabelFields.concat([
+      defaultedColumns('auto'),
+      defaultedString('context', 'mode:design')
+    ]);
     const collectionSchema = objOf(collectionFields);
     const collectionDataProcessor = arrOfObj([
       value$1,
@@ -28945,7 +29607,10 @@
       icon
     ]);
 
-    const colorInputFields = formComponentWithLabelFields.concat([defaultedString('storageKey', 'default')]);
+    const colorInputFields = formComponentWithLabelFields.concat([
+      defaultedString('storageKey', 'default'),
+      defaultedString('context', 'mode:design')
+    ]);
     const colorInputSchema = objOf(colorInputFields);
     const colorInputDataProcessor = string;
 
@@ -28967,7 +29632,7 @@
     const customEditorSchema = valueOf(v => asRaw('customeditor.old', objOfOnly(customEditorFieldsOld), v).orThunk(() => asRaw('customeditor.new', objOfOnly(customEditorFields), v)));
     const customEditorDataProcessor = string;
 
-    const dropZoneFields = formComponentWithLabelFields;
+    const dropZoneFields = formComponentWithLabelFields.concat([defaultedString('context', 'mode:design')]);
     const dropZoneSchema = objOf(dropZoneFields);
     const dropZoneDataProcessor = arrOfVal();
 
@@ -28983,7 +29648,9 @@
       defaultedStringEnum('presets', 'presentation', [
         'presentation',
         'document'
-      ])
+      ]),
+      defaultedFunction('onInit', noop),
+      defaultedBoolean('stretched', false)
     ];
     const htmlPanelSchema = objOf(htmlPanelFields);
 
@@ -29008,7 +29675,8 @@
       optionString('inputMode'),
       optionString('placeholder'),
       defaultedBoolean('maximized', false),
-      enabled
+      enabled,
+      defaultedString('context', 'mode:design')
     ]);
     const inputSchema = objOf(inputFields);
     const inputDataProcessor = string;
@@ -29021,7 +29689,8 @@
         'start',
         'center',
         'end'
-      ])
+      ]),
+      optionString('for')
     ];
 
     const listBoxSingleItemFields = [
@@ -29038,7 +29707,8 @@
     ]);
     const listBoxFields = formComponentWithLabelFields.concat([
       requiredArrayOf('items', listBoxItemSchema),
-      enabled
+      enabled,
+      defaultedString('context', 'mode:design')
     ]);
     const listBoxSchema = objOf(listBoxFields);
     const listBoxDataProcessor = string;
@@ -29049,14 +29719,16 @@
         value$1
       ]),
       defaultedNumber('size', 1),
-      enabled
+      enabled,
+      defaultedString('context', 'mode:design')
     ]);
     const selectBoxSchema = objOf(selectBoxFields);
     const selectBoxDataProcessor = string;
 
     const sizeInputFields = formComponentWithLabelFields.concat([
       defaultedBoolean('constrain', true),
-      enabled
+      enabled,
+      defaultedString('context', 'mode:design')
     ]);
     const sizeInputSchema = objOf(sizeInputFields);
     const sizeInputDataProcessor = objOf([
@@ -29082,7 +29754,8 @@
     const textAreaFields = formComponentWithLabelFields.concat([
       optionString('placeholder'),
       defaultedBoolean('maximized', false),
-      enabled
+      enabled,
+      defaultedString('context', 'mode:design')
     ]);
     const textAreaSchema = objOf(textAreaFields);
     const textAreaDataProcessor = string;
@@ -29094,7 +29767,9 @@
       ]),
       title,
       requiredString('id'),
-      optionOf('menu', MenuButtonSchema)
+      optionOf('menu', MenuButtonSchema),
+      optionString('customStateIcon'),
+      optionString('customStateIconTooltip')
     ];
     const treeItemLeafFields = baseTreeItemFields;
     const treeItemLeafSchema = objOf(treeItemLeafFields);
@@ -29126,7 +29801,8 @@
         'file'
       ]),
       enabled,
-      optionString('picker_text')
+      optionString('picker_text'),
+      defaultedString('context', 'mode:design')
     ]);
     const urlInputSchema = objOf(urlInputFields);
     const urlInputDataProcessor = objOf([
@@ -29369,13 +30045,13 @@
       return errors.length > 0 ? Result.error(errors) : Result.value(result);
     };
 
-    const renderBodyPanel = (spec, dialogData, backstage) => {
+    const renderBodyPanel = (spec, dialogData, backstage, getCompByName) => {
       const memForm = record(Form.sketch(parts => ({
         dom: {
           tag: 'div',
           classes: ['tox-form'].concat(spec.classes)
         },
-        components: map$2(spec.items, item => interpretInForm(parts, item, dialogData, backstage))
+        components: map$2(spec.items, item => interpretInForm(parts, item, dialogData, backstage, getCompByName))
       })));
       return {
         dom: {
@@ -29718,7 +30394,7 @@
               maxTabHeightOpt.fold(maxTabHeight.clear, maxTabHeight.set);
             });
             updateTabviewHeight(dialog, tabview, maxTabHeight);
-            remove$6(tabview, 'visibility');
+            remove$7(tabview, 'visibility');
             showTab(allTabs, comp);
             requestAnimationFrame(() => {
               updateTabviewHeight(dialog, tabview, maxTabHeight);
@@ -29737,8 +30413,8 @@
             const oldFocus = active$1(getRootNode(tabview));
             set$8(tabview, 'visibility', 'hidden');
             const oldHeight = getRaw(tabview, 'height').map(h => parseInt(h, 10));
-            remove$6(tabview, 'height');
-            remove$6(tabview, 'flex-basis');
+            remove$7(tabview, 'height');
+            remove$7(tabview, 'flex-basis');
             const newHeight = tabview.dom.getBoundingClientRect().height;
             const hasGrown = oldHeight.forall(h => newHeight > h);
             if (hasGrown) {
@@ -29749,7 +30425,7 @@
                 setTabviewHeight(tabview, h);
               });
             }
-            remove$6(tabview, 'visibility');
+            remove$7(tabview, 'visibility');
             oldFocus.each(focus$3);
           });
         })
@@ -29763,7 +30439,7 @@
 
     const SendDataToSectionChannel = 'send-data-to-section';
     const SendDataToViewChannel = 'send-data-to-view';
-    const renderTabPanel = (spec, dialogData, backstage) => {
+    const renderTabPanel = (spec, dialogData, backstage, getCompByName) => {
       const storedValue = Cell({});
       const updateDataWithForm = form => {
         const formData = Representing.getValue(form);
@@ -29791,7 +30467,7 @@
                   tag: 'div',
                   classes: ['tox-form']
                 },
-                components: map$2(tab.items, item => interpretInForm(parts, item, dialogData, backstage)),
+                components: map$2(tab.items, item => interpretInForm(parts, item, dialogData, backstage, getCompByName)),
                 formBehaviours: derive$1([
                   Keying.config({
                     mode: 'acyclic',
@@ -29869,15 +30545,15 @@
       });
     };
 
-    const renderBody = (spec, dialogId, contentId, backstage, ariaAttrs) => {
+    const renderBody = (spec, dialogId, contentId, backstage, ariaAttrs, getCompByName) => {
       const renderComponents = incoming => {
         const body = incoming.body;
         switch (body.type) {
         case 'tabpanel': {
-            return [renderTabPanel(body, incoming.initialData, backstage)];
+            return [renderTabPanel(body, incoming.initialData, backstage, getCompByName)];
           }
         default: {
-            return [renderBodyPanel(body, incoming.initialData, backstage)];
+            return [renderBodyPanel(body, incoming.initialData, backstage, getCompByName)];
           }
         }
       };
@@ -29904,9 +30580,9 @@
         ])
       };
     };
-    const renderInlineBody = (spec, dialogId, contentId, backstage, ariaAttrs) => renderBody(spec, dialogId, Optional.some(contentId), backstage, ariaAttrs);
-    const renderModalBody = (spec, dialogId, backstage) => {
-      const bodySpec = renderBody(spec, dialogId, Optional.none(), backstage, false);
+    const renderInlineBody = (spec, dialogId, contentId, backstage, ariaAttrs, getCompByName) => renderBody(spec, dialogId, Optional.some(contentId), backstage, ariaAttrs, getCompByName);
+    const renderModalBody = (spec, dialogId, backstage, getCompByName) => {
+      const bodySpec = renderBody(spec, dialogId, Optional.none(), backstage, false, getCompByName);
       return ModalDialog.parts.body(bodySpec);
     };
     const renderIframeBody = spec => {
@@ -30067,7 +30743,7 @@
               add$2(body(), scrollLockClass);
             }),
             runOnDetached(() => {
-              remove$2(body(), scrollLockClass);
+              remove$3(body(), scrollLockClass);
             })
           ]),
           ...spec.extraBehaviours
@@ -30209,7 +30885,7 @@
     const updateDialogSizeClass = (size, component) => {
       const dialogBody = SugarElement.fromDom(component.element.dom);
       if (!has(dialogBody, fullscreenClass)) {
-        remove$1(dialogBody, [
+        remove$2(dialogBody, [
           largeDialogClass,
           mediumDialogClass
         ]);
@@ -30290,7 +30966,9 @@
     const initCommonEvents = (fireApiEvent, extras) => [
       runWithTarget(focusin(), onFocus),
       fireApiEvent(formCloseEvent, (_api, spec, _event, self) => {
-        active$1(getRootNode(self.element)).fold(noop, blur$1);
+        if (hasFocus(self.element)) {
+          active$1(getRootNode(self.element)).each(blur$1);
+        }
         extras.onClose();
         spec.onClose();
       }),
@@ -30535,6 +31213,7 @@
       const internalDialog = dialogInit.internalDialog;
       const header = getHeader(internalDialog.title, dialogId, backstage);
       const dialogSize = Cell(internalDialog.size);
+      const getCompByName$1 = name => getCompByName(modalAccess, name);
       const dialogSizeClasses = getDialogSizeClass(dialogSize.get()).toArray();
       const updateState = (comp, incoming) => {
         dialogSize.set(incoming.internalDialog.size);
@@ -30544,7 +31223,7 @@
       const body = renderModalBody({
         body: internalDialog.body,
         initialData: internalDialog.initialData
-      }, dialogId, backstage);
+      }, dialogId, backstage, getCompByName$1);
       const storedMenuButtons = mapMenuButtons(internalDialog.buttons);
       const objOfCells = extractCellsToObject(storedMenuButtons);
       const footer = someIf(storedMenuButtons.length !== 0, renderModalFooter({ buttons: storedMenuButtons }, dialogId, backstage));
@@ -30592,6 +31271,7 @@
       const dialogLabelId = generate$6('dialog-label');
       const dialogContentId = generate$6('dialog-content');
       const internalDialog = dialogInit.internalDialog;
+      const getCompByName$1 = name => getCompByName(modalAccess, name);
       const dialogSize = Cell(internalDialog.size);
       const dialogSizeClass = getDialogSizeClass(dialogSize.get()).toArray();
       const updateState = (comp, incoming) => {
@@ -30607,7 +31287,7 @@
       const memBody = record(renderInlineBody({
         body: internalDialog.body,
         initialData: internalDialog.initialData
-      }, dialogId, dialogContentId, backstage, ariaAttrs));
+      }, dialogId, dialogContentId, backstage, ariaAttrs, getCompByName$1));
       const storagedMenuButtons = mapMenuButtons(internalDialog.buttons);
       const objOfCells = extractCellsToObject(storagedMenuButtons);
       const optMemFooter = someIf(storagedMenuButtons.length !== 0, record(renderInlineFooter({ buttons: storagedMenuButtons }, dialogId, backstage)));
@@ -30686,7 +31366,7 @@
       const toggleFullscreen$1 = () => {
         toggleFullscreen(dialog, dialogSize.get());
       };
-      const instanceApi = getDialogApi({
+      const modalAccess = {
         getId: constant$1(dialogId),
         getRoot: constant$1(dialog),
         getFooter: () => optMemFooter.map(memFooter => memFooter.get(dialog)),
@@ -30696,7 +31376,8 @@
           return Composing.getCurrent(body).getOr(body);
         },
         toggleFullscreen: toggleFullscreen$1
-      }, extra.redial, objOfCells);
+      };
+      const instanceApi = getDialogApi(modalAccess, extra.redial, objOfCells);
       return {
         dialog,
         instanceApi
@@ -30864,6 +31545,7 @@
           callback();
         };
         const memFooterClose = record(renderFooterButton({
+          context: 'any',
           name: 'close-alert',
           text: 'OK',
           primary: true,
@@ -30901,6 +31583,7 @@
           callback(state);
         };
         const memFooterYes = record(renderFooterButton({
+          context: 'any',
           name: 'yes',
           text: 'Yes',
           primary: true,
@@ -30910,6 +31593,7 @@
           icon: Optional.none()
         }, 'submit', backstage));
         const footerNo = renderFooterButton({
+          context: 'any',
           name: 'no',
           text: 'No',
           primary: false,
@@ -31193,8 +31877,8 @@
     };
 
     const registerOptions = editor => {
+      register$f(editor);
       register$e(editor);
-      register$d(editor);
       register(editor);
     };
     var Theme = () => {

@@ -87,15 +87,15 @@ export default function submissionPreview({
         {awaitingPaper && <ViewPaper viewPaper={awaitingPaper} />}
       </FormControl>
 
-      <Stack direction="column">
+      {/* <Stack direction="column">
         <InputLabel id="rich-text" sx={{ color: "black", fontWeight: "550" }}>
           FULL TEXT
         </InputLabel>
-      </Stack>
+      </Stack> */}
 
-      <Stack direction="column" sx={{ marginTop: 2 }}>
+      {/* <Stack direction="column" sx={{ marginTop: 2 }}>
         <RichText rich_text={awaitingPaper?.full_text} />
-      </Stack>
+      </Stack> */}
     </Box>
   );
 }

@@ -1,5 +1,4 @@
 "use client";
-import { mockEachResearchPaper } from "@/constants/research";
 import { Eachpaper } from "@/types";
 import { Box, useMediaQuery, useTheme } from "@mui/material";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
@@ -7,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import ChatContainer from "@/components/chat/ChatContainer";
 import { useSearchParams } from "next/navigation";
 import PDFViewer from "@/components/pdf/PDFViewer";
+import { useSession } from "next-auth/react";
 
 interface ViewPaperParams {
   public_id: string;
@@ -14,18 +14,11 @@ interface ViewPaperParams {
 
 export default function ChatPage({ params }: { params: ViewPaperParams }) {
   const id = params.public_id;
-  const [eachPaper, setEachPaper] = useState<Eachpaper>();
   const searchParam = useSearchParams();
-
   const paperURL = `${process.env.NEXT_PUBLIC_CDN_URL}/api/view-pdf/${id}`;
   const paperTitle = searchParam?.get("title") ?? "No Title Found";
-
-  // const eachPaper = mockEachResearchPaper;
-
-  useEffect(() => {
-    setEachPaper(mockEachResearchPaper);
-  }),
-    [];
+  const sessionId = searchParam?.get("sessionId") ?? "No Session ID Found";
+  console.log("sessionId", sessionId);
   const leftPanelRef = useRef<HTMLDivElement>(null);
   const [pdfWidth, setPdfWidth] = useState(0);
 
@@ -58,10 +51,8 @@ export default function ChatPage({ params }: { params: ViewPaperParams }) {
       {!isSmallScreen && (
         <Panel defaultSize={60} minSize={20} id="left-panel">
           <Box sx={{ height: "100%", display: "flex" }} ref={leftPanelRef}>
-            {eachPaper ? (
-              // <PDFViewer title={paperTitle} url={paperURL} width={pdfWidth} />
-              <PDFViewer title={paperTitle} url={paperURL} />
-            ) : null}
+            {/* <PDFViewer title={paperTitle} url={paperURL} width={pdfWidth} /> */}
+            <PDFViewer title={paperTitle} url={paperURL} />
           </Box>
         </Panel>
       )}
