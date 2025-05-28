@@ -19,16 +19,32 @@ interface TextMessageProps {
   message: string;
   sender: "user" | "bot";
   isLoading?: boolean;
+  onContentUpdate?: () => void;
 }
 
 export default function TextMessage({
   message,
   sender,
   isLoading = false,
+  onContentUpdate,
 }: TextMessageProps) {
   const isUser = sender === "user";
   const [displayedMessage, setDisplayedMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+
+  // Call onContentUpdate when displayedMessage changes (during streaming)
+  useEffect(() => {
+    if (onContentUpdate && displayedMessage) {
+      onContentUpdate();
+    }
+  }, [displayedMessage, onContentUpdate]);
+
+  // Also call when message prop changes (for immediate updates)
+  useEffect(() => {
+    if (onContentUpdate && message) {
+      onContentUpdate();
+    }
+  }, [message, onContentUpdate]);
 
   useEffect(() => {
     if (isUser || isLoading) {
@@ -43,7 +59,7 @@ export default function TextMessage({
       setDisplayedMessage("");
 
       let currentIndex = 0;
-      const typingSpeed = 30; // milliseconds per character
+      const typingSpeed = 0.5; // milliseconds per character
 
       const typeMessage = () => {
         if (currentIndex < message.length) {
@@ -71,6 +87,7 @@ export default function TextMessage({
       .trim();
   };
 
+  console.log("displayedMessage", displayedMessage);
   return (
     <Box
       sx={{
@@ -150,14 +167,19 @@ export default function TextMessage({
             />
           </Box>
         ) : (
-          <Box sx={{ display: "flex", alignItems: "flex-end" }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
             <ReactMarkdown>
-              {/* {typeof displayedMessage === "string"
-                ? displayedMessage
-                : JSON.stringify(displayedMessage)} */}
               {typeof displayedMessage === "string"
                 ? displayedMessage
-                : formatMessage(displayedMessage)}
+                : JSON.stringify(displayedMessage)}
+              {/* {typeof displayedMessage === "string"
+                ? displayedMessage
+                : formatMessage(displayedMessage)} */}
             </ReactMarkdown>
             {/* Show blinking cursor while typing */}
             {isTyping && !isUser && (

@@ -13,7 +13,7 @@ import TextMessage from "./TextMessage";
 import { chatPDF } from "@/app/api/service/repo/chat/chatPDF";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import SaveAltIcon from "@mui/icons-material/SaveAlt";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -45,6 +45,64 @@ export default function ChatContainer() {
 
   console.log("chat data array", messages);
 
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  // const scrollToBottom = () => {
+  //   if (chatContainerRef.current) {
+  //     chatContainerRef.current.scrollTop =
+  //       chatContainerRef.current.scrollHeight;
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   if (messages.length > 0 || isLoading) {
+  //     scrollToBottom();
+  //   }
+  // }, [messages, isLoading]);
+  const isScrollingRef = useRef(false);
+
+  const scrollHandler = (forceScroll = false) => {
+    if (!chatContainerRef.current) return;
+
+    // For new messages or loading start - always scroll
+    if (forceScroll) {
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
+      return;
+    }
+
+    // For streaming - smart scroll
+    if (isScrollingRef.current) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
+    const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+
+    if (distanceFromBottom <= 30) {
+      chatContainerRef.current.scrollTop = scrollHeight;
+    }
+  };
+
+  const handleScroll = () => {
+    isScrollingRef.current = true;
+    setTimeout(() => {
+      isScrollingRef.current = false;
+    }, 100);
+  };
+
+  // NEW MESSAGES: Force scroll
+  useEffect(() => {
+    if (messages.length > 0) {
+      isScrollingRef.current = false;
+      scrollHandler(true); // Force scroll
+    }
+  }, [messages]);
+
+  // LOADING START: Force scroll
+  useEffect(() => {
+    if (isLoading) {
+      scrollHandler(true); // Force scroll
+    }
+  }, [isLoading]);
   const chatPDFData = async (query: string) => {
     const requestFormData = new FormData();
 
@@ -105,7 +163,7 @@ export default function ChatContainer() {
       if (response?.success && response.data) {
         const botMessage: ChatMessage = {
           id: (Date.now() + 1).toString(), // Add 1 to avoid duplicate IDs
-          message: response.data.formatted_answer || "No answer found",
+          message: response.data.answer || "No answer found",
           sender: "bot",
           timestamp: new Date(),
         };
@@ -252,6 +310,8 @@ export default function ChatContainer() {
           newChat()
         ) : (
           <Box
+            ref={chatContainerRef}
+            onScroll={handleScroll}
             sx={{
               display: "flex",
               overflow: "auto",
@@ -265,10 +325,16 @@ export default function ChatContainer() {
                 key={msg.id}
                 message={msg.message}
                 sender={msg.sender}
+                onContentUpdate={() => scrollHandler(false)}
               />
             ))}
             {isLoading && (
-              <TextMessage message="" sender="bot" isLoading={true} />
+              <TextMessage
+                message=""
+                sender="bot"
+                isLoading={true}
+                onContentUpdate={() => scrollHandler(false)}
+              />
             )}
           </Box>
         )}
