@@ -86,6 +86,7 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
   const { data: session } = useSession();
 
   const [eachPaper, setEachPaper] = useState<Eachpaper>();
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
   // const eachPaper = mockEachResearchPaper;
@@ -138,6 +139,8 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
             return;
           }
           setEachPaper(data?.data);
+          // console.log("eachPaper", data.data.session);
+          setSessionId(data?.data.session);
         } catch (error) {
           console.error("Failed to load research paper", error);
         }
@@ -246,7 +249,7 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
                             eachPaper.paper_info.pdf_path
                           }/chat?title=${encodeURIComponent(
                             eachPaper.paper_info.research_title
-                          )}`
+                          )}&sessionId=${sessionId}`
                         )
                       }
                       disabled={isLoading}

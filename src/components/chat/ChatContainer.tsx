@@ -17,6 +17,8 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import SaveAltIcon from "@mui/icons-material/SaveAlt";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { GetChatSession } from "@/app/api/service/repo/chat/getChatSession";
+import { saveChatHistory } from "@/app/api/service/repo/chat/updateChatSession";
 
 interface SearchFormData {
   collection_name: string;
@@ -35,8 +37,12 @@ export default function ChatContainer() {
   const { data: session } = useSession();
   const searchParam = useSearchParams();
   const collectionName = searchParam?.get("title") ?? "No Title Found";
+  const sessionId = searchParam?.get("sessionId") ?? "No Session ID Found";
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [fecthMessage, setFetchMessage] = useState<ChatMessage[]>([]);
+
+  console.log("fecthMessage", fecthMessage);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<SearchFormData>({
     collection_name: collectionName,
@@ -44,6 +50,55 @@ export default function ChatContainer() {
   });
 
   console.log("chat data array", messages);
+  useEffect(() => {
+    if (session?.user.token && sessionId) {
+      const fetchChatSession = async () => {
+        try {
+          const data = await GetChatSession(session, String(sessionId));
+
+          setFetchMessage(data.data.session.Message || []);
+        } catch (error) {
+          console.error("Failed to load research paper", error);
+        }
+      };
+      fetchChatSession();
+    }
+  }, [session?.user.token, sessionId]);
+
+  // Function to merge fetched messages with current messages
+  const mergeChatHistory = () => {
+    if (fecthMessage.length > 0) {
+      // Remove duplicates by checking message IDs or timestamps
+      const existingIds = new Set(
+        messages.map((msg) => msg.id || msg.timestamp)
+      );
+      const newMessages = fecthMessage.filter(
+        (msg) => !existingIds.has(msg.id || msg.timestamp)
+      );
+
+      // Merge and sort by timestamp if available
+      const mergedMessages = [...messages, ...newMessages].sort((a, b) => {
+        if (a.timestamp && b.timestamp) {
+          return (
+            new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+          );
+        }
+        return 0;
+      });
+
+      setMessages(mergedMessages);
+      return mergedMessages;
+    }
+    return messages;
+  };
+
+  useEffect(() => {
+    if (fecthMessage.length > 0) {
+      const mergedMessages = mergeChatHistory();
+      setMessages(mergedMessages);
+      scrollHandler(true); // Force scroll to bottom when new messages are loaded
+    }
+  }, [fecthMessage]);
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -211,6 +266,43 @@ export default function ChatContainer() {
     }
   };
 
+  const saveHistory = async () => {
+    try {
+      // First merge fetched messages with current messages
+      const finalMessages = mergeChatHistory();
+
+      if (finalMessages.length === 0) {
+        toast.error("No chat history to save");
+        return;
+      }
+
+      // Create FormData object
+      const formData = new FormData();
+
+      // Convert messages to JSON and append to FormData
+      const messagesJson = JSON.stringify(finalMessages);
+      formData.append("message", messagesJson);
+
+      console.log("Saving chat history:", messagesJson);
+      // Call the save API
+      const result = await saveChatHistory(
+        formData,
+        session,
+        String(sessionId)
+      );
+
+      if (result.success) {
+        toast.success("Chat history saved successfully");
+      } else {
+        toast.error("Failed to save chat history");
+        console.error("Save error:", result.error);
+      }
+    } catch (error) {
+      console.error("Error saving chat history:", error);
+      toast.error("An error occurred while saving chat history");
+    }
+  };
+
   return (
     <>
       <Box
@@ -236,6 +328,7 @@ export default function ChatContainer() {
         >
           <Tooltip title="Save Chat">
             <IconButton
+              onClick={saveHistory}
               size="small"
               sx={{
                 borderRadius: "5px",

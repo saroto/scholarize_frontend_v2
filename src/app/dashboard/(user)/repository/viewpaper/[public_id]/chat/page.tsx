@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import ChatContainer from "@/components/chat/ChatContainer";
 import { useSearchParams } from "next/navigation";
 import PDFViewer from "@/components/pdf/PDFViewer";
+import { useSession } from "next-auth/react";
 
 interface ViewPaperParams {
   public_id: string;
@@ -14,9 +15,10 @@ interface ViewPaperParams {
 export default function ChatPage({ params }: { params: ViewPaperParams }) {
   const id = params.public_id;
   const searchParam = useSearchParams();
-
   const paperURL = `${process.env.NEXT_PUBLIC_CDN_URL}/api/view-pdf/${id}`;
   const paperTitle = searchParam?.get("title") ?? "No Title Found";
+  const sessionId = searchParam?.get("sessionId") ?? "No Session ID Found";
+  console.log("sessionId", sessionId);
   const leftPanelRef = useRef<HTMLDivElement>(null);
   const [pdfWidth, setPdfWidth] = useState(0);
 
