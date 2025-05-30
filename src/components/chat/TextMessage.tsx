@@ -20,18 +20,22 @@ interface TextMessageProps {
   sender: "user" | "bot";
   isLoading?: boolean;
   onContentUpdate?: () => void;
+  shouldStream?: boolean;
 }
 
 export default function TextMessage({
   message,
   sender,
   isLoading = false,
+  shouldStream,
   onContentUpdate,
 }: TextMessageProps) {
   const isUser = sender === "user";
   const [displayedMessage, setDisplayedMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  console.log("ee", message);
 
+  console.log("stream", shouldStream);
   // Call onContentUpdate when displayedMessage changes (during streaming)
   useEffect(() => {
     if (onContentUpdate && displayedMessage) {
@@ -50,6 +54,14 @@ export default function TextMessage({
     if (isUser || isLoading) {
       // Show user messages immediately or show loading
       setDisplayedMessage(message);
+      return;
+    }
+
+    // Use message-specific shouldStream instead of global isStreaming
+    if (!shouldStream) {
+      // Load all text immediately without streaming effect
+      setDisplayedMessage(message);
+      setIsTyping(false);
       return;
     }
 
@@ -73,7 +85,7 @@ export default function TextMessage({
 
       typeMessage();
     }
-  }, [message, isUser, isLoading]);
+  }, [message, isUser, isLoading, shouldStream]);
 
   const formatMessage = (message: string) => {
     if (typeof message !== "string") {
