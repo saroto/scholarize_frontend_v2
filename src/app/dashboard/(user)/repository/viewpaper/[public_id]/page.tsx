@@ -241,15 +241,66 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
                       </Typography>
                     </CustomButton>
                     <CustomButton
-                      onClick={() =>
+                      // onClick={() =>
+                      //   router.push(
+                      //     `/dashboard/repository/viewpaper/${
+                      //       eachPaper.paper_info.pdf_path
+                      //     }/chat?title=${encodeURIComponent(
+                      //       eachPaper.paper_info.research_title
+                      //     )}&paperId=${
+                      //       eachPaper.paper_info.public_id
+                      //     }&sessionId=${sessionId}`
+                      //   )
+                      // }
+                      onClick={() => {
+                        // Get existing chat sessions from localStorage
+                        const existingSessions =
+                          sessionStorage.getItem("chatSessions");
+                        let sessions = existingSessions
+                          ? JSON.parse(existingSessions)
+                          : [];
+
+                        // Create new session object
+                        const newSession = {
+                          paperID: eachPaper.paper_info.public_id,
+                          sessionId: sessionId,
+                          paperTitle: eachPaper.paper_info.research_title,
+                          pdfPath: eachPaper.paper_info.pdf_path,
+                          timestamp: new Date().toISOString(),
+                        };
+
+                        // Check if session already exists (avoid duplicates)
+                        const existingIndex = sessions.findIndex(
+                          (session: any) =>
+                            session.paperID === newSession.paperID &&
+                            session.sessionId === newSession.sessionId
+                        );
+
+                        if (existingIndex !== -1) {
+                          // Update existing session
+                          sessions[existingIndex] = newSession;
+                        } else {
+                          // Add new session to the beginning of array
+                          sessions.unshift(newSession);
+                        }
+
+                        // Store updated sessions array back to localStorage
+                        sessionStorage.setItem(
+                          "chatSessions",
+                          JSON.stringify(sessions)
+                        );
+
+                        // Navigate to the chat page
                         router.push(
                           `/dashboard/repository/viewpaper/${
                             eachPaper.paper_info.pdf_path
                           }/chat?title=${encodeURIComponent(
                             eachPaper.paper_info.research_title
-                          )}&sessionId=${sessionId}`
-                        )
-                      }
+                          )}&paperId=${
+                            eachPaper.paper_info.public_id
+                          }&sessionId=${sessionId}`
+                        );
+                      }}
                       disabled={isLoading}
                       size="small"
                       sx={{

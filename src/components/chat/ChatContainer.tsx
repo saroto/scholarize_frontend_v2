@@ -38,16 +38,38 @@ export default function ChatContainer() {
   const theme = useTheme();
   const { data: session } = useSession();
   const searchParam = useSearchParams();
+  const chatSessions = sessionStorage.getItem("chatSession");
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [openSaveModal, setOpenSaveModal] = useState(false);
   const [isLoadingModal, setLoadingModal] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [isLoadingChatSkeleton, setIsLoadingChatSkeleton] = useState(false);
   const collectionName = searchParam?.get("title") ?? "No Title Found";
-  const sessionId = searchParam?.get("sessionId") ?? "No Session ID Found";
+
+  const paperId = searchParam?.get("paperId") ?? "No Paper ID Found";
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [fecthMessage, setFetchMessage] = useState<ChatMessage[]>([]);
+
+  // Parse the array and find the session by paperId
+  let sessionIdFromCache = null;
+  let currentSession = null;
+
+  if (chatSessions) {
+    const sessionsArray = JSON.parse(chatSessions);
+
+    // Find the session that matches the current paperId
+    currentSession = sessionsArray.find(
+      (session: any) => session.paperID === paperId
+    );
+
+    // Extract sessionId if session found
+    sessionIdFromCache = currentSession?.sessionId || null;
+  }
+  const sessionId =
+    sessionIdFromCache ??
+    searchParam?.get("sessionId") ??
+    "No Session ID Found";
 
   console.log("fecthMessage", fecthMessage);
   const [isLoading, setIsLoading] = useState(false);
