@@ -110,7 +110,10 @@ export default function ChatContainer() {
         shouldStream: false, // Don't stream fetched messages
       }));
       setMessages(mergedMessages);
-      scrollHandler(true); // Force scroll to bottom when new messages are loaded
+      // Wait for DOM update
+      setTimeout(() => {
+        scrollHandler(true);
+      }, 10);
     }
   }, [fecthMessage]);
 
