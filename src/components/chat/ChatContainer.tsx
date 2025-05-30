@@ -20,6 +20,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { GetChatSession } from "@/app/api/service/repo/chat/getChatSession";
 import { saveChatHistory } from "@/app/api/service/repo/chat/updateChatSession";
 import ChatModal from "../modal/ChatModal";
+import ChatSkeleton from "../skeleton/ChatSkeleton";
 interface SearchFormData {
   collection_name: string;
   query: string;
@@ -41,6 +42,7 @@ export default function ChatContainer() {
   const [openSaveModal, setOpenSaveModal] = useState(false);
   const [isLoadingModal, setLoadingModal] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isLoadingChatSkeleton, setIsLoadingChatSkeleton] = useState(false);
   const collectionName = searchParam?.get("title") ?? "No Title Found";
   const sessionId = searchParam?.get("sessionId") ?? "No Session ID Found";
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
@@ -58,12 +60,15 @@ export default function ChatContainer() {
   console.log("chat data array", messages);
   useEffect(() => {
     if (session?.user.token && sessionId) {
+      setIsLoadingChatSkeleton(true);
       const fetchChatSession = async () => {
         try {
           const data = await GetChatSession(session, String(sessionId));
 
           setFetchMessage(data.data.session.Message || []);
+          setIsLoadingChatSkeleton(false);
         } catch (error) {
+          setIsLoadingChatSkeleton(false);
           console.error("Failed to load research paper", error);
         }
       };
@@ -460,7 +465,9 @@ export default function ChatContainer() {
             </Tooltip>
           )}
         </Box>
-        {messages.length === 0 ? (
+        {isLoadingChatSkeleton ? (
+          <ChatSkeleton />
+        ) : messages.length === 0 ? (
           newChat()
         ) : (
           <Box
