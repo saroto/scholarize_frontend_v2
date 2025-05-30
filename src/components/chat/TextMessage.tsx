@@ -21,6 +21,7 @@ interface TextMessageProps {
   isLoading?: boolean;
   onContentUpdate?: () => void;
   shouldStream?: boolean;
+  profileUrl?: string;
 }
 
 export default function TextMessage({
@@ -29,6 +30,7 @@ export default function TextMessage({
   isLoading = false,
   shouldStream,
   onContentUpdate,
+  profileUrl,
 }: TextMessageProps) {
   const isUser = sender === "user";
   const [displayedMessage, setDisplayedMessage] = useState("");
@@ -115,7 +117,7 @@ export default function TextMessage({
       {isUser && (
         <Avatar
           alt={isUser ? "User" : "Bot"}
-          src={isUser ? "assets/images/bot.png" : "assets/images/logo_main.png"}
+          src={isUser ? profileUrl : "assets/images/bot.png"}
           variant="square"
           sx={{
             width: 32,

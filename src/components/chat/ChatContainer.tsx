@@ -480,6 +480,7 @@ export default function ChatContainer() {
                 message={msg.message}
                 sender={msg.sender}
                 shouldStream={msg.shouldStream || false}
+                profileUrl={session?.user.image || ""}
                 onContentUpdate={() => scrollHandler(false)}
               />
             ))}
