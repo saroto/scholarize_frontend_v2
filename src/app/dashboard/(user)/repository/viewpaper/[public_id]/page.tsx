@@ -223,8 +223,6 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
                           backgroundColor: "#C8D6FF", // Even darker on focus
                           color: "#001A70", // Darker text on focus
                           borderColor: "#001A70",
-                          outline: "2px solid rgba(0, 48, 170, 0.3)", // Focus ring
-                          outlineOffset: "2px",
                         },
                         "&:active": {
                           backgroundColor: "#C0D0FF", // Darkest when pressed
@@ -274,8 +272,6 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
                           backgroundColor: "#C8D6FF", // Even darker on focus
                           color: "#001A70", // Darker text on focus
                           borderColor: "#001A70",
-                          outline: "2px solid rgba(0, 48, 170, 0.3)", // Focus ring
-                          outlineOffset: "2px",
                         },
                         "&:active": {
                           backgroundColor: "#C0D0FF", // Darkest when pressed
@@ -324,8 +320,6 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
                           backgroundColor: "#C8D6FF", // Even darker on focus
                           color: "#001A70", // Darker text on focus
                           borderColor: "#001A70",
-                          outline: "2px solid rgba(0, 48, 170, 0.3)", // Focus ring
-                          outlineOffset: "2px",
                         },
                         "&:active": {
                           backgroundColor: "#C0D0FF", // Darkest when pressed

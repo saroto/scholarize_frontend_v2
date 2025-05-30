@@ -9,9 +9,15 @@ export const metadata: Metadata = {
 
 export default function RepositoryResearchLibrary() {
   return (
-    <Grid container minHeight={"100vh"}>
-      <Grid container item xs={12}>
-        <Grid item xs={10} sm={9.5}>
+    <Grid
+      container
+      minHeight={"100vh"}
+      sx={{
+        overflowY: "hidden",
+      }}
+    >
+      <Grid container item xs={12} sx={{ height: "100%", overflowY: "hidden" }}>
+        <Grid item xs={10} sm={9.5} sx={{ height: "100%", overflowY: "auto" }}>
           <Typography
             variant="h4"
             sx={{
@@ -23,7 +29,7 @@ export default function RepositoryResearchLibrary() {
             MY PUBLISHED RESEACH PAPERS
           </Typography>
           <Grid item container sx={{ margin: "auto" }}>
-            <Box sx={{ padding: 2, width: "100%" }}>
+            <Box sx={{ p: 2, marginBottom: "3rem" }} width={"100%"}>
               <ResearchPaperCard fetchType="user-specific" />
             </Box>
           </Grid>

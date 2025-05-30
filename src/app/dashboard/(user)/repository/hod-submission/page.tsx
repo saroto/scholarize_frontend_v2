@@ -18,11 +18,21 @@ export default function RepositoryResearchLibrary() {
         minHeight={"100vh"}
         sx={{
           width: "100%",
-          overflowY: "auto",
+          overflowY: "hidden",
         }}
       >
-        <Grid container item xs={12}>
-          <Grid item xs={10} sm={9.5}>
+        <Grid
+          container
+          item
+          xs={12}
+          sx={{ height: "100%", overflowY: "hidden" }}
+        >
+          <Grid
+            item
+            xs={10}
+            sm={9.5}
+            sx={{ height: "100%", overflowY: "auto" }}
+          >
             <Typography
               variant="h4"
               sx={{
