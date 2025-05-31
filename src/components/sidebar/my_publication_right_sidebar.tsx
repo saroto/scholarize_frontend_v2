@@ -9,6 +9,7 @@ import { publicResearchPaper } from "@/types";
 import { permission } from "@/types";
 import Link from "@mui/material/Link";
 import { usePublicationPaperStore } from "@/stores/StorePublicationPaper";
+import CustomButton from "../customButton";
 
 interface buttonProp {
   disabled: boolean;
@@ -56,22 +57,21 @@ export default function DashboardRightSideBar({ disabled }: buttonProp) {
             if (per === "Publish research paper") {
               return (
                 <Stack key={i}>
-                  <Button
+                  <CustomButton
                     variant="contained"
-                    sx={{
-                      background: "#1976d2",
-                      minHeight: "2.5rem",
-                      fontWeight: "bold",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      display: "flex",
-                      textAlign: "center",
-                    }}
+                    color="primary"
+                    startIcon={<ArticleIcon />}
                     href="/dashboard/repository/submit-research-paper"
                     disabled={disabled}
+                    sx={{
+                      textTransform: "none",
+                      px: "1rem",
+                      borderRadius: "1rem",
+                      boxShadow: "none",
+                    }}
                   >
                     Submit Paper
-                  </Button>
+                  </CustomButton>
                 </Stack>
               );
             } else {
