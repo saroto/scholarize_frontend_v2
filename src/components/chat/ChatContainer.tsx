@@ -550,7 +550,8 @@ export default function ChatContainer() {
             Cancel
           </Button>
           <Button
-            loading={isLoading}
+            // loading={isLoading}
+            disabled={isLoading}
             onClick={() => {
               deleteHistory();
               setOpenDeleteModal(false);
@@ -604,7 +605,8 @@ export default function ChatContainer() {
             Cancel
           </Button>
           <Button
-            loading={isLoadingModal}
+            // loading={isLoadingModal}
+            disabled={isLoadingModal}
             onClick={() => {
               saveHistory();
               setOpenSaveModal(false);
