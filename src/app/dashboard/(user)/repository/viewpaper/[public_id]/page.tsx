@@ -185,7 +185,7 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
             <Grid container spacing={3}>
               <Grid item container xs={12} gap={2}>
                 {/* reponsive button */}
-                {eachPaper && (
+                {/* {eachPaper && (
                   <Box
                     sx={{
                       display: "flex",
@@ -196,6 +196,9 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
                     <CustomButton
                       disabled={isLoading}
                       size="small"
+                      variant="contained"
+                      color="primary"
+                      startIcon={<DownloadIcon fontSize="small" />}
                       onClick={() =>
                         handleDownload(
                           eachPaper.paper_info.pdf_path,
@@ -204,35 +207,12 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
                         )
                       }
                       sx={{
-                        display: "flex",
-                        flexDirection: "row",
-                        gap: "5px",
-                        paddingInline: "10px",
-                        cursor: "pointer",
-                        transition: "all 0.2s ease-in-out",
-                        backgroundColor: "#E0EAFF",
-                        color: "#0030AA",
-                        border: "1.5px solid #0030AA",
-                        "&:hover": {
-                          backgroundColor: "#D0DCFF", // Darker on hover
-                          color: "#001F80", // Slightly darker text
-                          borderColor: "#001F80",
-                          transform: "translateY(-1px)", // Subtle lift effect
-                        },
-                        "&:focus": {
-                          backgroundColor: "#C8D6FF", // Even darker on focus
-                          color: "#001A70", // Darker text on focus
-                          borderColor: "#001A70",
-                          outline: "2px solid rgba(0, 48, 170, 0.3)", // Focus ring
-                          outlineOffset: "2px",
-                        },
-                        "&:active": {
-                          backgroundColor: "#C0D0FF", // Darkest when pressed
-                          transform: "translateY(0px)", // Reset lift on click
-                        },
+                        px: "1rem",
+                        borderRadius: "1rem",
+                        textTransform: "none",
+                        boxShadow: "none",
                       }}
                     >
-                      <DownloadIcon fontSize="small" />
                       <Typography
                         sx={{
                           fontSize: "10px",
@@ -243,47 +223,67 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
                       </Typography>
                     </CustomButton>
                     <CustomButton
-                      onClick={() =>
+                      onClick={() => {
+                        // Get existing chat sessions from localStorage
+                        const existingSessions =
+                          sessionStorage.getItem("chatSessions");
+                        let sessions = existingSessions
+                          ? JSON.parse(existingSessions)
+                          : [];
+
+                        // Create new session object
+                        const newSession = {
+                          paperID: eachPaper.paper_info.public_id,
+                          sessionId: sessionId,
+                          paperTitle: eachPaper.paper_info.research_title,
+                          pdfPath: eachPaper.paper_info.pdf_path,
+                          timestamp: new Date().toISOString(),
+                        };
+
+                        // Check if session already exists (avoid duplicates)
+                        const existingIndex = sessions.findIndex(
+                          (session: any) =>
+                            session.paperID === newSession.paperID &&
+                            session.sessionId === newSession.sessionId
+                        );
+
+                        if (existingIndex !== -1) {
+                          // Update existing session
+                          sessions[existingIndex] = newSession;
+                        } else {
+                          // Add new session to the beginning of array
+                          sessions.unshift(newSession);
+                        }
+
+                        // Store updated sessions array back to localStorage
+                        sessionStorage.setItem(
+                          "chatSessions",
+                          JSON.stringify(sessions)
+                        );
+
+                        // Navigate to the chat page
                         router.push(
                           `/dashboard/repository/viewpaper/${
                             eachPaper.paper_info.pdf_path
                           }/chat?title=${encodeURIComponent(
                             eachPaper.paper_info.research_title
-                          )}&sessionId=${sessionId}`
-                        )
-                      }
+                          )}&paperId=${
+                            eachPaper.paper_info.public_id
+                          }&sessionId=${sessionId}`
+                        );
+                      }}
                       disabled={isLoading}
                       size="small"
+                      variant="contained"
+                      color="primary"
+                      startIcon={<ChatIcon fontSize="small" />}
                       sx={{
-                        display: "flex",
-                        flexDirection: "row",
-                        gap: "5px",
-                        paddingInline: "10px",
-                        cursor: "pointer",
-                        transition: "all 0.2s ease-in-out",
-                        backgroundColor: "#E0EAFF",
-                        color: "#0030AA",
-                        border: "1.5px solid #0030AA",
-                        "&:hover": {
-                          backgroundColor: "#D0DCFF", // Darker on hover
-                          color: "#001F80", // Slightly darker text
-                          borderColor: "#001F80",
-                          transform: "translateY(-1px)", // Subtle lift effect
-                        },
-                        "&:focus": {
-                          backgroundColor: "#C8D6FF", // Even darker on focus
-                          color: "#001A70", // Darker text on focus
-                          borderColor: "#001A70",
-                          outline: "2px solid rgba(0, 48, 170, 0.3)", // Focus ring
-                          outlineOffset: "2px",
-                        },
-                        "&:active": {
-                          backgroundColor: "#C0D0FF", // Darkest when pressed
-                          transform: "translateY(0px)", // Reset lift on click
-                        },
+                        px: "1rem",
+                        borderRadius: "1rem",
+                        textTransform: "none",
+                        boxShadow: "none",
                       }}
                     >
-                      <ChatIcon fontSize="small" />
                       <Typography
                         sx={{
                           fontSize: "10px",
@@ -295,6 +295,9 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
                     </CustomButton>
                     <CustomButton
                       size="small"
+                      variant="contained"
+                      startIcon={<PictureAsPdfIcon fontSize="small" />}
+                      color="primary"
                       onClick={() =>
                         router.push(
                           `/dashboard/repository/viewpaper/${
@@ -305,46 +308,23 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
                         )
                       }
                       sx={{
-                        display: "flex",
-                        flexDirection: "row",
-                        gap: "5px",
-                        paddingInline: "10px",
-                        cursor: "pointer",
-                        transition: "all 0.2s ease-in-out",
-                        backgroundColor: "#E0EAFF",
-                        color: "#0030AA",
-                        border: "1.5px solid #0030AA",
-                        "&:hover": {
-                          backgroundColor: "#D0DCFF", // Darker on hover
-                          color: "#001F80", // Slightly darker text
-                          borderColor: "#001F80",
-                          transform: "translateY(-1px)", // Subtle lift effect
-                        },
-                        "&:focus": {
-                          backgroundColor: "#C8D6FF", // Even darker on focus
-                          color: "#001A70", // Darker text on focus
-                          borderColor: "#001A70",
-                          outline: "2px solid rgba(0, 48, 170, 0.3)", // Focus ring
-                          outlineOffset: "2px",
-                        },
-                        "&:active": {
-                          backgroundColor: "#C0D0FF", // Darkest when pressed
-                          transform: "translateY(0px)", // Reset lift on click
-                        },
+                        px: "1rem",
+                        borderRadius: "1rem",
+                        textTransform: "none",
+                        boxShadow: "none",
                       }}
                     >
-                      <PictureAsPdfIcon fontSize="small" />
                       <Typography
                         sx={{
                           fontSize: "10px",
                           whiteSpace: "nowrap",
                         }}
                       >
-                        View Full PDF
+                        View PDF
                       </Typography>
                     </CustomButton>
                   </Box>
-                )}
+                )} */}
 
                 {/* title and tag */}
                 <Box
@@ -398,6 +378,146 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
                       ))}
                   </Box>
                 </Box>
+                {eachPaper && (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "row",
+                      gap: "10px",
+                    }}
+                  >
+                    <CustomButton
+                      disabled={isLoading}
+                      size="small"
+                      variant="contained"
+                      color="primary"
+                      startIcon={<DownloadIcon fontSize="small" />}
+                      onClick={() =>
+                        handleDownload(
+                          eachPaper.paper_info.pdf_path,
+                          eachPaper
+                          // eachPaper.paper_info.research_title
+                        )
+                      }
+                      sx={{
+                        px: "1rem",
+                        borderRadius: "1rem",
+                        textTransform: "none",
+                        boxShadow: "none",
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          fontSize: "10px",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {isLoading ? "Loading..." : "Download"}
+                      </Typography>
+                    </CustomButton>
+                    <CustomButton
+                      onClick={() => {
+                        // Get existing chat sessions from localStorage
+                        const existingSessions =
+                          sessionStorage.getItem("chatSessions");
+                        let sessions = existingSessions
+                          ? JSON.parse(existingSessions)
+                          : [];
+
+                        // Create new session object
+                        const newSession = {
+                          paperID: eachPaper.paper_info.public_id,
+                          sessionId: sessionId,
+                          paperTitle: eachPaper.paper_info.research_title,
+                          pdfPath: eachPaper.paper_info.pdf_path,
+                          timestamp: new Date().toISOString(),
+                        };
+
+                        // Check if session already exists (avoid duplicates)
+                        const existingIndex = sessions.findIndex(
+                          (session: any) =>
+                            session.paperID === newSession.paperID &&
+                            session.sessionId === newSession.sessionId
+                        );
+
+                        if (existingIndex !== -1) {
+                          // Update existing session
+                          sessions[existingIndex] = newSession;
+                        } else {
+                          // Add new session to the beginning of array
+                          sessions.unshift(newSession);
+                        }
+
+                        // Store updated sessions array back to localStorage
+                        sessionStorage.setItem(
+                          "chatSessions",
+                          JSON.stringify(sessions)
+                        );
+
+                        // Navigate to the chat page
+                        router.push(
+                          `/dashboard/repository/viewpaper/${
+                            eachPaper.paper_info.pdf_path
+                          }/chat?title=${encodeURIComponent(
+                            eachPaper.paper_info.research_title
+                          )}&paperId=${
+                            eachPaper.paper_info.public_id
+                          }&sessionId=${sessionId}`
+                        );
+                      }}
+                      disabled={isLoading}
+                      size="small"
+                      variant="contained"
+                      color="primary"
+                      startIcon={<ChatIcon fontSize="small" />}
+                      sx={{
+                        px: "1rem",
+                        borderRadius: "1rem",
+                        textTransform: "none",
+                        boxShadow: "none",
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          fontSize: "10px",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        Chat Now
+                      </Typography>
+                    </CustomButton>
+                    <CustomButton
+                      size="small"
+                      variant="contained"
+                      startIcon={<PictureAsPdfIcon fontSize="small" />}
+                      color="primary"
+                      onClick={() =>
+                        router.push(
+                          `/dashboard/repository/viewpaper/${
+                            eachPaper.paper_info.pdf_path
+                          }/pdf?title=${encodeURIComponent(
+                            eachPaper.paper_info.research_title
+                          )}`
+                        )
+                      }
+                      sx={{
+                        px: "1rem",
+                        borderRadius: "1rem",
+                        textTransform: "none",
+                        boxShadow: "none",
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          fontSize: "10px",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        View PDF
+                      </Typography>
+                    </CustomButton>
+                  </Box>
+                )}
               </Grid>
 
               <Grid

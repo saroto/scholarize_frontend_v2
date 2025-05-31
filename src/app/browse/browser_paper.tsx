@@ -216,12 +216,14 @@ export default function BrowserPaper() {
           </div>
 
           <div className="mt-4">{content}</div>
-          {!isTryNow ? (
+          {/* {!isTryNow ? (
             <BrowserPaperCard
               key={searchResult[0].public_id}
               paper={searchResult[0]}
             />
-          ) : (
+          ) : null} */}
+
+          {(searchResult && searchResult.length > 0) || isLoading ? null : (
             <Container
               sx={{
                 display: "flex",
@@ -246,7 +248,9 @@ export default function BrowserPaper() {
                   },
                 }}
               >
-                <Promotion setIsOpen={setIsTryNow} open={isTryNow} />
+                {isTryNow && (
+                  <Promotion setIsOpen={setIsTryNow} open={isTryNow} />
+                )}
               </Box>
             </Container>
           )}

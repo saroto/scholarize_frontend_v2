@@ -231,40 +231,42 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
           </Box>
         ))}
 
-      {fetchType === "user-specific" &&
-        !isLoading &&
-        (userPapers && userPapers.published_papers !== null ? (
-          userPapers.published_papers.map((userPapers) => (
-            <Box
-              sx={{
-                display: "flex",
-                paddingBottom: "1rem",
-              }}
-            >
-              <PaperCardComponent
-                key={userPapers.research_paper_id}
-                paper={userPapers}
-                handleClick={handleClick}
-                handleDownload={handleDownload}
-              />
-            </Box>
-          ))
-        ) : (
-          <Box sx={{ justifyContent: "center", textAlign: "center" }}>
-            <Typography
-              variant="h6"
-              sx={{
-                textAlign: "center",
-                color: "#777777",
-                // fontStyle: "italic",
+      <Box>
+        {fetchType === "user-specific" &&
+          !isLoading &&
+          (userPapers && userPapers.published_papers !== null ? (
+            userPapers.published_papers.map((userPapers) => (
+              <Box
+                sx={{
+                  display: "flex",
+                  paddingBottom: "1rem",
+                }}
+              >
+                <PaperCardComponent
+                  key={userPapers.research_paper_id}
+                  paper={userPapers}
+                  handleClick={handleClick}
+                  handleDownload={handleDownload}
+                />
+              </Box>
+            ))
+          ) : (
+            <Box sx={{ justifyContent: "center", textAlign: "center" }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  textAlign: "center",
+                  color: "#777777",
+                  // fontStyle: "italic",
 
-                marginTop: 2,
-              }}
-            >
-              You don't have any published research paper
-            </Typography>
-          </Box>
-        ))}
+                  marginTop: 2,
+                }}
+              >
+                You don't have any published research paper
+              </Typography>
+            </Box>
+          ))}
+      </Box>
 
       {fetchType === "submitted" &&
         (submission &&

@@ -38,16 +38,38 @@ export default function ChatContainer() {
   const theme = useTheme();
   const { data: session } = useSession();
   const searchParam = useSearchParams();
+  const chatSessions = sessionStorage.getItem("chatSession");
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [openSaveModal, setOpenSaveModal] = useState(false);
   const [isLoadingModal, setLoadingModal] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [isLoadingChatSkeleton, setIsLoadingChatSkeleton] = useState(false);
   const collectionName = searchParam?.get("title") ?? "No Title Found";
-  const sessionId = searchParam?.get("sessionId") ?? "No Session ID Found";
+
+  const paperId = searchParam?.get("paperId") ?? "No Paper ID Found";
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [fecthMessage, setFetchMessage] = useState<ChatMessage[]>([]);
+
+  // Parse the array and find the session by paperId
+  let sessionIdFromCache = null;
+  let currentSession = null;
+
+  if (chatSessions) {
+    const sessionsArray = JSON.parse(chatSessions);
+
+    // Find the session that matches the current paperId
+    currentSession = sessionsArray.find(
+      (session: any) => session.paperID === paperId
+    );
+
+    // Extract sessionId if session found
+    sessionIdFromCache = currentSession?.sessionId || null;
+  }
+  const sessionId =
+    sessionIdFromCache ??
+    searchParam?.get("sessionId") ??
+    "No Session ID Found";
 
   console.log("fecthMessage", fecthMessage);
   const [isLoading, setIsLoading] = useState(false);
@@ -110,7 +132,10 @@ export default function ChatContainer() {
         shouldStream: false, // Don't stream fetched messages
       }));
       setMessages(mergedMessages);
-      scrollHandler(true); // Force scroll to bottom when new messages are loaded
+      // Wait for DOM update
+      setTimeout(() => {
+        scrollHandler(true);
+      }, 10);
     }
   }, [fecthMessage]);
 
@@ -382,88 +407,78 @@ export default function ChatContainer() {
             flexDirection: "row",
             gap: "10px",
             alignItems: "center",
-            justifyContent: "flex-end",
-            paddingRight: "16px",
+            justifyContent: "space-between",
+            paddingInline: "20px",
           }}
         >
-          {messages.length !== 0 && (
-            <Tooltip title="Save Chat">
-              <IconButton
-                // onClick={saveHistory}
-                onClick={() => {
-                  setOpenSaveModal(true);
-                }}
-                size="small"
-                sx={{
-                  borderRadius: "5px",
-                  color: "#0030AA",
-                  border: "1.5px solid #0030AA",
-                  cursor: "pointer",
-                  transition: "all 0.2s ease-in-out",
-                  backgroundColor: "#E0EAFF",
-                  "&:hover": {
-                    backgroundColor: "#D0DCFF", // Darker on hover
-                    color: "#001F80", // Slightly darker text
-                    borderColor: "#001F80",
-                    transform: "translateY(-1px)", // Subtle lift effect
-                  },
-                  "&:focus": {
-                    backgroundColor: "#C8D6FF", // Even darker on focus
-                    color: "#001A70", // Darker text on focus
-                    borderColor: "#001A70",
-                    // outline: "2px solid rgba(0, 48, 170, 0.3)", // Focus ring
-                    // outlineOffset: "2px",
-                  },
-                  "&:active": {
-                    backgroundColor: "#C0D0FF", // Darkest when pressed
-                    transform: "translateY(0px)", // Reset lift on click
-                  },
-                }}
-              >
-                <SaveAltIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-          )}
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 500,
+              paddingRight: "16px",
+            }}
+          >
+            Chat
+          </Typography>
+          <Box sx={{ display: "flex", gap: "10px" }}>
+            {messages.length !== 0 && (
+              <Tooltip title="Save Chat">
+                <IconButton
+                  onClick={() => {
+                    setOpenSaveModal(true);
+                  }}
+                  size="small"
+                  sx={{
+                    backgroundColor: "#000000",
+                    borderRadius: "5px",
+                    color: "#fff",
+                    padding: "6px",
+                    "&:hover": {
+                      backgroundColor: "#333333",
+                    },
 
-          {messages.length !== 0 && (
-            <Tooltip title="Delete Chat History">
-              <IconButton
-                onClick={() => {
-                  setOpenDeleteModal(true);
-                }}
-                color="error"
-                size="small"
-                sx={{
-                  backgroundColor: "#FDE0E0",
-                  borderRadius: "5px",
-                  border: "1.5px solid",
-                  borderColor: "#F00000",
-                  transition: "all 0.2s ease-in-out",
-                  "&:hover": {
-                    backgroundColor: "#FCC8C8", // Darker red on hover
-                    borderColor: "#D00000", // Darker border
-                    transform: "translateY(-1px)", // Subtle lift effect
-                    "& .MuiSvgIcon-root": {
-                      color: "#D00000", // Darker icon color
+                    "&:focus": {
+                      backgroundColor: "#333333",
                     },
-                  },
-                  "&:focus": {
-                    backgroundColor: "#FAB0B0", // Even darker on focus
-                    borderColor: "#C00000", // Darker border on focus
-                  },
-                  "&:active": {
-                    backgroundColor: "#F89898", // Darkest when pressed
-                    transform: "translateY(0px)", // Reset lift on click
-                    "& .MuiSvgIcon-root": {
-                      color: "#B00000", // Darkest icon color
+                  }}
+                >
+                  <SaveAltIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
+            {messages.length !== 0 && (
+              <Tooltip title="Delete Chat History">
+                <IconButton
+                  onClick={() => {
+                    setOpenDeleteModal(true);
+                  }}
+                  color="error"
+                  size="small"
+                  sx={{
+                    backgroundColor: "#FDE0E0",
+                    borderRadius: "5px",
+                    border: "1.5px solid",
+                    borderColor: "#F00000",
+                    transition: "all 0.2s ease-in-out",
+                    "&:hover": {
+                      backgroundColor: "#FCC8C8", // Darker red on hover
+                      borderColor: "#D00000", // Darker border
                     },
-                  },
-                }}
-              >
-                <DeleteIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-          )}
+                    "&:focus": {
+                      backgroundColor: "#FAB0B0", // Even darker on focus
+                      borderColor: "#C00000", // Darker border on focus
+                    },
+                    "&:active": {
+                      backgroundColor: "#F89898", // Darkest when pressed
+                      transform: "translateY(0px)", // Reset lift on click
+                    },
+                  }}
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}{" "}
+          </Box>
         </Box>
         {isLoadingChatSkeleton ? (
           <ChatSkeleton />
@@ -527,7 +542,6 @@ export default function ChatContainer() {
           <Button
             disabled={isLoading}
             onClick={() => setOpenDeleteModal(false)}
-            size="small"
             color="primary"
             sx={{
               textTransform: "none",
@@ -541,12 +555,12 @@ export default function ChatContainer() {
               deleteHistory();
               setOpenDeleteModal(false);
             }}
-            size="small"
             color="error"
             sx={{
               backgroundColor: "#FDE0E0",
-              borderRadius: "5px",
               border: "1.5px solid",
+              px: "1rem",
+              borderRadius: "1rem",
               borderColor: "#F00000",
               transition: "all 0.2s ease-in-out",
               textTransform: "none",
@@ -595,32 +609,13 @@ export default function ChatContainer() {
               saveHistory();
               setOpenSaveModal(false);
             }}
-            size="small"
+            color="primary"
+            variant="contained"
             sx={{
-              borderRadius: "5px",
-              color: "#0030AA",
-              border: "1.5px solid #0030AA",
-              cursor: "pointer",
-              transition: "all 0.2s ease-in-out",
-              backgroundColor: "#E0EAFF",
+              px: "1rem",
+              borderRadius: "1rem",
               textTransform: "none",
-              "&:hover": {
-                backgroundColor: "#D0DCFF", // Darker on hover
-                color: "#001F80", // Slightly darker text
-                borderColor: "#001F80",
-                transform: "translateY(-1px)", // Subtle lift effect
-              },
-              "&:focus": {
-                backgroundColor: "#C8D6FF", // Even darker on focus
-                color: "#001A70", // Darker text on focus
-                borderColor: "#001A70",
-                // outline: "2px solid rgba(0, 48, 170, 0.3)", // Focus ring
-                // outlineOffset: "2px",
-              },
-              "&:active": {
-                backgroundColor: "#C0D0FF", // Darkest when pressed
-                transform: "translateY(0px)", // Reset lift on click
-              },
+              boxShadow: "none",
             }}
           >
             Save
