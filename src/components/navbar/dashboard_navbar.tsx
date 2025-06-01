@@ -221,8 +221,9 @@ export default function DashboardNavbar({
         position="fixed"
         color="transparent"
         sx={{
-          backgroundColor: "transparent",
+          backgroundColor: "white",
           boxShadow: "none",
+          maxWidth: "1460px",
           width: {
             xs: "none",
             sm: "none",
@@ -237,92 +238,91 @@ export default function DashboardNavbar({
             lg: "100px",
             xl: "100px",
           },
+          "@media (min-width: 1710px)": {
+            left: `calc(50vw - 750px)`, // Half of maxWidth (1620px / 2)
+            transform: "none",
+          },
         }}
       >
-        <Toolbar>
-          <Stack sx={{ flexGrow: 1 }} justifyContent={"center"}>
-            <Stack
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              {/* Start section */}
+        {/* <Toolbar> */}
+        <Stack sx={{ flexGrow: 1 }} justifyContent={"center"}>
+          <Stack
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            {/* Start section */}
 
-              <Stack direction={"row"} alignItems={"center"} spacing={1}>
-                {(isRepository || (isRepository && isSmallScreen)) && (
-                  <Stack direction={"row"} alignItems={"center"} spacing={1}>
-                    <IconButton
-                      color="inherit"
-                      onClick={toggleDrawer}
-                      edge="start"
-                    >
-                      <MenuIcon />
-                    </IconButton>
-                  </Stack>
-                )}
+            <Stack direction={"row"} alignItems={"center"} spacing={1}>
+              {(isRepository || (isRepository && isSmallScreen)) && (
+                <Stack direction={"row"} alignItems={"center"} spacing={1}>
+                  <IconButton
+                    color="inherit"
+                    onClick={toggleDrawer}
+                    edge="start"
+                  >
+                    <MenuIcon />
+                  </IconButton>
+                </Stack>
+              )}
 
-                <Stack
-                  direction={"row"}
-                  alignItems={"center"}
-                  spacing={1}
-                  onClick={() => {
-                    window.location.href =
-                      "/dashboard/repository/research-library";
-                  }}
+              <Stack
+                direction={"row"}
+                alignItems={"center"}
+                spacing={1}
+                onClick={() => {
+                  window.location.href =
+                    "/dashboard/repository/research-library";
+                }}
+                sx={{
+                  "&:hover": {
+                    cursor: "pointer",
+                    backgroundColor: "rgba(0, 0, 0, 0.1)",
+                    borderRadius: "1rem",
+                  },
+                  padding: "0.5rem",
+                }}
+              >
+                <img src="/logo.png" alt="Scholarize" width={30} height={30} />
+
+                <Typography
+                  variant="h5"
+                  component="h5"
                   sx={{
-                    "&:hover": {
-                      cursor: "pointer",
-                      backgroundColor: "rgba(0, 0, 0, 0.1)",
-                      borderRadius: "1rem",
-                    },
-                    padding: "0.5rem",
+                    color: "black",
+                    fontWeight: "500",
+                    fontFamily: "poppins, -apple-system",
                   }}
                 >
-                  <img
-                    src="/logo.png"
-                    alt="Scholarize"
-                    width={30}
-                    height={30}
-                  />
-
-                  <Typography
-                    variant="h5"
-                    component="h5"
-                    sx={{
-                      color: "black",
-                      fontWeight: "500",
-                      fontFamily: "poppins, -apple-system",
-                    }}
-                  >
-                    Scholarize
-                  </Typography>
+                  Scholarize
+                </Typography>
+              </Stack>
+              {!isSmallScreen && (
+                <Stack alignItems={"center"} fontWeight={"bold"}>
+                  {session?.user?.role.RoleName === "User" && (
+                    <Chip
+                      label={session.user.role.RoleName}
+                      sx={{ backgroundColor: session.user.role.RoleColor }}
+                    />
+                  )}
+                  {session?.user?.role.RoleName === "HOD" && (
+                    <Chip
+                      label={session.user.role.RoleName}
+                      sx={{ backgroundColor: session.user.role.RoleColor }}
+                    />
+                  )}
+                  {session?.user?.role.RoleName === "Advisor" && (
+                    <Chip
+                      label={session.user.role.RoleName}
+                      sx={{ backgroundColor: session.user.role.RoleColor }}
+                    />
+                  )}
                 </Stack>
-                {!isSmallScreen && (
-                  <Stack alignItems={"center"} fontWeight={"bold"}>
-                    {session?.user?.role.RoleName === "User" && (
-                      <Chip
-                        label={session.user.role.RoleName}
-                        sx={{ backgroundColor: session.user.role.RoleColor }}
-                      />
-                    )}
-                    {session?.user?.role.RoleName === "HOD" && (
-                      <Chip
-                        label={session.user.role.RoleName}
-                        sx={{ backgroundColor: session.user.role.RoleColor }}
-                      />
-                    )}
-                    {session?.user?.role.RoleName === "Advisor" && (
-                      <Chip
-                        label={session.user.role.RoleName}
-                        sx={{ backgroundColor: session.user.role.RoleColor }}
-                      />
-                    )}
-                  </Stack>
-                )}
-                {/* <Stack alignItems={"center"} fontWeight={"bold"}>
+              )}
+              {/* <Stack alignItems={"center"} fontWeight={"bold"}>
                   {session?.user?.role.RoleName === "User" && (
                     <Chip
                       label={session.user.role.RoleName}
@@ -342,290 +342,286 @@ export default function DashboardNavbar({
                     />
                   )}
                 </Stack> */}
-                {session?.user?.department && (
-                  <>
-                    {session?.user?.department.DepartmentName.length > 0 && (
-                      <Tooltip
-                        title={
-                          "Department: " +
-                          session.user.department.DepartmentName
-                        }
-                      >
-                        <Stack alignItems={"center"} fontWeight={"bold"}>
-                          <Chip
-                            label={session.user.department.DepartmentTag}
-                            sx={{
-                              backgroundColor:
-                                session.user.department.DepartmentColor,
-                              color: getContrastColor(
-                                session.user.department.DepartmentColor
-                              ),
-                            }}
-                          />
-                        </Stack>
-                      </Tooltip>
-                    )}
-                  </>
-                )}
-              </Stack>
+              {session?.user?.department && (
+                <>
+                  {session?.user?.department.DepartmentName.length > 0 && (
+                    <Tooltip
+                      title={
+                        "Department: " + session.user.department.DepartmentName
+                      }
+                    >
+                      <Stack alignItems={"center"} fontWeight={"bold"}>
+                        <Chip
+                          label={session.user.department.DepartmentTag}
+                          sx={{
+                            backgroundColor:
+                              session.user.department.DepartmentColor,
+                            color: getContrastColor(
+                              session.user.department.DepartmentColor
+                            ),
+                          }}
+                        />
+                      </Stack>
+                    </Tooltip>
+                  )}
+                </>
+              )}
+            </Stack>
 
-              {/* Link section */}
-              <Stack
-                direction={"row"}
-                alignItems={"center"}
-                spacing={2}
-                sx={{
-                  display: { xs: "none", sm: "none", md: "flex", lg: "flex" },
-                }}
-              >
-                <Link href={"/dashboard/repository/research-library"}>
-                  <Button
-                    sx={{
-                      backgroundColor:
-                        selectedNav === "repository"
-                          ? "#CFCFCF"
-                          : "transparent",
-                      fontWeight: selectedNav === "repository" ? "550" : "500",
-                      paddingLeft: "1rem",
-                      paddingRight: "1rem",
-                      ":hover": {
-                        backgroundColor: "rgba(0, 0, 0, 0.1)",
-                      },
-                    }}
-                  >
-                    <Typography
-                      variant="h5"
-                      sx={{
-                        textTransform: "none",
-                        color: "text.primary",
-                      }}
-                    >
-                      {" "}
-                      Repository
-                    </Typography>
-                  </Button>
-                </Link>
-                <Link
-                  href={
-                    session?.user?.role.RoleName === "HOD"
-                      ? "/dashboard/repository/hod-submission"
-                      : "/dashboard/repository/my-publications"
-                  }
-                >
-                  <Button
-                    onClick={handleClickOpenPopper("bottom")}
-                    onMouseEnter={handleClickOpenPopper("bottom")}
-                    onMouseLeave={() => {
-                      setOpen(false);
-                      setAnchorEls(null);
-                    }}
-                    sx={{
-                      display: "flex",
-                      flexDirection: "row",
-                      alignItems: "center",
-                      gap: "10px",
-                      backgroundColor:
-                        selectedNav === "my-publications"
-                          ? "#CFCFCF"
-                          : "transparent",
-                      fontWeight:
-                        selectedNav === "my-publications" ? "550" : "500",
-                      paddingLeft: "1rem",
-                      paddingRight: "1rem",
-                      ":hover": {
-                        backgroundColor: "rgba(0, 0, 0, 0.1)",
-                      },
-                    }}
-                  >
-                    <Typography
-                      variant="h5"
-                      sx={{
-                        textTransform: "none",
-                        color: "text.primary",
-                      }}
-                    >
-                      {" "}
-                      {session?.user?.role?.RoleName === "HOD"
-                        ? "Submissions"
-                        : "My Publications"}
-                    </Typography>
-                    {session?.user.role.RoleName === "HOD" &&
-                      (open ? (
-                        <KeyboardArrowUpIcon />
-                      ) : (
-                        <KeyboardArrowDownIcon />
-                      ))}
-                  </Button>
-                </Link>
-                <Link href={"/dashboard/collaboration/groups"}>
-                  <Button
-                    sx={{
-                      backgroundColor:
-                        selectedNav === "collaboration"
-                          ? "#CFCFCF"
-                          : "transparent",
-                      fontWeight:
-                        selectedNav === "collaboration" ? "550" : "500",
-                      paddingLeft: "1rem",
-                      paddingRight: "1rem",
-                      ":hover": {
-                        backgroundColor: "rgba(0, 0, 0, 0.1)",
-                      },
-                    }}
-                  >
-                    <Typography
-                      variant="h5"
-                      sx={{
-                        textTransform: "none",
-                        color: "text.primary",
-                      }}
-                    >
-                      {" "}
-                      Collaboration
-                    </Typography>
-                  </Button>
-                </Link>
-                <Link href={"/dashboard/schedule"}>
-                  <Button
-                    sx={{
-                      backgroundColor:
-                        selectedNav === "schedule" ? "#CFCFCF" : "transparent",
-                      fontWeight: selectedNav === "schedule" ? "550" : "500",
-                      paddingLeft: "1rem",
-                      paddingRight: "1rem",
-                      ":hover": {
-                        backgroundColor: "rgba(0, 0, 0, 0.1)",
-                      },
-                    }}
-                  >
-                    <Typography
-                      variant="h5"
-                      sx={{
-                        textTransform: "none",
-                        color: "text.primary",
-                      }}
-                    >
-                      {" "}
-                      Schedule
-                    </Typography>
-                  </Button>
-                </Link>
-              </Stack>
-
-              {/* User section */}
-              <Stack
-                direction={"row"}
-                alignItems={"center"}
-                gap={2}
-                sx={{
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "center",
-                }}
-              >
-                <NotificationMenu />
-
-                <Tooltip
-                  title="About Developers"
+            {/* Link section */}
+            <Stack
+              direction={"row"}
+              alignItems={"center"}
+              spacing={2}
+              sx={{
+                display: { xs: "none", sm: "none", md: "flex", lg: "flex" },
+              }}
+            >
+              <Link href={"/dashboard/repository/research-library"}>
+                <Button
                   sx={{
-                    display: {
-                      xs: "none",
-                      sm: "none",
-                      md: "flex",
-                      lg: "flex",
-                      xl: "flex",
+                    backgroundColor:
+                      selectedNav === "repository" ? "#CFCFCF" : "transparent",
+                    fontWeight: selectedNav === "repository" ? "550" : "500",
+                    paddingLeft: "1rem",
+                    paddingRight: "1rem",
+                    ":hover": {
+                      backgroundColor: "rgba(0, 0, 0, 0.1)",
                     },
                   }}
                 >
-                  <IconButton onClick={handleOpenCredits}>
-                    <InfoIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-                {!isSmallScreen && (
-                  <Credits open={openCredits} onClose={handleCloseCredits} />
-                )}
-                {!isSmallScreen && (
                   <Typography
-                    variant="h6"
-                    component="h6"
+                    variant="h5"
                     sx={{
-                      color: "black",
-                      fontWeight: "500",
-                      marginRight: "0.5rem",
+                      textTransform: "none",
+                      color: "text.primary",
                     }}
                   >
-                    {session?.user?.name ?? <small>Loading...</small>}
+                    {" "}
+                    Repository
                   </Typography>
-                )}
-
-                <Avatar
-                  onClick={openMenu}
-                  alt={session?.user.name}
-                  src={session?.user.image}
+                </Button>
+              </Link>
+              <Link
+                href={
+                  session?.user?.role.RoleName === "HOD"
+                    ? "/dashboard/repository/hod-submission"
+                    : "/dashboard/repository/my-publications"
+                }
+              >
+                <Button
+                  onClick={handleClickOpenPopper("bottom")}
+                  onMouseEnter={handleClickOpenPopper("bottom")}
+                  onMouseLeave={() => {
+                    setOpen(false);
+                    setAnchorEls(null);
+                  }}
                   sx={{
-                    width: 42,
-                    height: 42,
-                    "&:hover": {
-                      cursor: "pointer",
-                      filter: "contrast(0.8)",
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: "10px",
+                    backgroundColor:
+                      selectedNav === "my-publications"
+                        ? "#CFCFCF"
+                        : "transparent",
+                    fontWeight:
+                      selectedNav === "my-publications" ? "550" : "500",
+                    paddingLeft: "1rem",
+                    paddingRight: "1rem",
+                    ":hover": {
+                      backgroundColor: "rgba(0, 0, 0, 0.1)",
                     },
                   }}
-                />
-                <Menu
-                  sx={{ width: "100%" }}
-                  id="menu-appbar"
-                  anchorEl={anchorEl}
-                  open={Boolean(anchorEl)}
-                  onClose={closeMenu}
                 >
-                  <MenuItem
-                    onClick={closeMenu}
-                    selected={false}
-                    autoFocus={false}
-                    disableGutters={true}
+                  <Typography
+                    variant="h5"
                     sx={{
-                      flexDirection: "column",
-                      justifyContent: "space-between",
-                      borderRadius: "1",
-                      padding: "0",
-                      "&.Mui-focusVisible": {
-                        backgroundColor: "transparent",
-                      },
+                      textTransform: "none",
+                      color: "text.primary",
                     }}
                   >
-                    <form className="m-0 p-0 flex" onSubmit={handleSignOut}>
-                      <Button
-                        type="submit"
+                    {" "}
+                    {session?.user?.role?.RoleName === "HOD"
+                      ? "Submissions"
+                      : "My Publications"}
+                  </Typography>
+                  {session?.user.role.RoleName === "HOD" &&
+                    (open ? (
+                      <KeyboardArrowUpIcon />
+                    ) : (
+                      <KeyboardArrowDownIcon />
+                    ))}
+                </Button>
+              </Link>
+              <Link href={"/dashboard/collaboration/groups"}>
+                <Button
+                  sx={{
+                    backgroundColor:
+                      selectedNav === "collaboration"
+                        ? "#CFCFCF"
+                        : "transparent",
+                    fontWeight: selectedNav === "collaboration" ? "550" : "500",
+                    paddingLeft: "1rem",
+                    paddingRight: "1rem",
+                    ":hover": {
+                      backgroundColor: "rgba(0, 0, 0, 0.1)",
+                    },
+                  }}
+                >
+                  <Typography
+                    variant="h5"
+                    sx={{
+                      textTransform: "none",
+                      color: "text.primary",
+                    }}
+                  >
+                    {" "}
+                    Collaboration
+                  </Typography>
+                </Button>
+              </Link>
+              <Link href={"/dashboard/schedule"}>
+                <Button
+                  sx={{
+                    backgroundColor:
+                      selectedNav === "schedule" ? "#CFCFCF" : "transparent",
+                    fontWeight: selectedNav === "schedule" ? "550" : "500",
+                    paddingLeft: "1rem",
+                    paddingRight: "1rem",
+                    ":hover": {
+                      backgroundColor: "rgba(0, 0, 0, 0.1)",
+                    },
+                  }}
+                >
+                  <Typography
+                    variant="h5"
+                    sx={{
+                      textTransform: "none",
+                      color: "text.primary",
+                    }}
+                  >
+                    {" "}
+                    Schedule
+                  </Typography>
+                </Button>
+              </Link>
+            </Stack>
+
+            {/* User section */}
+            <Stack
+              direction={"row"}
+              alignItems={"center"}
+              gap={2}
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <NotificationMenu />
+
+              <Tooltip
+                title="About Developers"
+                sx={{
+                  display: {
+                    xs: "none",
+                    sm: "none",
+                    md: "flex",
+                    lg: "flex",
+                    xl: "flex",
+                  },
+                }}
+              >
+                <IconButton onClick={handleOpenCredits}>
+                  <InfoIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+              {!isSmallScreen && (
+                <Credits open={openCredits} onClose={handleCloseCredits} />
+              )}
+              {!isSmallScreen && (
+                <Typography
+                  variant="h6"
+                  component="h6"
+                  sx={{
+                    color: "black",
+                    fontWeight: "500",
+                    marginRight: "0.5rem",
+                  }}
+                >
+                  {session?.user?.name ?? <small>Loading...</small>}
+                </Typography>
+              )}
+
+              <Avatar
+                onClick={openMenu}
+                alt={session?.user.name}
+                src={session?.user.image}
+                sx={{
+                  width: 42,
+                  height: 42,
+                  "&:hover": {
+                    cursor: "pointer",
+                    filter: "contrast(0.8)",
+                  },
+                }}
+              />
+              <Menu
+                sx={{ width: "100%" }}
+                id="menu-appbar"
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={closeMenu}
+              >
+                <MenuItem
+                  onClick={closeMenu}
+                  selected={false}
+                  autoFocus={false}
+                  disableGutters={true}
+                  sx={{
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    borderRadius: "1",
+                    padding: "0",
+                    "&.Mui-focusVisible": {
+                      backgroundColor: "transparent",
+                    },
+                  }}
+                >
+                  <form className="m-0 p-0 flex" onSubmit={handleSignOut}>
+                    <Button
+                      type="submit"
+                      sx={{
+                        paddingLeft: "1rem",
+                        paddingRight: "1rem",
+                        ":hover": {
+                          backgroundColor: "rgba(0, 0, 0, 0.2)",
+                        },
+                      }}
+                    >
+                      <ListItemIcon>
+                        <Logout fontSize="small" color="warning" />
+                      </ListItemIcon>
+                      <Typography
+                        fontSize={"medium"}
+                        noWrap
+                        color={"warning.main"}
                         sx={{
-                          paddingLeft: "1rem",
-                          paddingRight: "1rem",
-                          ":hover": {
-                            backgroundColor: "rgba(0, 0, 0, 0.2)",
-                          },
+                          fontWeight: "500",
+                          textTransform: "capitalize",
                         }}
                       >
-                        <ListItemIcon>
-                          <Logout fontSize="small" color="warning" />
-                        </ListItemIcon>
-                        <Typography
-                          fontSize={"medium"}
-                          noWrap
-                          color={"warning.main"}
-                          sx={{
-                            fontWeight: "500",
-                            textTransform: "capitalize",
-                          }}
-                        >
-                          Logout
-                        </Typography>
-                      </Button>
-                    </form>
-                  </MenuItem>
-                </Menu>
-              </Stack>
+                        Logout
+                      </Typography>
+                    </Button>
+                  </form>
+                </MenuItem>
+              </Menu>
             </Stack>
           </Stack>
-        </Toolbar>
+        </Stack>
+        {/* </Toolbar> */}
       </AppBar>
       {/* </Box> */}
 
@@ -644,11 +640,15 @@ export default function DashboardNavbar({
                 zIndex: 1099,
                 // width: `calc(${DrawerWidth} - 100px)`,
                 width: {
-                  md: `calc(${DrawerWidth} - 100px)`,
+                  // md: `calc(${DrawerWidth} - 100px)`,
+                  md: DrawerWidth,
                   lg: DrawerWidth,
                   xl: DrawerWidth,
+                  "@media (min-width: 1200px)": {
+                    left: `max((100vw - 1700px) / 2 + 100px, 100px)`,
+                  },
                 },
-                left: "100px",
+                // left: "100px",
                 top: theme.spacing(8),
                 height: `calc(100% - ${theme.spacing(8)})`,
               };

@@ -10,7 +10,7 @@ import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { useSession } from "next-auth/react";
 import ScrollTop from "@/components/scroll-to-top";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { Box, Fab } from "@mui/material";
+import { Fab } from "@mui/material";
 export default function RepositoryLayout({
   children,
 }: {
@@ -60,14 +60,10 @@ export default function RepositoryLayout({
         </ScrollTop>
         <DashboardNavbar
           leftSideBar={
-            <>
-              <DashboardLeftSideBar sectionLists={repositorySideBarLists} />
-            </>
+            <DashboardLeftSideBar sectionLists={repositorySideBarLists} />
           }
           openDrawer={true}
         >
-          {/* <Box>test</Box> */}
-
           {children}
         </DashboardNavbar>
       </>
