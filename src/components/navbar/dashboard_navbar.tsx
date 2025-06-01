@@ -210,33 +210,13 @@ export default function DashboardNavbar({
   }, [isRepository]);
 
   return (
-    <Box
-      sx={{
-        paddingInline: { lg: "100px" },
-        overflow: "hidden",
-        height: "100%",
-      }}
-    >
+    <Box sx={{ flexGrow: 1, overflow: "hidden", height: "100%" }}>
       <AppBar
         position="fixed"
         color="transparent"
         sx={{
           backgroundColor: "transparent",
           boxShadow: "none",
-          width: {
-            xs: "none",
-            sm: "none",
-            md: "none",
-            lg: "calc(100% - 200px)",
-            xl: "calc(100% - 200px)",
-          },
-          left: {
-            xs: "none",
-            sm: "none",
-            md: "none",
-            lg: "100px",
-            xl: "100px",
-          },
         }}
       >
         <Toolbar>
@@ -639,18 +619,13 @@ export default function DashboardNavbar({
               return {
                 position: "fixed",
                 backgroundColor: "transparent",
-                boxShadow: 0,
                 border: 0,
+                marginLeft: "20px",
+                // zIndex below appBar by 1
                 zIndex: 1099,
-                // width: `calc(${DrawerWidth} - 100px)`,
-                width: {
-                  md: `calc(${DrawerWidth} - 100px)`,
-                  lg: DrawerWidth,
-                  xl: DrawerWidth,
-                },
-                left: "100px",
-                top: theme.spacing(8),
-                height: `calc(100% - ${theme.spacing(8)})`,
+                width: DrawerWidth,
+                top: theme.spacing(8), // push content down to fix scrollbar position
+                height: `calc(100% - ${theme.spacing(8)})`, // subtract appbar height
               };
             },
           }}
@@ -776,7 +751,8 @@ export default function DashboardNavbar({
           flexDirection: "column",
           overflow: "hidden",
           height: "100%",
-          // paddingInline: "20px",
+          paddingLeft: "40px",
+          paddingRight: "20px",
         }}
       >
         {children}
