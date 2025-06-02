@@ -651,7 +651,7 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
             >
               <PDFViewer title={eachPaper.paper_info.research_title} />
             </Box> */}
-            <Box
+            {/* <Box
               sx={{
                 width: "100%",
                 display: "flex",
@@ -677,11 +677,10 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
                   />
                   {index !== relatedPapers.length - 1 && (
                     <Divider sx={{ my: 2 }} />
-                  )}{" "}
-                  {/* Add divider if more than one item */}
+                  )}
                 </Box>
               ))}
-            </Box>
+            </Box> */}
           </Box>
 
           <ScrollTop>
