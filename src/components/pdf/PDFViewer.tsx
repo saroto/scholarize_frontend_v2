@@ -22,6 +22,7 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
+import usePageStore from "@/stores/StorePageNumber";
 
 // pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 //   "pdfjs-dist/build/pdf.worker.min.mjs",
@@ -40,6 +41,8 @@ interface PDFViewerProps {
 
 const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
   const [numPages, setNumPages] = useState<number | null>(null);
+  const { pageNumber: pageNumberChat, setPageNumber: setPageNumberChat } =
+    usePageStore();
   const [pageNumber, setPageNumber] = useState<number | null>(1);
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [zoom, setZoom] = useState<number>(1.0);
@@ -56,6 +59,19 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
     setFileUrl(url || defaultFileUrl);
   }, [url]);
 
+  useEffect(() => {
+    if (pageNumberChat !== null) {
+      setPageNumber(pageNumberChat); // Set into local state
+      // Scroll to page
+      if (pageRefs.current[pageNumberChat - 1]) {
+        pageRefs.current[pageNumberChat - 1]?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }
+    }
+  }, [pageNumberChat]);
+
   console.log("file ur", fileUrl);
   const handleZoom = (factor: number, reset: boolean = false) => {
     setZoom((prevZoom) =>
@@ -65,6 +81,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
 
   const handlePageChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
+    setPageNumberChat(null);
 
     // Allow empty input (when the user deletes the content)
     if (value === "") {

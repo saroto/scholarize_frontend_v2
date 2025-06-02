@@ -21,6 +21,7 @@ import { GetChatSession } from "@/app/api/service/repo/chat/getChatSession";
 import { saveChatHistory } from "@/app/api/service/repo/chat/updateChatSession";
 import ChatModal from "../modal/ChatModal";
 import ChatSkeleton from "../skeleton/ChatSkeleton";
+import { Metadata, ExtendedMetadata } from "./TextMessage";
 interface SearchFormData {
   collection_name: string;
   query: string;
@@ -30,6 +31,7 @@ interface SearchFormData {
 interface ChatMessage {
   id: string;
   message: string;
+  metadata?: Metadata | ExtendedMetadata;
   sender: "user" | "bot";
   timestamp: Date;
   shouldStream?: boolean;
@@ -258,6 +260,7 @@ export default function ChatContainer() {
         const botMessage: ChatMessage = {
           id: (Date.now() + 1).toString(), // Add 1 to avoid duplicate IDs
           message: response.data.answer || "No answer found",
+          metadata: response.data.metadata || "No metadata found",
           sender: "bot",
           timestamp: new Date(),
           shouldStream: true, // Stream new messages
@@ -500,6 +503,7 @@ export default function ChatContainer() {
               <TextMessage
                 key={msg.id}
                 message={msg.message}
+                metadata={msg.metadata}
                 sender={msg.sender}
                 shouldStream={msg.shouldStream || false}
                 profileUrl={session?.user.image || ""}
