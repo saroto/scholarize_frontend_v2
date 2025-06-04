@@ -7,6 +7,7 @@ import { submissionsHodPaper, awaiting_paper } from "@/types";
 import { toast } from "react-toastify";
 import downloadResearchFiles from "@/app/api/service/downloadFiles";
 import DownloadIcon from "@mui/icons-material/Download";
+import CustomButton from "./customButton";
 interface DownloadButtonProps {
   submission?: submissionsHodPaper | awaiting_paper;
 }
@@ -42,42 +43,32 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({ submission }) => {
   };
 
   return (
-    <Box
+    <CustomButton
+      variant="contained"
+      size="small"
+      color="primary"
+      component="a"
       sx={{
-        display: "flex",
-        alignItems: "center",
-        borderRadius: "20px",
-        width: "100%",
+        px: "1rem",
+        borderRadius: "1rem",
+        textTransform: "none",
+        boxShadow: "none",
+        opacity: isDownloading ? 0.5 : 1,
       }}
+      disabled={isDownloading}
+      onClick={handleDownload}
     >
-      <Button
-        variant="contained"
-        component="a"
+      <DownloadIcon fontSize="small" />
+      <Typography
+        variant="h5"
         sx={{
-          fontSize: "14px",
-          borderRadius: "20px",
-          mr: 2,
-          backgroundColor: "#3572EF",
-          opacity: isDownloading ? 0.5 : 1,
-          transition: "opacity 0.3s ease",
-          "&:hover": {
-            backgroundColor: "#050C9C",
-          },
+          fontSize: "10px",
+          whiteSpace: "nowrap",
         }}
-        disabled={isDownloading}
-        onClick={handleDownload}
       >
-        <DownloadIcon sx={{ display: "flex", paddingRight: 1 }} />
-        <Typography
-          sx={{
-            marginLeft: 0.5,
-            fontSize: "1.1rem",
-          }}
-        >
-          {isDownloading ? "Downloading..." : "Download"}
-        </Typography>
-      </Button>
-    </Box>
+        {isDownloading ? "Downloading..." : "Download"}
+      </Typography>
+    </CustomButton>
   );
 };
 

@@ -103,7 +103,7 @@ export default function TextMessage({
       setDisplayedMessage("");
 
       let currentIndex = 0;
-      const typingSpeed = 0.5; // milliseconds per character
+      const typingSpeed = 0.1; // milliseconds per character
 
       const typeMessage = () => {
         if (currentIndex < message.length) {
