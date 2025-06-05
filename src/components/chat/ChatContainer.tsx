@@ -522,7 +522,6 @@ export default function ChatContainer() {
         )}
 
         <ChatInput
-          onClick={handleSendMessage}
           inputProps={{
             value: formData.query,
             onChange: handleQueryChange,
@@ -531,6 +530,7 @@ export default function ChatContainer() {
             disabled: isLoading,
           }}
           buttonProps={{
+            onClick: handleSendMessage,
             disabled: isLoading || !formData.query.trim(),
           }}
         />

@@ -755,8 +755,8 @@ export default function DashboardNavbar({
             xs: "20px",
             sm: "20px",
             md: "40px",
-            lg: "40px",
-            xl: "40px",
+            lg: drawer ? "40px" : "20px",
+            xl: drawer ? "40px" : "20px",
           },
 
           // paddingLeft: "40px",
