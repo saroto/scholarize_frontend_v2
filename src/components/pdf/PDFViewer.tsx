@@ -241,6 +241,16 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
             setIsError(true);
           }}
           error={<PDFNotFound />}
+          // options={{
+          //   // Optimize for mobile
+          //   cMapUrl: "https://unpkg.com/pdfjs-dist@3.11.174/cmaps/",
+          //   cMapPacked: true,
+          //   standardFontDataUrl:
+          //     "https://unpkg.com/pdfjs-dist@3.11.174/standard_fonts/",
+          //   // Reduce memory usage
+          //   disableAutoFetch: true,
+          //   disableStream: true,
+          // }}
         >
           {Array.from(new Array(numPages), (_, index) => (
             <Box

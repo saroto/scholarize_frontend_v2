@@ -9,6 +9,7 @@ import {
   Fab,
   useTheme,
   useMediaQuery,
+  IconButton,
 } from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
 import ArticleIcon from "@mui/icons-material/Article";
@@ -171,7 +172,7 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
   return (
     <>
       {eachPaper && eachPaper ? (
-        <div className="p-5 flex justify-center overflow-auto mb-4">
+        <div className="p-5 flex justify-center overflow-auto mb-4 relative">
           <Box
             sx={{
               width: isSmallScreen ? "100%" : "60%",
@@ -183,149 +184,45 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
             }}
           >
             <Grid container spacing={3}>
-              <Grid item container xs={12} gap={2}>
-                {/* reponsive button */}
-                {/* {eachPaper && (
-                  <Box
+              {/* <Box>
+                {!isSmallScreen && (
+                  <Button
+                    href="/dashboard/repository"
                     sx={{
+                      textDecoration: "none",
                       display: "flex",
+                      fontSize: "1rem",
                       flexDirection: "row",
                       gap: "10px",
+                      color: "#777777",
+                      ":hover": {
+                        textDecoration: "none",
+                        color: "black",
+                      },
                     }}
                   >
-                    <CustomButton
-                      disabled={isLoading}
-                      size="small"
-                      variant="contained"
-                      color="primary"
-                      startIcon={<DownloadIcon fontSize="small" />}
-                      onClick={() =>
-                        handleDownload(
-                          eachPaper.paper_info.pdf_path,
-                          eachPaper
-                          // eachPaper.paper_info.research_title
-                        )
-                      }
+                    <ArrowBackIcon />
+                    <Typography
+                      variant="h5"
                       sx={{
-                        px: "1rem",
-                        borderRadius: "1rem",
-                        textTransform: "none",
-                        boxShadow: "none",
+                        textDecoration: "none",
                       }}
                     >
-                      <Typography
-                        sx={{
-                          fontSize: "10px",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {isLoading ? "Loading..." : "Download"}
-                      </Typography>
-                    </CustomButton>
-                    <CustomButton
-                      onClick={() => {
-                        // Get existing chat sessions from localStorage
-                        const existingSessions =
-                          sessionStorage.getItem("chatSessions");
-                        let sessions = existingSessions
-                          ? JSON.parse(existingSessions)
-                          : [];
+                      Back
+                    </Typography>
+                  </Button>
+                )}
 
-                        // Create new session object
-                        const newSession = {
-                          paperID: eachPaper.paper_info.public_id,
-                          sessionId: sessionId,
-                          paperTitle: eachPaper.paper_info.research_title,
-                          pdfPath: eachPaper.paper_info.pdf_path,
-                          timestamp: new Date().toISOString(),
-                        };
-
-                        // Check if session already exists (avoid duplicates)
-                        const existingIndex = sessions.findIndex(
-                          (session: any) =>
-                            session.paperID === newSession.paperID &&
-                            session.sessionId === newSession.sessionId
-                        );
-
-                        if (existingIndex !== -1) {
-                          // Update existing session
-                          sessions[existingIndex] = newSession;
-                        } else {
-                          // Add new session to the beginning of array
-                          sessions.unshift(newSession);
-                        }
-
-                        // Store updated sessions array back to localStorage
-                        sessionStorage.setItem(
-                          "chatSessions",
-                          JSON.stringify(sessions)
-                        );
-
-                        // Navigate to the chat page
-                        router.push(
-                          `/dashboard/repository/viewpaper/${
-                            eachPaper.paper_info.pdf_path
-                          }/chat?title=${encodeURIComponent(
-                            eachPaper.paper_info.research_title
-                          )}&paperId=${
-                            eachPaper.paper_info.public_id
-                          }&sessionId=${sessionId}`
-                        );
-                      }}
-                      disabled={isLoading}
-                      size="small"
-                      variant="contained"
-                      color="primary"
-                      startIcon={<ChatIcon fontSize="small" />}
-                      sx={{
-                        px: "1rem",
-                        borderRadius: "1rem",
-                        textTransform: "none",
-                        boxShadow: "none",
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          fontSize: "10px",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        Chat Now
-                      </Typography>
-                    </CustomButton>
-                    <CustomButton
-                      size="small"
-                      variant="contained"
-                      startIcon={<PictureAsPdfIcon fontSize="small" />}
-                      color="primary"
-                      onClick={() =>
-                        router.push(
-                          `/dashboard/repository/viewpaper/${
-                            eachPaper.paper_info.pdf_path
-                          }/pdf?title=${encodeURIComponent(
-                            eachPaper.paper_info.research_title
-                          )}`
-                        )
-                      }
-                      sx={{
-                        px: "1rem",
-                        borderRadius: "1rem",
-                        textTransform: "none",
-                        boxShadow: "none",
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          fontSize: "10px",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        View PDF
-                      </Typography>
-                    </CustomButton>
-                  </Box>
-                )} */}
-
+                {isSmallScreen && (
+                  <IconButton
+                    href="/dashboard/repository/hod-submission"
+                    size="small"
+                  >
+                    <ArrowBackIcon sx={{ padding: 0, margin: 0 }} />
+                  </IconButton>
+                )}
+              </Box> */}
+              <Grid item container xs={12} gap={2}>
                 {/* title and tag */}
                 <Box
                   display={"flex"}
@@ -643,44 +540,6 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
                 </Box>
               </Grid>
             </Grid>
-            {/* <Box
-              sx={{
-                display: "flex",
-                height: "100%",
-              }}
-            >
-              <PDFViewer title={eachPaper.paper_info.research_title} />
-            </Box> */}
-            {/* <Box
-              sx={{
-                width: "100%",
-                display: "flex",
-                flexDirection: "column",
-                gap: "5px",
-              }}
-            >
-              <Typography
-                variant="h4"
-                sx={{
-                  fontWeight: 500,
-                  py: "10px",
-                }}
-              >
-                Related Paper
-              </Typography>
-
-              {relatedPapers.map((paper, index) => (
-                <Box key={index}>
-                  <RelatedCard
-                    title={paper.title}
-                    description={paper.description}
-                  />
-                  {index !== relatedPapers.length - 1 && (
-                    <Divider sx={{ my: 2 }} />
-                  )}
-                </Box>
-              ))}
-            </Box> */}
           </Box>
 
           <ScrollTop>

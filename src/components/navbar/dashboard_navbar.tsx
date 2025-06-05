@@ -751,7 +751,15 @@ export default function DashboardNavbar({
           flexDirection: "column",
           overflow: "hidden",
           height: "100%",
-          paddingLeft: "40px",
+          paddingLeft: {
+            xs: "20px",
+            sm: "20px",
+            md: "40px",
+            lg: drawer ? "40px" : "20px",
+            xl: drawer ? "40px" : "20px",
+          },
+
+          // paddingLeft: "40px",
           paddingRight: "20px",
         }}
       >

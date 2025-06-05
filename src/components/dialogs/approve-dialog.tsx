@@ -22,6 +22,7 @@ import { ApproveDialogProps } from "@/types";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import PersonIcon from "@mui/icons-material/Person";
+import ErrorIcon from "@mui/icons-material/Error";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialog-paper": {
@@ -102,7 +103,7 @@ const ApproveDialogs: React.FC<ApproveDialogProps> = ({
             <Stack>
               <Typography
                 gutterBottom
-                variant="h5"
+                variant="h4"
                 component="div"
                 color={"black"}
                 sx={{
@@ -146,6 +147,31 @@ const ApproveDialogs: React.FC<ApproveDialogProps> = ({
             </Stack>
           </Stack>
         </div>
+        <Box
+          sx={{
+            backgroundColor: "rgba(0, 102, 204, 0.1)",
+            padding: "8px",
+            borderRadius: "8px",
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            {" "}
+            <ErrorIcon />
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: 500,
+              }}
+            >
+              Noted
+            </Typography>
+          </Box>
+          <Typography variant="h5" sx={{ marginTop: "8px" }}>
+            After your paper is approved, please allow 5–7 minutes for
+            processing. You will be notified via email when the search is
+            successful or if any issues occur.
+          </Typography>
+        </Box>
       </DialogContent>
       <DialogActions>
         <Button
