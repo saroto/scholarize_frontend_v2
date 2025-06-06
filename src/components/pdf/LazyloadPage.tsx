@@ -10,6 +10,7 @@ interface LazyPDFPageProps {
   onPageVisible?: (pageNumber: number) => void;
   isZooming?: boolean;
   isNavigation?: boolean;
+  onPageRenderComplete?: (pageNumber: number) => void;
 }
 
 export const LazyPDFPage = memo<LazyPDFPageProps>(
@@ -20,6 +21,7 @@ export const LazyPDFPage = memo<LazyPDFPageProps>(
     isZooming,
     onPageVisible,
     isNavigation = false,
+    onPageRenderComplete,
   }) => {
     const [shouldLoad, setShouldLoad] = useState(false);
     const [isPageLoading, setIsPageLoading] = useState(false);
@@ -35,7 +37,7 @@ export const LazyPDFPage = memo<LazyPDFPageProps>(
           }
         },
         {
-          rootMargin: "200px 0px",
+          rootMargin: "2000px 0px",
           threshold: 0.1,
         }
       );
@@ -104,7 +106,10 @@ export const LazyPDFPage = memo<LazyPDFPageProps>(
               renderTextLayer={!isZooming}
               renderAnnotationLayer={!isZooming}
               onLoadStart={() => setIsPageLoading(true)}
-              onLoadSuccess={() => setIsPageLoading(false)}
+              onLoadSuccess={() => {
+                setIsPageLoading(false);
+                // onPageRenderComplete?.(pageNumber);
+              }}
               onLoadError={() => setIsPageLoading(false)}
             />
           </Box>

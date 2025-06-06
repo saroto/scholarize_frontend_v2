@@ -89,15 +89,40 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
     }
   };
 
-  const [isNavigate, setIsNavigate] = useState(false);
+  // const [isNavigate, setIsNavigate] = useState(false);
   useEffect(() => {
-    setIsNavigate(true);
-    if (pageNumber !== null && pageRefs.current[pageNumber - 1]) {
-      pageRefs.current[pageNumber - 1]?.scrollIntoView({
+    if (pageNumber === null || !pageRefs.current[pageNumber - 1]) return;
+
+    // setIsNavigate(true);
+
+    const target = pageRefs.current[pageNumber - 1];
+
+    const scrollToPage = () => {
+      target?.scrollIntoView({
         behavior: "smooth",
         block: "start",
       });
-    }
+    };
+
+    // Initial scroll
+    scrollToPage();
+
+    // Check again after a delay
+    const timeout = setTimeout(() => {
+      if (!target) return;
+      const rect = target.getBoundingClientRect();
+      const isFullyVisible =
+        rect.top >= 0 &&
+        rect.bottom <=
+          (window.innerHeight || document.documentElement.clientHeight);
+
+      if (!isFullyVisible) {
+        // Try scrolling again
+        scrollToPage();
+      }
+    }, 1000); // delay in ms, adjust as needed
+
+    return () => clearTimeout(timeout);
   }, [pageNumber]);
   return (
     <div
@@ -179,7 +204,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
                   calculatedWidth={calculatedWidth}
                   isSmallScreen={isSmallScreen}
                   isZooming={isZooming}
-                  isNavigation={isNavigate}
+                  // isNavigation={isNavigate}
                 />
               </Box>
             ))}
