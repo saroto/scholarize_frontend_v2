@@ -2,7 +2,7 @@
 
 import { Document, Page } from "react-pdf";
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import { pdfjs } from "react-pdf";
 import {
   Box,
@@ -22,6 +22,8 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
+import { useZoomWithLoading, MinimalZoomControls } from "./Zoom";
+import { LazyPDFPage } from "./LazyloadPage";
 
 // pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 //   "pdfjs-dist/build/pdf.worker.min.mjs",
@@ -40,11 +42,14 @@ interface PDFViewerProps {
 
 const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
   const [numPages, setNumPages] = useState<number | null>(null);
-  const [pageNumber, setPageNumber] = useState<number | null>(1);
+  const [pageNumber, setPageNumber] = useState<number | null>(0);
+  const [inputValue, setInputValue] = useState<number | null>(null);
   const [fileUrl, setFileUrl] = useState<string | null>(null);
-  const [zoom, setZoom] = useState<number>(1.0);
+  // const [zoom, setZoom] = useState<number>(1.0);
+  const baseWidth = 500;
   const [isError, setIsError] = useState<boolean>(false);
-
+  const { zoom, calculatedWidth, isZooming, zoomIn, zoomOut, resetZoom } =
+    useZoomWithLoading(baseWidth);
   console.log("zoom", zoom);
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
   const theme = useTheme();
@@ -57,14 +62,11 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
   }, [url]);
 
   console.log("file ur", fileUrl);
-  const handleZoom = (factor: number, reset: boolean = false) => {
-    setZoom((prevZoom) =>
-      reset ? 1 : Math.max(0.5, Math.min(prevZoom + factor, 3))
-    );
-  };
 
   const handlePageChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
+    console.log("handlePageChange value", value);
+    // setPageNumberChat(null);
 
     // Allow empty input (when the user deletes the content)
     if (value === "") {
@@ -79,28 +81,49 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
     }
   };
 
+  // Handle Enter key press - this triggers navigation
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      // navigateToPage();
+    }
+  };
+
+  // const [isNavigate, setIsNavigate] = useState(false);
   useEffect(() => {
-    if (pageNumber !== null && pageRefs.current[pageNumber - 1]) {
-      pageRefs.current[pageNumber - 1]?.scrollIntoView({
+    if (pageNumber === null || !pageRefs.current[pageNumber - 1]) return;
+
+    // setIsNavigate(true);
+
+    const target = pageRefs.current[pageNumber - 1];
+
+    const scrollToPage = () => {
+      target?.scrollIntoView({
         behavior: "smooth",
         block: "start",
       });
-    }
+    };
+
+    // Initial scroll
+    scrollToPage();
+
+    // Check again after a delay
+    const timeout = setTimeout(() => {
+      if (!target) return;
+      const rect = target.getBoundingClientRect();
+      const isFullyVisible =
+        rect.top >= 0 &&
+        rect.bottom <=
+          (window.innerHeight || document.documentElement.clientHeight);
+
+      if (!isFullyVisible) {
+        // Try scrolling again
+        scrollToPage();
+      }
+    }, 1000); // delay in ms, adjust as needed
+
+    return () => clearTimeout(timeout);
   }, [pageNumber]);
-  let calculatedWidth;
-
-  if (typeof width === "number") {
-    // If 'width' is passed as a number, apply zoom and ensure it's not greater than 500
-    calculatedWidth = Math.min(width, 500);
-  } else if (isSmallScreen) {
-    // If it's a small screen and width is not passed, apply the zoom with a base of 350px
-    calculatedWidth = 350 * zoom;
-  } else {
-    // If it's not a small screen and width is not passed, apply the zoom with a base of 500px
-    calculatedWidth = 500 * zoom;
-  }
-
-  console.log("page number", zoom);
   return (
     <div
       style={{
@@ -132,76 +155,19 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
         >
           {title + ".pdf"}
         </Typography>
-        {isError === false && (
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              gap: "10px",
-              paddingBottom: "10px",
-            }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                gap: "10px",
-                borderRadius: "8px",
-                border: "1px solid ",
-                borderColor: "#ddd",
-                backgroundColor: "background.paper",
-              }}
-            >
-              {/* Zoom Out Button */}
-              <IconButton size="small" onClick={() => handleZoom(-0.2)}>
-                <RemoveIcon fontSize="small" />
-              </IconButton>
-              {/* reset Button */}
-              <IconButton size="small" onClick={() => handleZoom(-0.2, true)}>
-                <RestartAltIcon fontSize="small" />
-              </IconButton>
-              {/* Zoom In Button */}
-              <IconButton size="small" onClick={() => handleZoom(0.2)}>
-                <AddIcon fontSize="small" />
-              </IconButton>
-            </Box>
-            {/* Manual Page Input */}
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                gap: "10px",
-                alignItems: "center",
-              }}
-            >
-              {" "}
-              <TextField
-                type="text"
-                value={pageNumber}
-                onChange={handlePageChange}
-                sx={{
-                  borderColor: "#ddd",
-                  width: 50,
-                  height: 30,
-                  "& .MuiInputBase-root": {
-                    height: 30,
-                    fontSize: "0.83rem",
-                    padding: "0 8px",
-                    fontWeight: 500,
-                  },
-                  "& .MuiOutlinedInput-input": {
-                    textAlign: "center",
-                    padding: "5px",
-                  },
-                }}
-                inputProps={{ maxLength: 3 }}
-              />
-              <Typography variant="h5" sx={{ fontWeight: 500 }}>
-                {" / " + numPages}
-              </Typography>
-            </Box>
-          </Box>
-        )}
+        {/* Zoom Controls */}
+        <MinimalZoomControls
+          zoom={zoom}
+          isZooming={isZooming}
+          zoomIn={zoomIn}
+          zoomOut={zoomOut}
+          resetZoom={resetZoom}
+          inputValue={pageNumber || null}
+          handleInputChange={handlePageChange}
+          onkeyPress={handleKeyPress}
+          // navigate={navigateToPage}
+          numPages={numPages || 1}
+        />
       </Container>
 
       <Box
@@ -214,52 +180,36 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
           overflowY: "auto",
         }}
       >
-        <Document
-          file={fileUrl}
-          loading={<PDFSkeleton />}
-          onLoadSuccess={({ numPages }) => {
-            setNumPages(numPages);
-          }}
-          onLoadError={() => {
-            setIsError(true);
-          }}
-          error={<PDFNotFound />}
-        >
-          {Array.from(new Array(numPages), (_, index) => (
-            <Box
-              key={index}
-              ref={(el) => {
-                pageRefs.current[index] = el as HTMLDivElement | null;
-              }}
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "10px",
-                marginBlock: "10px",
-                width: "100%",
-                boxShadow: "0px 0px 2px 0px rgba(0,0,0,0.1)",
-                // opacity: pageNumber === index + 1 ? 1 : 0.5,
-              }}
-            >
-              <Page
-                loading={
-                  <Skeleton
-                    variant="rectangular"
-                    height={20}
-                    sx={{
-                      minWidth: isSmallScreen ? "380px" : "500px",
-                    }}
-                  />
-                }
-                pageNumber={index + 1}
-                width={calculatedWidth}
-                renderTextLayer={true}
-                renderAnnotationLayer={true}
-                //   className="pdf-page"
-              />
-            </Box>
-          ))}
-        </Document>
+        <Box>
+          {/* PDF Document */}
+          <Document
+            file={fileUrl}
+            onLoadError={() => {
+              setIsError(true);
+            }}
+            onLoadSuccess={({ numPages }) => setNumPages(numPages)}
+            loading={<PDFSkeleton />}
+            error={<PDFNotFound />}
+          >
+            {Array.from(new Array(numPages), (_, index) => (
+              <Box
+                key={index}
+                ref={(el) => {
+                  pageRefs.current[index] = el as HTMLDivElement | null;
+                }}
+              >
+                <LazyPDFPage
+                  key={index}
+                  pageNumber={index + 1}
+                  calculatedWidth={calculatedWidth}
+                  isSmallScreen={isSmallScreen}
+                  isZooming={isZooming}
+                  // isNavigation={isNavigate}
+                />
+              </Box>
+            ))}
+          </Document>
+        </Box>
       </Box>
     </div>
   );
