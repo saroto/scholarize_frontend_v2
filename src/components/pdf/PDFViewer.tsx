@@ -2,7 +2,7 @@
 
 import { Document, Page } from "react-pdf";
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import { pdfjs } from "react-pdf";
 import {
   Box,
@@ -23,6 +23,8 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
+import { useZoomWithLoading, MinimalZoomControls } from "./Zoom";
+import { LazyPDFPage } from "./LazyloadPage";
 import usePageStore from "@/stores/StorePageNumber";
 import {
   TransformWrapper,
@@ -58,7 +60,8 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
   setNumPages,
 }) => {
   const [fileUrl, setFileUrl] = useState<string | null>(null);
-  const [zoom, setZoom] = useState<number>(1.0);
+  // const [zoom, setZoom] = useState<number>(1.0);
+  const baseWidth = 500;
   const [isError, setIsError] = useState<boolean>(false);
   console.log("zoom", zoom);
   // const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
