@@ -7,6 +7,10 @@ import {
   Stack,
   Button,
   Typography,
+  useTheme,
+  useMediaQuery,
+  IconButton,
+  Divider,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import RejectDialog from "@/components/dialogs/reject-dialog";
@@ -43,6 +47,7 @@ export default function submissionPreview({
   const handleRejectDialogClose = () => {
     setIsRejectDialogOpen(false);
   };
+
   const handleOpenRejectDialog = () => {
     if (submissionHodPaper) {
       const rejectData = {
@@ -90,6 +95,8 @@ export default function submissionPreview({
     }
   }, [session?.user.token, id]);
 
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
   // const dept = submissionHodPaper?.paper.departments
   //   .map((department) => department.department_name)
   //   .join(", ");
@@ -100,94 +107,139 @@ export default function submissionPreview({
       </div>
     );
   return (
-    <Box sx={{ width: "100%", padding: 4, overflowY: "auto" }}>
-      <FormControl fullWidth>
-        <Button
-          href="/dashboard/repository/hod-submission"
+    <div className="p-5 flex justify-center overflow-auto mb-4">
+      <Box
+        sx={{
+          width: isSmallScreen ? "100%" : "60%",
+          display: "flex",
+          height: "100%",
+          flexDirection: "column",
+          gap: "10px",
+          alignItems: "center",
+        }}
+      >
+        <Box
           sx={{
-            textDecoration: "none",
-            alignItems: "center",
             display: "flex",
-            height: "auto",
-            position: "absolute",
-            fontSize: "1rem",
-            color: "#777777",
-            ":hover": {
-              textDecoration: "none",
-              color: "black",
-            },
-          }}
-        >
-          <ArrowBackIcon sx={{ padding: 0, margin: 0 }}></ArrowBackIcon>
-          <Typography sx={{ display: "flex" }}>BACK</Typography>
-        </Button>
-        <Typography
-          variant="h4"
-          sx={{
-            marginBottom: 3,
-            textAlign: "center",
             alignItems: "center",
-            fontWeight: "550",
+            justifyContent: "space-between", // Distributes left and right properly
+            width: "100%", // Ensure it spans the full width
+            position: "relative", // For absolute positioning inside
           }}
         >
-          Submission Preview
-        </Typography>
+          {!isSmallScreen && (
+            <Button
+              href="/dashboard/repository/hod-submission"
+              sx={{
+                textDecoration: "none",
+                alignItems: "center",
+                display: "flex",
+                fontSize: "1rem",
+                color: "#777777",
+                ":hover": {
+                  textDecoration: "none",
+                  color: "black",
+                },
+              }}
+            >
+              <ArrowBackIcon sx={{ padding: 0, margin: 0 }} />
+              <Typography sx={{ display: "flex" }}>BACK</Typography>
+            </Button>
+          )}
 
-        <ViewPaper viewPaper={submissionHodPaper} />
-      </FormControl>
+          {isSmallScreen && (
+            <IconButton
+              href="/dashboard/repository/hod-submission"
+              size="small"
+            >
+              <ArrowBackIcon sx={{ padding: 0, margin: 0 }} />
+            </IconButton>
+          )}
 
-      {/* <Stack direction="column">
+          <Typography
+            variant="h4"
+            sx={{
+              textAlign: "center",
+              fontWeight: 550,
+              margin: "0 auto", // Centered within flex
+            }}
+          >
+            Submission Preview
+          </Typography>
+
+          {/* Optional: Placeholder to balance space */}
+          <Box sx={{ width: "80px" }}></Box>
+        </Box>
+
+        <Divider
+          sx={{
+            width: "100%",
+          }}
+        />
+        <FormControl fullWidth>
+          <ViewPaper viewPaper={submissionHodPaper} />
+        </FormControl>
+
+        {/* <Stack direction="column">
         <InputLabel id="rich-text" sx={{ color: "black", fontWeight: "550" }}>
           FULL TEXT
         </InputLabel>
       </Stack> */}
 
-      {/* <Stack direction="column" sx={{ marginTop: 2 }} width={"100%"}>
+        {/* <Stack direction="column" sx={{ marginTop: 2 }} width={"100%"}>
         <RichText rich_text={submissionHodPaper?.full_text} />
       </Stack> */}
 
-      <Box
-        sx={{
-          justifyContent: "center",
-          display: "flex",
-          marginTop: 3,
-          marginBottom: 4,
-        }}
-      >
-        <Button
-          type="submit"
-          variant="contained"
-          color="success"
-          onClick={handleOpenApproveDialog}
-        >
-          Approve
-        </Button>
-        <Button
-          type="submit"
-          variant="contained"
-          color="error"
+        <Box
           sx={{
-            marginLeft: 2,
+            justifyContent: "center",
+            display: "flex",
+            marginTop: 3,
+            marginBottom: 4,
           }}
-          onClick={handleOpenRejectDialog}
         >
-          Reject
-        </Button>
-        {isApprovalDialogOpen && approveData && (
-          <ApproveDialog
-            open={isApprovalDialogOpen}
-            onClose={handleApproveDialogClose}
-            approve={approveData}
-          />
-        )}
-        {isRejectDialogOpen && rejectData && (
-          <RejectDialog
-            open={isRejectDialogOpen}
-            onClose={handleRejectDialogClose}
-            reject={rejectData}
-          />
-        )}
+          <Button
+            type="submit"
+            variant="contained"
+            color="success"
+            onClick={handleOpenApproveDialog}
+            sx={{
+              borderRadius: "16px",
+              color: "white",
+              boxShadow: "none",
+            }}
+          >
+            Approve
+          </Button>
+          <Button
+            type="submit"
+            variant="contained"
+            color="error"
+            sx={{
+              borderRadius: "16px",
+              marginLeft: 2,
+              boxShadow: "none",
+            }}
+            onClick={handleOpenRejectDialog}
+          >
+            Reject
+          </Button>
+          {isApprovalDialogOpen && approveData && (
+            <ApproveDialog
+              open={isApprovalDialogOpen}
+              onClose={handleApproveDialogClose}
+              approve={approveData}
+            />
+          )}
+          {isRejectDialogOpen && rejectData && (
+            <RejectDialog
+              open={isRejectDialogOpen}
+              onClose={handleRejectDialogClose}
+              reject={rejectData}
+            />
+          )}
+        </Box>
       </Box>
-    </Box>
+    </div>
   );
 }

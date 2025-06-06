@@ -24,6 +24,7 @@ import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import { useZoomWithLoading, MinimalZoomControls } from "./Zoom";
 import { LazyPDFPage } from "./LazyloadPage";
+import usePageStore from "@/stores/StorePageNumber";
 
 // pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 //   "pdfjs-dist/build/pdf.worker.min.mjs",
@@ -42,8 +43,11 @@ interface PDFViewerProps {
 
 const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
   const [numPages, setNumPages] = useState<number | null>(null);
-  const [pageNumber, setPageNumber] = useState<number | null>(0);
+<!--   const [pageNumber, setPageNumber] = useState<number | null>(0); -->
   const [inputValue, setInputValue] = useState<number | null>(null);
+  const { pageNumber: pageNumberChat, setPageNumber: setPageNumberChat } =
+    usePageStore();
+  const [pageNumber, setPageNumber] = useState<number | null>(1);
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   // const [zoom, setZoom] = useState<number>(1.0);
   const baseWidth = 500;
@@ -61,12 +65,24 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
     setFileUrl(url || defaultFileUrl);
   }, [url]);
 
+  useEffect(() => {
+    if (pageNumberChat !== null) {
+      setPageNumber(pageNumberChat); // Set into local state
+      // Scroll to page
+      if (pageRefs.current[pageNumberChat - 1]) {
+        pageRefs.current[pageNumberChat - 1]?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }
+    }
+  }, [pageNumberChat]);
+
   console.log("file ur", fileUrl);
 
   const handlePageChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
-    console.log("handlePageChange value", value);
-    // setPageNumberChat(null);
+    setPageNumberChat(null);
 
     // Allow empty input (when the user deletes the content)
     if (value === "") {

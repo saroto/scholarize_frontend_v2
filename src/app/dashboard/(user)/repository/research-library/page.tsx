@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function RepositoryResearchLibrary() {
   return (
-    <Container
+    <Box
       sx={{
         height: "100%",
         display: "flex",
@@ -42,6 +42,6 @@ export default function RepositoryResearchLibrary() {
       >
         <ResearchPaperCard fetchType="all" />
       </Box>
-    </Container>
+    </Box>
   );
 }

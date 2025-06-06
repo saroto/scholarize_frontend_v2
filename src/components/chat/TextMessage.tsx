@@ -1,6 +1,14 @@
-import { Box, Avatar, Typography, keyframes } from "@mui/material";
+import {
+  Box,
+  Avatar,
+  Typography,
+  keyframes,
+  IconButton,
+  Stack,
+} from "@mui/material";
 import ReactMarkdown from "react-markdown";
 import { useState, useEffect } from "react";
+import usePageStore from "@/stores/StorePageNumber";
 
 // Keyframes for the loading dots animation
 const loadingDots = keyframes`
@@ -15,8 +23,28 @@ const loadingDots = keyframes`
   }
 `;
 
+// Basic metadata interface
+export interface Metadata {
+  page: string;
+}
+
+// Extended metadata interface with optional properties
+export interface ExtendedMetadata {
+  page: string;
+  title?: string;
+  author?: string;
+  source?: string;
+  date?: string;
+  document_id?: string;
+  total_pages?: number;
+  file_type?: string;
+  file_size?: string;
+  keywords?: string[];
+  summary?: string;
+}
 interface TextMessageProps {
   message: string;
+  metadata?: Metadata | ExtendedMetadata;
   sender: "user" | "bot";
   isLoading?: boolean;
   onContentUpdate?: () => void;
@@ -26,6 +54,7 @@ interface TextMessageProps {
 
 export default function TextMessage({
   message,
+  metadata,
   sender,
   isLoading = false,
   shouldStream,
@@ -35,8 +64,9 @@ export default function TextMessage({
   const isUser = sender === "user";
   const [displayedMessage, setDisplayedMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const { pageNumber: pageNumberChat, setPageNumber } = usePageStore();
   console.log("ee", message);
-
+  console.log("meta", metadata);
   console.log("stream", shouldStream);
   // Call onContentUpdate when displayedMessage changes (during streaming)
   useEffect(() => {
@@ -73,7 +103,7 @@ export default function TextMessage({
       setDisplayedMessage("");
 
       let currentIndex = 0;
-      const typingSpeed = 0.5; // milliseconds per character
+      const typingSpeed = 0.1; // milliseconds per character
 
       const typeMessage = () => {
         if (currentIndex < message.length) {
@@ -89,6 +119,13 @@ export default function TextMessage({
     }
   }, [message, isUser, isLoading, shouldStream]);
 
+  // When Zustand pageNumberChat changes, update pageNumbers accordingly
+  useEffect(() => {
+    if (pageNumberChat === null) {
+      setSelectedPage(null);
+    }
+  }, [pageNumberChat]);
+
   const formatMessage = (message: string) => {
     if (typeof message !== "string") {
       return JSON.stringify(message, null, 2);
@@ -102,6 +139,32 @@ export default function TextMessage({
   };
 
   console.log("displayedMessage", displayedMessage);
+  const [selectedPage, setSelectedPage] = useState<number | null>(null);
+
+  const getPageNumbers = (): number[] => {
+    if (!metadata?.page) return [];
+
+    const pages: number[] = metadata.page
+      .split(",")
+      .map((page: string) => page.trim())
+      .filter((page: string) => page && !isNaN(Number(page)))
+      .map((page: string) => parseInt(page, 10));
+
+    return [...new Set(pages)].sort((a: number, b: number) => a - b);
+  };
+
+  const pageNumbers: number[] = getPageNumbers();
+
+  const handlePageClick = (pageNumber: number): void => {
+    setSelectedPage(pageNumber);
+    onPageClick?.(pageNumber);
+  };
+
+  const onPageClick = (pageNumber: number): void => {
+    // Handle page click logic here, e.g., navigate to a specific page in the document
+    console.log(`Page ${pageNumber} clicked`);
+    setPageNumber(pageNumber);
+  };
   return (
     <Box
       sx={{
@@ -191,10 +254,53 @@ export default function TextMessage({
               {typeof displayedMessage === "string"
                 ? displayedMessage
                 : JSON.stringify(displayedMessage)}
-              {/* {typeof displayedMessage === "string"
-                ? displayedMessage
-                : formatMessage(displayedMessage)} */}
             </ReactMarkdown>
+
+            {sender === "bot" && (
+              <Box sx={{ mb: 2 }}>
+                <Stack direction="row" spacing={1} flexWrap="wrap">
+                  {pageNumbers.map((pageNumber) => (
+                    <IconButton
+                      key={pageNumber}
+                      onClick={() => handlePageClick(pageNumber)}
+                      size="small"
+                      sx={{
+                        backgroundColor:
+                          selectedPage === pageNumber
+                            ? "primary.main"
+                            : "grey.100",
+                        color:
+                          selectedPage === pageNumber
+                            ? "white"
+                            : "primary.main",
+                        border: 1,
+                        borderColor:
+                          selectedPage === pageNumber
+                            ? "primary.main"
+                            : "grey.300",
+                        "&:hover": {
+                          backgroundColor:
+                            selectedPage === pageNumber
+                              ? "primary.dark"
+                              : "primary.light",
+                          color: "white",
+                        },
+
+                        width: 24,
+                        height: 24,
+                        padding: 0,
+                        fontSize: "10px",
+                        fontWeight: 600,
+                        borderRadius: "50%",
+                      }}
+                    >
+                      {pageNumber}
+                    </IconButton>
+                  ))}
+                </Stack>
+              </Box>
+            )}
+
             {/* Show blinking cursor while typing */}
             {isTyping && !isUser && (
               <Box

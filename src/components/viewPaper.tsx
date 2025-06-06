@@ -11,157 +11,186 @@ export default function ViewPaper({
   viewPaper: awaiting_paper | submissionsHodPaper;
 }) {
   return (
-    <div className="flex justify-center pb-3">
-      <Box
-        sx={{
-          border: "1px solid",
-          borderColor: "#ddd",
-          borderRadius: "16px",
-          width: "100%",
-          backgroundColor: "#fff",
-        }}
-      >
-        <Grid container sx={{ padding: 5 }} spacing={3}>
-          <Grid item container>
-            {viewPaper?.paper?.departments?.map((department) => (
-              <Chip
-                label={department?.department_tag}
-                size="medium"
-                sx={{
-                  marginRight: 1,
-                  display: "flex",
-                  backgroundColor: department?.department_color,
-                  color: "#fff",
-                  fontSize: "1.2rem",
-                  my: 0.5,
-                }}
-                key={department?.department_id}
-              ></Chip>
-            ))}
-          </Grid>
-
-          <Grid item container xs={12}>
-            <Box width={"100%"}>
-              <Typography
-                variant="h4"
-                key={viewPaper?.paper?.research_paper_id}
-                fontWeight={"bold"}
-                color={"#2F2F85"}
-                sx={{
-                  textTransform: "capitalize",
-                  textWrap: "wrap",
-                  wordWrap: "break-word",
-                }}
-              >
-                {viewPaper?.paper?.research_title}
-              </Typography>
-            </Box>
-          </Grid>
-
-          <Grid
-            item
-            container
+    // <div className="flex justify-center pb-3">
+    <Box
+      sx={{
+        width: "100%",
+        display: "flex",
+        height: "100%",
+        flexDirection: "column",
+        gap: "16px",
+      }}
+    >
+      <Grid item xs={12}>
+        <Box
+          width={"100%"}
+          sx={{
+            width: "100%",
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: "10px",
+          }}
+        >
+          <Typography
+            variant="h4"
+            key={viewPaper?.paper?.research_paper_id}
+            fontWeight={"bold"}
             sx={{
-              display: "flex",
-              gap: 4,
-              alignItems: "center",
+              textTransform: "capitalize",
+              textWrap: "wrap",
+              wordWrap: "break-word",
             }}
           >
-            <Box display={"flex"} sx={{ justifyContent: "center" }}>
-              <ArticleIcon sx={{ display: "flex" }} />
-              <Typography
-                sx={{
-                  marginLeft: 0.7,
-                  fontSize: "1.1rem",
-                  fontWeight: "550",
-                }}
-              >
-                {viewPaper?.paper?.research_type.ResearchTypeName}
-              </Typography>
-            </Box>
-          </Grid>
-          <Grid item container>
-            <Box display={"flex"}>
-              <PermIdentityIcon sx={{ display: "flex" }} />
-              <Typography
-                sx={{
-                  marginLeft: 0.7,
-                  fontSize: "1.1rem",
-                  // fontStyle: "italic",
-                }}
-              >
-                {viewPaper?.paper?.author}
-              </Typography>
-            </Box>
-          </Grid>
-          <Grid item container>
-            <Box display={"flex"}>
-              <CalendarMonthIcon sx={{ display: "flex" }} />
-              <Typography sx={{ marginLeft: 0.7, fontSize: "1.1rem" }}>
-                {viewPaper?.paper?.published_at}
-              </Typography>
-            </Box>
-          </Grid>
-          {viewPaper?.paperInfo?.Advisor !== "None" && (
-            <Grid item container>
-              <Box component="span" mr={1}>
-                <Typography sx={{ fontWeight: "bold" }}>Advisor: </Typography>
-              </Box>
-              <Typography sx={{ fontSize: "1.1rem" }}>
-                {/* <span className="font-bold">Advisor: </span> */}
-                {viewPaper?.paperInfo?.Advisor}
-              </Typography>
-            </Grid>
-          )}
-
-          <Grid item container>
-            <Box component="span" mr={1}>
-              <Typography sx={{ fontWeight: "bold" }}>Keyword: </Typography>
-            </Box>
-            <Typography sx={{ fontSize: "1.1rem" }}>
-              {/* <span className="font-bold">Tag: </span> */}
-              {viewPaper?.paperInfo?.Tag}
-            </Typography>
-          </Grid>
-          <Grid item container>
-            <Stack
-              direction="row"
+            {viewPaper?.paper?.research_title}
+          </Typography>
+          {viewPaper?.paper?.departments?.map((department) => (
+            <Chip
+              label={department?.department_tag}
+              size="small"
               sx={{
-                justifyContent: "center",
+                marginRight: 1,
+                display: "flex",
+                backgroundColor: department.department_color,
+                color: "#fff",
+                my: 0.5,
+                alignSelf: "flex-start",
               }}
-            >
-              <Box
-                width={"100%"}
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                }}
-              >
-                <Box sx={{ display: "flex" }}>
-                  {viewPaper && <DownloadButton submission={viewPaper} />}
-                </Box>
-              </Box>
-            </Stack>
-          </Grid>
-
-          <Grid item container mt="1rem">
-            <Box width={"100%"}>
-              <Typography variant="h4" mb="1rem">
-                Abstract
-              </Typography>
-              <Typography variant="body1">
-                {viewPaper?.paper?.abstract}
-              </Typography>
+              key={department?.department_id}
+            />
+          ))}
+        </Box>
+      </Grid>
+      <Grid item container>
+        <Stack
+          direction="row"
+          sx={{
+            justifyContent: "center",
+          }}
+        >
+          <Box
+            width={"100%"}
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            <Box sx={{ display: "flex" }}>
+              {viewPaper && <DownloadButton submission={viewPaper} />}
             </Box>
-          </Grid>
+          </Box>
+        </Stack>
+      </Grid>
+      <Grid
+        item
+        container
+        sx={{
+          display: "flex",
+          gap: 4,
+          alignItems: "center",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
 
-          <Grid item container>
-            {/* <Box width={"100%"}>
+            width: "100%",
+            gap: "10px",
+          }}
+        >
+          <ArticleIcon sx={{ display: "flex" }} />
+          <Typography variant="h5" sx={{ color: "text.secondary" }}>
+            {viewPaper?.paper?.research_type.ResearchTypeName}
+          </Typography>
+        </Box>
+      </Grid>
+      <Grid item container>
+        <Box
+          sx={{
+            display: "flex",
+            width: "100%",
+            gap: "10px",
+          }}
+        >
+          <PermIdentityIcon sx={{ display: "flex" }} />
+          <Typography variant="h5" sx={{ color: "text.secondary" }}>
+            {viewPaper?.paper?.author}
+          </Typography>
+        </Box>
+      </Grid>
+      <Grid item container>
+        <Box
+          sx={{
+            display: "flex",
+            width: "100%",
+            gap: "10px",
+          }}
+        >
+          <CalendarMonthIcon sx={{ display: "flex" }} />
+          <Typography variant="h5" sx={{ color: "text.secondary" }}>
+            {viewPaper?.paper?.published_at}
+          </Typography>
+        </Box>
+      </Grid>
+      {viewPaper?.paperInfo?.Advisor !== "None" && (
+        <Grid item container>
+          <Box component="span" mr={1}>
+            <Typography
+              variant="h5"
+              sx={{ color: "text.primary", fontWeight: 500 }}
+            >
+              Advisor:{" "}
+            </Typography>
+          </Box>
+          <Typography variant="h5" sx={{ color: "text.secondary" }}>
+            {/* <span className="font-bold">Advisor: </span> */}
+            {viewPaper?.paperInfo?.Advisor}
+          </Typography>
+        </Grid>
+      )}
+
+      <Grid item container>
+        <Box component="span" mr={1}>
+          <Typography
+            variant="h5"
+            sx={{ color: "text.primary", fontWeight: 500 }}
+          >
+            Keyword:{" "}
+          </Typography>
+        </Box>
+        <Typography variant="h5" sx={{ color: "text.secondary" }}>
+          {/* <span className="font-bold">Tag: </span> */}
+          {viewPaper?.paperInfo?.Tag}
+        </Typography>
+      </Grid>
+
+      <Grid item container mt="1rem">
+        <Box
+          width={"100%"}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
+          }}
+        >
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 500,
+            }}
+          >
+            Abstract
+          </Typography>
+          <Typography variant="h5">{viewPaper?.paper?.abstract}</Typography>
+        </Box>
+      </Grid>
+
+      <Grid item container>
+        {/* <Box width={"100%"}>
                   <Divider />
                 </Box> */}
-          </Grid>
-        </Grid>
-      </Box>
-    </div>
+      </Grid>
+    </Box>
+    // </div>
   );
 }
