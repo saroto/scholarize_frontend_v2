@@ -43,8 +43,6 @@ interface PDFViewerProps {
 
 const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
   const [numPages, setNumPages] = useState<number | null>(null);
-<!--   const [pageNumber, setPageNumber] = useState<number | null>(0); -->
-  const [inputValue, setInputValue] = useState<number | null>(null);
   const { pageNumber: pageNumberChat, setPageNumber: setPageNumberChat } =
     usePageStore();
   const [pageNumber, setPageNumber] = useState<number | null>(1);
@@ -65,17 +63,53 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
     setFileUrl(url || defaultFileUrl);
   }, [url]);
 
+  // useEffect(() => {
+  //   if (pageNumberChat !== null) {
+  //     setPageNumber(pageNumberChat); // Set into local state
+  //     // Scroll to page
+  //     if (pageRefs.current[pageNumberChat - 1]) {
+  //       pageRefs.current[pageNumberChat - 1]?.scrollIntoView({
+  //         behavior: "smooth",
+  //         block: "start",
+  //       });
+  //     }
+  //   }
+  // }, [pageNumberChat]);
+
   useEffect(() => {
-    if (pageNumberChat !== null) {
-      setPageNumber(pageNumberChat); // Set into local state
-      // Scroll to page
-      if (pageRefs.current[pageNumberChat - 1]) {
-        pageRefs.current[pageNumberChat - 1]?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
+    if (pageNumberChat === null || !pageRefs.current[pageNumberChat - 1])
+      return;
+
+    // setIsNavigate(true);
+
+    const target = pageRefs.current[pageNumberChat - 1];
+
+    const scrollToPage = () => {
+      target?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    };
+
+    // Initial scroll
+    scrollToPage();
+
+    // Check again after a delay
+    const timeout = setTimeout(() => {
+      if (!target) return;
+      const rect = target.getBoundingClientRect();
+      const isFullyVisible =
+        rect.top >= 0 &&
+        rect.bottom <=
+          (window.innerHeight || document.documentElement.clientHeight);
+
+      if (!isFullyVisible) {
+        // Try scrolling again
+        scrollToPage();
       }
-    }
+    }, 1000); // delay in ms, adjust as needed
+
+    return () => clearTimeout(timeout);
   }, [pageNumberChat]);
 
   console.log("file ur", fileUrl);

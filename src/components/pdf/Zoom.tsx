@@ -38,8 +38,8 @@ export const useZoomWithLoading = (baseWidth: number) => {
     calculatedWidth,
     isZooming,
     handleZoom,
-    zoomIn: () => handleZoom(0.2),
-    zoomOut: () => handleZoom(-0.2),
+    zoomIn: () => handleZoom(0.05),
+    zoomOut: () => handleZoom(-0.05),
     resetZoom: () => handleZoom(0, true),
   };
 };
