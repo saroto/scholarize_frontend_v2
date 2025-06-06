@@ -16,6 +16,7 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
+  Zoom,
 } from "@mui/material";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import RemoveIcon from "@mui/icons-material/Remove";
@@ -23,6 +24,12 @@ import AddIcon from "@mui/icons-material/Add";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import usePageStore from "@/stores/StorePageNumber";
+import {
+  TransformWrapper,
+  TransformComponent,
+  useControls,
+  ReactZoomPanPinchRef,
+} from "react-zoom-pan-pinch";
 
 // pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 //   "pdfjs-dist/build/pdf.worker.min.mjs",
@@ -37,19 +44,24 @@ interface PDFViewerProps {
   url?: string;
   width?: number | string;
   title?: string;
+  ref?: React.Ref<HTMLDivElement>;
+  pageRefs: React.MutableRefObject<(HTMLDivElement | null)[]>;
+  numPages: number | null;
+  setNumPages: (pages: number | null) => void;
 }
 
-const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
-  const [numPages, setNumPages] = useState<number | null>(null);
-  const { pageNumber: pageNumberChat, setPageNumber: setPageNumberChat } =
-    usePageStore();
-  const [pageNumber, setPageNumber] = useState<number | null>(1);
+const PDFViewer: React.FC<PDFViewerProps> = ({
+  url,
+  width,
+  pageRefs,
+  numPages,
+  setNumPages,
+}) => {
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [zoom, setZoom] = useState<number>(1.0);
   const [isError, setIsError] = useState<boolean>(false);
-
   console.log("zoom", zoom);
-  const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
+  // const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const defaultFileUrl =
@@ -59,51 +71,8 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
     setFileUrl(url || defaultFileUrl);
   }, [url]);
 
-  useEffect(() => {
-    if (pageNumberChat !== null) {
-      setPageNumber(pageNumberChat); // Set into local state
-      // Scroll to page
-      if (pageRefs.current[pageNumberChat - 1]) {
-        pageRefs.current[pageNumberChat - 1]?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      }
-    }
-  }, [pageNumberChat]);
-
   console.log("file ur", fileUrl);
-  const handleZoom = (factor: number, reset: boolean = false) => {
-    setZoom((prevZoom) =>
-      reset ? 1 : Math.max(0.5, Math.min(prevZoom + factor, 3))
-    );
-  };
 
-  const handlePageChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    setPageNumberChat(null);
-
-    // Allow empty input (when the user deletes the content)
-    if (value === "") {
-      setPageNumber(null);
-      return;
-    }
-
-    // Convert to number and validate the page number
-    const page = Number(value);
-    if (!isNaN(page) && page >= 1 && page <= (numPages || 1)) {
-      setPageNumber(page);
-    }
-  };
-
-  useEffect(() => {
-    if (pageNumber !== null && pageRefs.current[pageNumber - 1]) {
-      pageRefs.current[pageNumber - 1]?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }
-  }, [pageNumber]);
   let calculatedWidth;
 
   if (typeof width === "number") {
@@ -122,105 +91,13 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
     <div
       style={{
         width: "100%",
-        height: "100%",
+        height: "100",
         display: "flex",
         flexDirection: "column",
-        overflow: "hidden",
+        overflow: "auto",
         alignItems: "center",
       }}
     >
-      <Container
-        sx={{
-          paddingInline: "none",
-          marginIn: "none",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          gap: "10px",
-          width: "100%",
-          alignItems: "center",
-        }}
-      >
-        <Typography
-          variant="h6"
-          sx={{
-            fontWeight: 500,
-          }}
-        >
-          {title + ".pdf"}
-        </Typography>
-        {isError === false && (
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              gap: "10px",
-              paddingBottom: "10px",
-            }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                gap: "10px",
-                borderRadius: "8px",
-                border: "1px solid ",
-                borderColor: "#ddd",
-                backgroundColor: "background.paper",
-              }}
-            >
-              {/* Zoom Out Button */}
-              <IconButton size="small" onClick={() => handleZoom(-0.2)}>
-                <RemoveIcon fontSize="small" />
-              </IconButton>
-              {/* reset Button */}
-              <IconButton size="small" onClick={() => handleZoom(-0.2, true)}>
-                <RestartAltIcon fontSize="small" />
-              </IconButton>
-              {/* Zoom In Button */}
-              <IconButton size="small" onClick={() => handleZoom(0.2)}>
-                <AddIcon fontSize="small" />
-              </IconButton>
-            </Box>
-            {/* Manual Page Input */}
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                gap: "10px",
-                alignItems: "center",
-              }}
-            >
-              {" "}
-              <TextField
-                type="text"
-                value={pageNumber}
-                onChange={handlePageChange}
-                sx={{
-                  borderColor: "#ddd",
-                  width: 50,
-                  height: 30,
-                  "& .MuiInputBase-root": {
-                    height: 30,
-                    fontSize: "0.83rem",
-                    padding: "0 8px",
-                    fontWeight: 500,
-                  },
-                  "& .MuiOutlinedInput-input": {
-                    textAlign: "center",
-                    padding: "5px",
-                  },
-                }}
-                inputProps={{ maxLength: 3 }}
-              />
-              <Typography variant="h5" sx={{ fontWeight: 500 }}>
-                {" / " + numPages}
-              </Typography>
-            </Box>
-          </Box>
-        )}
-      </Container>
-
       <Box
         sx={{
           width: "100%",
@@ -241,16 +118,6 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
             setIsError(true);
           }}
           error={<PDFNotFound />}
-          // options={{
-          //   // Optimize for mobile
-          //   cMapUrl: "https://unpkg.com/pdfjs-dist@3.11.174/cmaps/",
-          //   cMapPacked: true,
-          //   standardFontDataUrl:
-          //     "https://unpkg.com/pdfjs-dist@3.11.174/standard_fonts/",
-          //   // Reduce memory usage
-          //   disableAutoFetch: true,
-          //   disableStream: true,
-          // }}
         >
           {Array.from(new Array(numPages), (_, index) => (
             <Box
