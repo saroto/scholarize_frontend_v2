@@ -21,7 +21,7 @@ export const LazyPDFPage = memo<LazyPDFPageProps>(
     onPageVisible,
     isNavigation = false,
   }) => {
-    const [shouldLoad, setShouldLoad] = useState(isNavigation);
+    const [shouldLoad, setShouldLoad] = useState(false);
     const [isPageLoading, setIsPageLoading] = useState(false);
     const pageRef = useRef<HTMLDivElement | null>(null);
 
