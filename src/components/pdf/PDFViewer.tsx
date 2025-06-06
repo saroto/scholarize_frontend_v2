@@ -16,6 +16,7 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
+  Zoom,
 } from "@mui/material";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import RemoveIcon from "@mui/icons-material/Remove";
@@ -25,6 +26,12 @@ import "react-pdf/dist/Page/TextLayer.css";
 import { useZoomWithLoading, MinimalZoomControls } from "./Zoom";
 import { LazyPDFPage } from "./LazyloadPage";
 import usePageStore from "@/stores/StorePageNumber";
+import {
+  TransformWrapper,
+  TransformComponent,
+  useControls,
+  ReactZoomPanPinchRef,
+} from "react-zoom-pan-pinch";
 
 // pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 //   "pdfjs-dist/build/pdf.worker.min.mjs",
@@ -39,21 +46,25 @@ interface PDFViewerProps {
   url?: string;
   width?: number | string;
   title?: string;
+  ref?: React.Ref<HTMLDivElement>;
+  pageRefs: React.MutableRefObject<(HTMLDivElement | null)[]>;
+  numPages: number | null;
+  setNumPages: (pages: number | null) => void;
 }
 
-const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
-  const [numPages, setNumPages] = useState<number | null>(null);
-  const { pageNumber: pageNumberChat, setPageNumber: setPageNumberChat } =
-    usePageStore();
-  const [pageNumber, setPageNumber] = useState<number | null>(1);
+const PDFViewer: React.FC<PDFViewerProps> = ({
+  url,
+  width,
+  pageRefs,
+  numPages,
+  setNumPages,
+}) => {
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   // const [zoom, setZoom] = useState<number>(1.0);
   const baseWidth = 500;
   const [isError, setIsError] = useState<boolean>(false);
-  const { zoom, calculatedWidth, isZooming, zoomIn, zoomOut, resetZoom } =
-    useZoomWithLoading(baseWidth);
   console.log("zoom", zoom);
-  const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
+  // const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const defaultFileUrl =
@@ -63,163 +74,33 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
     setFileUrl(url || defaultFileUrl);
   }, [url]);
 
-  // useEffect(() => {
-  //   if (pageNumberChat !== null) {
-  //     setPageNumber(pageNumberChat); // Set into local state
-  //     // Scroll to page
-  //     if (pageRefs.current[pageNumberChat - 1]) {
-  //       pageRefs.current[pageNumberChat - 1]?.scrollIntoView({
-  //         behavior: "smooth",
-  //         block: "start",
-  //       });
-  //     }
-  //   }
-  // }, [pageNumberChat]);
-
-  useEffect(() => {
-    if (pageNumberChat === null || !pageRefs.current[pageNumberChat - 1])
-      return;
-
-    // setIsNavigate(true);
-
-    const target = pageRefs.current[pageNumberChat - 1];
-
-    const scrollToPage = () => {
-      target?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    };
-
-    // Initial scroll
-    scrollToPage();
-
-    // Check again after a delay
-    const timeout = setTimeout(() => {
-      if (!target) return;
-      const rect = target.getBoundingClientRect();
-      const isFullyVisible =
-        rect.top >= 0 &&
-        rect.bottom <=
-          (window.innerHeight || document.documentElement.clientHeight);
-
-      if (!isFullyVisible) {
-        // Try scrolling again
-        scrollToPage();
-      }
-    }, 1000); // delay in ms, adjust as needed
-
-    return () => clearTimeout(timeout);
-  }, [pageNumberChat]);
-
   console.log("file ur", fileUrl);
 
-  const handlePageChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    setPageNumberChat(null);
+  let calculatedWidth;
 
-    // Allow empty input (when the user deletes the content)
-    if (value === "") {
-      setPageNumber(null);
-      return;
-    }
+  if (typeof width === "number") {
+    // If 'width' is passed as a number, apply zoom and ensure it's not greater than 500
+    calculatedWidth = Math.min(width, 500);
+  } else if (isSmallScreen) {
+    // If it's a small screen and width is not passed, apply the zoom with a base of 350px
+    calculatedWidth = 350 * zoom;
+  } else {
+    // If it's not a small screen and width is not passed, apply the zoom with a base of 500px
+    calculatedWidth = 500 * zoom;
+  }
 
-    // Convert to number and validate the page number
-    const page = Number(value);
-    if (!isNaN(page) && page >= 1 && page <= (numPages || 1)) {
-      setPageNumber(page);
-    }
-  };
-
-  // Handle Enter key press - this triggers navigation
-  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      // navigateToPage();
-    }
-  };
-
-  // const [isNavigate, setIsNavigate] = useState(false);
-  useEffect(() => {
-    if (pageNumber === null || !pageRefs.current[pageNumber - 1]) return;
-
-    // setIsNavigate(true);
-
-    const target = pageRefs.current[pageNumber - 1];
-
-    const scrollToPage = () => {
-      target?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    };
-
-    // Initial scroll
-    scrollToPage();
-
-    // Check again after a delay
-    const timeout = setTimeout(() => {
-      if (!target) return;
-      const rect = target.getBoundingClientRect();
-      const isFullyVisible =
-        rect.top >= 0 &&
-        rect.bottom <=
-          (window.innerHeight || document.documentElement.clientHeight);
-
-      if (!isFullyVisible) {
-        // Try scrolling again
-        scrollToPage();
-      }
-    }, 1000); // delay in ms, adjust as needed
-
-    return () => clearTimeout(timeout);
-  }, [pageNumber]);
+  console.log("page number", zoom);
   return (
     <div
       style={{
         width: "100%",
-        height: "100%",
+        height: "100",
         display: "flex",
         flexDirection: "column",
-        overflow: "hidden",
+        overflow: "auto",
         alignItems: "center",
       }}
     >
-      <Container
-        sx={{
-          paddingInline: "none",
-          marginIn: "none",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          gap: "10px",
-          width: "100%",
-          alignItems: "center",
-        }}
-      >
-        <Typography
-          variant="h6"
-          sx={{
-            fontWeight: 500,
-          }}
-        >
-          {title + ".pdf"}
-        </Typography>
-        {/* Zoom Controls */}
-        <MinimalZoomControls
-          zoom={zoom}
-          isZooming={isZooming}
-          zoomIn={zoomIn}
-          zoomOut={zoomOut}
-          resetZoom={resetZoom}
-          inputValue={pageNumber || null}
-          handleInputChange={handlePageChange}
-          onkeyPress={handleKeyPress}
-          // navigate={navigateToPage}
-          numPages={numPages || 1}
-        />
-      </Container>
-
       <Box
         sx={{
           width: "100%",
@@ -230,36 +111,52 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ url, width, title }) => {
           overflowY: "auto",
         }}
       >
-        <Box>
-          {/* PDF Document */}
-          <Document
-            file={fileUrl}
-            onLoadError={() => {
-              setIsError(true);
-            }}
-            onLoadSuccess={({ numPages }) => setNumPages(numPages)}
-            loading={<PDFSkeleton />}
-            error={<PDFNotFound />}
-          >
-            {Array.from(new Array(numPages), (_, index) => (
-              <Box
-                key={index}
-                ref={(el) => {
-                  pageRefs.current[index] = el as HTMLDivElement | null;
-                }}
-              >
-                <LazyPDFPage
-                  key={index}
-                  pageNumber={index + 1}
-                  calculatedWidth={calculatedWidth}
-                  isSmallScreen={isSmallScreen}
-                  isZooming={isZooming}
-                  // isNavigation={isNavigate}
-                />
-              </Box>
-            ))}
-          </Document>
-        </Box>
+        <Document
+          file={fileUrl}
+          loading={<PDFSkeleton />}
+          onLoadSuccess={({ numPages }) => {
+            setNumPages(numPages);
+          }}
+          onLoadError={() => {
+            setIsError(true);
+          }}
+          error={<PDFNotFound />}
+        >
+          {Array.from(new Array(numPages), (_, index) => (
+            <Box
+              key={index}
+              ref={(el) => {
+                pageRefs.current[index] = el as HTMLDivElement | null;
+              }}
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "10px",
+                marginBlock: "10px",
+                width: "100%",
+                boxShadow: "0px 0px 2px 0px rgba(0,0,0,0.1)",
+                // opacity: pageNumber === index + 1 ? 1 : 0.5,
+              }}
+            >
+              <Page
+                loading={
+                  <Skeleton
+                    variant="rectangular"
+                    height={20}
+                    sx={{
+                      minWidth: isSmallScreen ? "380px" : "500px",
+                    }}
+                  />
+                }
+                pageNumber={index + 1}
+                width={calculatedWidth}
+                renderTextLayer={true}
+                renderAnnotationLayer={true}
+                //   className="pdf-page"
+              />
+            </Box>
+          ))}
+        </Document>
       </Box>
     </div>
   );
