@@ -2,6 +2,7 @@ import { Box, Button, Container, Typography } from "@mui/material";
 import CustomButton from "@/components/customButton";
 import VideoFrame from "@/components/VideoFrame";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 interface PromotionProps {
   open: boolean;
   setIsOpen(value: boolean): void;
@@ -20,6 +21,8 @@ export default function Promotion({ open, setIsOpen }: PromotionProps) {
         flexDirection: "column",
         gap: "1rem",
         padding: "16px",
+        border: "1px solid ",
+        borderColor: "#ddd",
       }}
     >
       <Box
@@ -42,7 +45,8 @@ export default function Promotion({ open, setIsOpen }: PromotionProps) {
           Try Chat With Document
         </Typography>
 
-        <VideoFrame src={youtubeSrc} />
+        {/* <VideoFrame src={youtubeSrc} /> */}
+        <Image src="/sho.png" alt="Promotion Image" width={400} height={200} />
       </Box>
 
       <Box
