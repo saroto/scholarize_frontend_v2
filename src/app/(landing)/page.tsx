@@ -6,6 +6,7 @@ import { Box, Button, Container, Stack, Typography } from "@mui/material";
 import VideoFrame from "@/components/VideoFrame";
 import LandingFooter from "./footer";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 export default function Home() {
   const router = useRouter();
   const youtubeSrc =
@@ -61,7 +62,8 @@ export default function Home() {
             advisors, manage tasks, and securely store all research documents.
           </Typography>
         </Box>
-        <VideoFrame src={youtubeSrc} />
+        {/* <VideoFrame src={youtubeSrc} /> */}
+        <Image src="/sho.png" alt="Promotion Image" width={400} height={200} />
         <Button
           variant="contained"
           sx={{
