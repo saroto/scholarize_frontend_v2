@@ -59,7 +59,7 @@ export default function Promotion({ open, setIsOpen }: PromotionProps) {
         <CustomButton
           fullWidth
           onClick={() => {
-            router.push("/repository");
+            router.push("/dashboard/repository/research-library");
           }}
         >
           Try Now
