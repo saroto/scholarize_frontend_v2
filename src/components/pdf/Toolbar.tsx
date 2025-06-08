@@ -73,6 +73,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMediumScreen = useMediaQuery(theme.breakpoints.down("md"));
 
   return (
     <Box
@@ -175,22 +176,22 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           )}
         </Box>
       </Box>
-      {isTtitleVisible
-        ? !isSmallScreen && (
-            <Typography
-              sx={{
-                fontSize: "12px",
-                color: "#6c757d",
-                fontWeight: "400",
-                whiteSpace: "nowrap",
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              {title ? title + ".pdf" : "PDF Viewer"}
-            </Typography>
-          )
-        : null}
+      {isTtitleVisible && !isSmallScreen && !isMediumScreen && (
+        <Typography
+          sx={{
+            fontSize: "12px",
+            color: "#6c757d",
+            fontWeight: "400",
+            whiteSpace: "nowrap",
+            display: "flex",
+            alignItems: "center",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
+          {title ? title + ".pdf" : "PDF Viewer"}
+        </Typography>
+      )}
     </Box>
   );
 };
