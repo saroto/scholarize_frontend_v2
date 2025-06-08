@@ -61,7 +61,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     jumpToPage,
   } = pageNavigationPluginInstance;
   const { EnterFullScreen } = fullScreenPluginInstance;
-  const { Print } = printPluginInstance || {};
+  const { print } = printPluginInstance || {};
   const { Download } = getFilePluginInstance || {};
 
   useEffect(() => {
@@ -154,15 +154,11 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           {!isChatPage && !isSmallScreen && (
             <Box sx={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <Divider sx={dividerStyle} />
-              {Print && (
-                <Print>
-                  {(props: { onClick: () => void }) => (
-                    <IconButton sx={buttonStyle} onClick={props.onClick}>
-                      <PrintIcon />
-                    </IconButton>
-                  )}
-                </Print>
-              )}
+
+              {/* <IconButton sx={buttonStyle} onClick={print}>
+                <PrintIcon />
+              </IconButton> */}
+
               {Download && (
                 <Download>
                   {(props: { onClick: () => void }) => (
