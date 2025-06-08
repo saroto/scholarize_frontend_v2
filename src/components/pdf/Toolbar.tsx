@@ -61,7 +61,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     jumpToPage,
   } = pageNavigationPluginInstance;
   const { EnterFullScreen } = fullScreenPluginInstance;
-  const { Print } = printPluginInstance || {};
+  const { print } = printPluginInstance || {};
   const { Download } = getFilePluginInstance || {};
 
   useEffect(() => {
@@ -73,6 +73,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMediumScreen = useMediaQuery(theme.breakpoints.down("md"));
 
   return (
     <Box
@@ -153,15 +154,11 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           {!isChatPage && !isSmallScreen && (
             <Box sx={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <Divider sx={dividerStyle} />
-              {Print && (
-                <Print>
-                  {(props: { onClick: () => void }) => (
-                    <IconButton sx={buttonStyle} onClick={props.onClick}>
-                      <PrintIcon />
-                    </IconButton>
-                  )}
-                </Print>
-              )}
+
+              {/* <IconButton sx={buttonStyle} onClick={print}>
+                <PrintIcon />
+              </IconButton> */}
+
               {Download && (
                 <Download>
                   {(props: { onClick: () => void }) => (
@@ -175,22 +172,22 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           )}
         </Box>
       </Box>
-      {isTtitleVisible
-        ? !isSmallScreen && (
-            <Typography
-              sx={{
-                fontSize: "12px",
-                color: "#6c757d",
-                fontWeight: "400",
-                whiteSpace: "nowrap",
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              {title ? title + ".pdf" : "PDF Viewer"}
-            </Typography>
-          )
-        : null}
+      {isTtitleVisible && !isSmallScreen && !isMediumScreen && (
+        <Typography
+          sx={{
+            fontSize: "12px",
+            color: "#6c757d",
+            fontWeight: "400",
+            whiteSpace: "nowrap",
+            display: "flex",
+            alignItems: "center",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
+          {title ? title + ".pdf" : "PDF Viewer"}
+        </Typography>
+      )}
     </Box>
   );
 };
