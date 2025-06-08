@@ -50,9 +50,17 @@ export default function ChatPage({ params }: { params: ViewPaperParams }) {
       {/* PDF Viewer Panel */}
       {!isSmallScreen && (
         <Panel defaultSize={60} minSize={20} id="left-panel">
-          <Box sx={{ height: "100%", display: "flex" }} ref={leftPanelRef}>
+          <Box
+            sx={{ height: "100%", display: "flex", paddingRight: "20px" }}
+            ref={leftPanelRef}
+          >
             {/* <PDFViewer title={paperTitle} url={paperURL} width={pdfWidth} /> */}
-            <PDFViewer title={paperTitle} url={paperURL} />
+            <PDFViewer
+              title={paperTitle}
+              url={paperURL}
+              isTitleVisible={false}
+              isChatPage={true}
+            />
           </Box>
         </Panel>
       )}

@@ -1,0 +1,7 @@
+canvas,
+.rpv-core__page-layer,
+.rpv-core__canvas-layer,
+.rpv-core__inner-page,
+.rpv-core__viewer {
+  background: transparent !important;
+}
