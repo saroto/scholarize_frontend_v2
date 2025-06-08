@@ -57,17 +57,19 @@ export default function DashboardLeftSideBar({
             gap: "10px",
           }}
         >
-          {/* <List
-            sx={{
-              backgroundColor: !isSmallScreen ? "white" : "none",
-              border: !isSmallScreen ? "1px solid " : "none",
-              borderColor: !isSmallScreen ? "#ddd" : "none",
-              borderRadius: "16px",
-              paddingInline: "20px",
-            }}
-          >
-            <HomeSection> {Sections}</HomeSection>
-          </List> */}
+          {/* {isSmallScreen && (
+            <List
+              sx={{
+                backgroundColor: !isSmallScreen ? "white" : "none",
+                border: !isSmallScreen ? "1px solid " : "none",
+                borderColor: !isSmallScreen ? "#ddd" : "none",
+                borderRadius: "16px",
+                paddingInline: "20px",
+              }}
+            >
+              <HomeSection> {Sections}</HomeSection>
+            </List>
+          )} */}
           <List
             sx={{
               backgroundColor: !isSmallScreen ? "white" : "none",
