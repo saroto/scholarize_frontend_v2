@@ -5,6 +5,8 @@ import {
   keyframes,
   IconButton,
   Stack,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import ReactMarkdown from "react-markdown";
 import { useState, useEffect } from "react";
@@ -165,6 +167,10 @@ export default function TextMessage({
     console.log(`Page ${pageNumber} clicked`);
     setPageNumber(pageNumber);
   };
+
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
+
   return (
     <Box
       sx={{
@@ -256,7 +262,7 @@ export default function TextMessage({
                 : JSON.stringify(displayedMessage)}
             </ReactMarkdown>
 
-            {sender === "bot" && (
+            {sender === "bot" && !isSmallScreen && (
               <Box sx={{ mb: 2 }}>
                 <Stack direction="row" spacing={1} flexWrap="wrap">
                   {pageNumbers.map((pageNumber) => (
