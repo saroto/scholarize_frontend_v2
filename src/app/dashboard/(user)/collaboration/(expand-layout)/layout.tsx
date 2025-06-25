@@ -14,7 +14,7 @@ import { getGroups } from "@/app/api/service/handleGroups";
 
 import ScrollTop from "@/components/scroll-to-top";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { Fab } from "@mui/material";
+import { Box, Fab } from "@mui/material";
 export default function CollaborationExpandLayout({
   children,
 }: Readonly<{
@@ -130,7 +130,16 @@ export default function CollaborationExpandLayout({
         }
         openDrawer={true}
       >
-        {children}
+        <Box
+          sx={{
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            overflow: "auto",
+          }}
+        >
+          {children}
+        </Box>
       </DashboardNavbar>
     </>
   );

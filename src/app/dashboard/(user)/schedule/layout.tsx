@@ -11,6 +11,7 @@ import { getGroups } from "@/app/api/service/handleGroups";
 import GroupsIcon from "@mui/icons-material/Group";
 import Calendar from "./calendar";
 import { SocketIOProvider } from "@/socketio/SocketIOProvider";
+import { Box } from "@mui/material";
 
 export default function CollaborationLayout({
   children,
@@ -63,11 +64,19 @@ export default function CollaborationLayout({
         onClick={() => setSidebarClick(!sidebarClick)}
       >
         {children}
-        <Calendar
-          selectedGroups={selectedGroups}
-          collabs={collabLists}
-          onClick={sidebarClick}
-        />
+        <Box
+          sx={{
+            height: "100%",
+            display: "flex",
+            overflow: "auto",
+          }}
+        >
+          <Calendar
+            selectedGroups={selectedGroups}
+            collabs={collabLists}
+            onClick={sidebarClick}
+          />
+        </Box>
       </DashboardNavbar>
     </SocketIOProvider>
   );

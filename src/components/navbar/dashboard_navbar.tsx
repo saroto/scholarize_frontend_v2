@@ -146,6 +146,8 @@ export default function DashboardNavbar({
 
   const pathname = usePathname();
   const isRepository = pathname === "/dashboard/repository/research-library";
+  const isCollaboration = pathname?.startsWith("/dashboard/collaboration");
+  const isSchedule = pathname?.startsWith("/dashboard/schedule");
 
   useEffect(() => {
     if (pathname === "/dashboard/repository/my-publications") {

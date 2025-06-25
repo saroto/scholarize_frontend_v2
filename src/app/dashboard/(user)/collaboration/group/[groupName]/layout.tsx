@@ -12,6 +12,7 @@ import { SocketIOProvider } from "@/socketio/SocketIOProvider";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { getAllFolders } from "@/app/api/service/collab/file-storage/getAllFolders";
+import { Box } from "@mui/material";
 
 type Params = {
   groupName: string;
@@ -84,7 +85,16 @@ export default function CollaborationLayout({
           }
           openDrawer={true}
         >
-          {children}
+          <Box
+            sx={{
+              height: "100%",
+              width: "100%",
+              display: "flex",
+              overflow: "auto",
+            }}
+          >
+            {children}
+          </Box>
         </DashboardNavbar>
       </SocketIOProvider>
     </>
