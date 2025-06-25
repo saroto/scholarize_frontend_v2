@@ -11,6 +11,9 @@ export async function getResearchPaperBySearch(
   if (!session) {
     throw new Error("No session");
   }
+  if (searchOptions.search_engine) {
+    url.searchParams.append("search_engine", searchOptions.search_engine);
+  }
   if (searchOptions.search) {
     url.searchParams.append("search", searchOptions.search);
   }
