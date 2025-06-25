@@ -66,10 +66,16 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
   });
 
   return (
-    <Box sx={{ height: "100vh", justifyContent: "center", width: "100%" }}>
+    <Box
+      sx={{
+        height: "100vh",
+        justifyContent: "center",
+        width: "100%",
+      }}
+    >
       <Box
         sx={{
-          height: "90%",
+          height: "100%",
           width: "100%",
           backgroundColor: "white",
           borderRadius: "8px",

@@ -115,7 +115,7 @@ export default function DashboardNavbar({
 }>) {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
-
+  const isLargeScreen = useMediaQuery(theme.breakpoints.down("lg"));
   if (isSmallScreen) {
     openDrawer = false;
   }
@@ -146,6 +146,8 @@ export default function DashboardNavbar({
 
   const pathname = usePathname();
   const isRepository = pathname === "/dashboard/repository/research-library";
+  const isCollaboration = pathname?.startsWith("/dashboard/collaboration");
+  const isSchedule = pathname?.startsWith("/dashboard/schedule");
 
   useEffect(() => {
     if (pathname === "/dashboard/repository/my-publications") {
@@ -524,7 +526,7 @@ export default function DashboardNavbar({
                 {!isSmallScreen && (
                   <Credits open={openCredits} onClose={handleCloseCredits} />
                 )}
-                {!isSmallScreen && (
+                {!isLargeScreen && (
                   <Typography
                     variant="h6"
                     component="h6"

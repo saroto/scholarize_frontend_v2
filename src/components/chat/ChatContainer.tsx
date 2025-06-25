@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Container,
+  Icon,
   IconButton,
   Tooltip,
   Typography,
@@ -22,6 +23,8 @@ import { saveChatHistory } from "@/app/api/service/repo/chat/updateChatSession";
 import ChatModal from "../modal/ChatModal";
 import ChatSkeleton from "../skeleton/ChatSkeleton";
 import { Metadata, ExtendedMetadata } from "./TextMessage";
+import CustomPopper from "../CustomPopper";
+import HelpIcon from "@mui/icons-material/Help";
 interface SearchFormData {
   collection_name: string;
   query: string;
@@ -52,6 +55,14 @@ export default function ChatContainer() {
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [fecthMessage, setFetchMessage] = useState<ChatMessage[]>([]);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(anchorEl ? null : event.currentTarget);
+  };
+
+  const open = Boolean(anchorEl);
+  const id = open ? "simple-popper" : undefined;
 
   // Parse the array and find the session by paperId
   let sessionIdFromCache = null;
@@ -391,6 +402,14 @@ export default function ChatContainer() {
     }
   };
 
+  const handleMouseEnter = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMouseLeave = () => {
+    setAnchorEl(null);
+  };
+
   return (
     <>
       <Box
@@ -414,15 +433,32 @@ export default function ChatContainer() {
             paddingInline: "20px",
           }}
         >
-          <Typography
-            variant="h4"
+          <Box
             sx={{
-              fontWeight: 500,
-              paddingRight: "16px",
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              gap: "10px",
             }}
           >
-            Chat
-          </Typography>
+            <Typography
+              variant="h3"
+              sx={{
+                fontWeight: 500,
+              }}
+            >
+              Chat
+            </Typography>
+            <IconButton
+              aria-describedby={id}
+              type="button"
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+            >
+              <HelpIcon />
+            </IconButton>
+          </Box>
+
           <Box sx={{ display: "flex", gap: "10px" }}>
             {messages.length !== 0 && (
               <Tooltip title="Save Chat">
@@ -628,6 +664,21 @@ export default function ChatContainer() {
           </Button>
         </Box>
       </ChatModal>
+      <CustomPopper id={id} open={open} anchorEl={anchorEl}>
+        <div
+          style={{
+            padding: "8px",
+            maxWidth: "240px",
+            fontSize: "0.875rem",
+            color: "#555",
+          }}
+        >
+          Chat is temporarily saved in memory.
+          <strong>
+            It will not be saved permanently unless you click "Save History".
+          </strong>
+        </div>
+      </CustomPopper>
     </>
   );
 }

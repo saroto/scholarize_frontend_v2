@@ -104,7 +104,7 @@ export default function PrimarySearchAppBar() {
 
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
-
+  const isLargeScreen = useMediaQuery(theme.breakpoints.down("lg"));
   // const value = searchEngine;
 
   const handleSearchEngineChange = (value: string) => {
@@ -122,16 +122,8 @@ export default function PrimarySearchAppBar() {
 
   return (
     <>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          gap: "10px",
-          width: "100%",
-        }}
-      >
-        {" "}
-        <Box className="flex justify-center">
+      {isLargeScreen && (
+        <Box className="flex pb-2">
           <Box className="inline-flex rounded-2xl bg-gray-100 p-1">
             <button
               className={`rounded-xl px-4 py-2 text-sm font-medium transition-all ${
@@ -155,80 +147,123 @@ export default function PrimarySearchAppBar() {
             </button>
           </Box>
         </Box>
+      )}
+      <Box sx={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+        {" "}
         <Box
           sx={{
             display: "flex",
             flexDirection: "row",
-            // flex: 1,
+            gap: "10px",
             width: "100%",
           }}
         >
           {" "}
-          <form onSubmit={handleSearchClick} className="flex w-full">
-            <Search
+          {!isLargeScreen && (
+            <Box className="flex justify-center">
+              <Box className="inline-flex rounded-2xl bg-gray-100 p-1 gap-1">
+                <button
+                  className={`rounded-xl px-4 py-1 text-sm font-medium transition-all ${
+                    searchEngine === "meilisearch"
+                      ? "bg-white text-blue-700 shadow-sm"
+                      : "bg-transparent text-gray-600 hover:bg-gray-50"
+                  }`}
+                  onClick={(e) => handleSearchEngineToggle(e, "meilisearch")}
+                >
+                  Keyword
+                </button>
+                <button
+                  className={`rounded-xl px-4 py-1 text-sm font-medium transition-all ${
+                    searchEngine === "semantic"
+                      ? "bg-white text-blue-700 shadow-sm"
+                      : "bg-transparent text-gray-600 hover:bg-gray-50"
+                  }`}
+                  onClick={(e) => handleSearchEngineToggle(e, "semantic")}
+                >
+                  Semantic
+                </button>
+              </Box>
+            </Box>
+          )}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              // flex: 1,
+              width: "100%",
+            }}
+          >
+            {" "}
+            <form onSubmit={handleSearchClick} className="flex w-full">
+              <Search
+                sx={{
+                  borderRadius: "0.8rem",
+                  display: "flex",
+                  width: "100%",
+                  // alignItems: "center",
+                }}
+              >
+                <SearchIconWrapper>
+                  <SearchIcon sx={{ color: "text.secondary", scale: "1.2" }} />
+                </SearchIconWrapper>
+                <StyledInputBase
+                  placeholder={`Search with ${
+                    searchEngine === "meilisearch"
+                      ? "Meilisearch"
+                      : "SPaRCS-AIM"
+                  }...`}
+                  inputProps={{ "aria-label": "search" }}
+                  onChange={handleSearchChange}
+                  value={searchTerm}
+                  sx={{ width: "100%", fontSize: "12px" }}
+                />
+              </Search>
+            </form>
+          </Box>
+          <Select
+            value={sort}
+            onChange={handleSortSelectChange}
+            // inputProps={{ "aria-label": "With label" }}
+            sx={{
+              fontWeight: "500",
+              textAlign: "center",
+              border: "1px solid",
+              borderColor: "#ddd",
+              fontSize: "12px",
+              borderRadius: "0.8rem",
+              paddingInline: "16px",
+              alignItems: "center",
+              display: "flex",
+              backgroundColor: "background.paper",
+            }}
+            disableUnderline
+            variant="standard"
+          >
+            <MenuItem
+              value="ASC"
+              onClick={() => handleSortChange("ASC")}
               sx={{
-                borderRadius: "0.8rem",
-                display: "flex",
-                width: "100%",
-                // alignItems: "center",
+                fontSize: "12px",
               }}
             >
-              <SearchIconWrapper>
-                <SearchIcon sx={{ color: "text.secondary", scale: "1.2" }} />
-              </SearchIconWrapper>
-              <StyledInputBase
-                placeholder={`Search with ${
-                  searchEngine === "meilisearch" ? "Meilisearch" : "SPaRCS-AIM"
-                }...`}
-                inputProps={{ "aria-label": "search" }}
-                onChange={handleSearchChange}
-                value={searchTerm}
-                sx={{ width: "100%", fontSize: "12px" }}
-              />
-            </Search>
-          </form>
+              {isSmallScreen || isLargeScreen ? "ASC" : "Ascending"}
+            </MenuItem>
+            <MenuItem
+              value="DESC"
+              onClick={() => handleSortChange("DESC")}
+              sx={{
+                fontSize: "12px",
+              }}
+            >
+              {isSmallScreen || isLargeScreen ? "DES" : "Descending"}
+            </MenuItem>
+          </Select>
         </Box>
-        <Select
-          value={sort}
-          onChange={handleSortSelectChange}
-          // inputProps={{ "aria-label": "With label" }}
-          sx={{
-            fontWeight: "500",
-            textAlign: "center",
-            border: "1px solid",
-            borderColor: "#ddd",
-            fontSize: "12px",
-            borderRadius: "0.8rem",
-            paddingInline: "16px",
-            alignItems: "center",
-            display: "flex",
-            backgroundColor: "background.paper",
-          }}
-          disableUnderline
-          variant="standard"
-        >
-          <MenuItem
-            value="ASC"
-            onClick={() => handleSortChange("ASC")}
-            sx={{
-              fontSize: "12px",
-            }}
-          >
-            {isSmallScreen ? "ASC" : "Ascending"}
-          </MenuItem>
-          <MenuItem
-            value="DESC"
-            onClick={() => handleSortChange("DESC")}
-            sx={{
-              fontSize: "12px",
-            }}
-          >
-            {isSmallScreen ? "DES" : "Descending"}
-          </MenuItem>
-        </Select>
-      </Box>
-      <Box sx={{ paddingBottom: "10px" }}>
-        {!isSmallScreen && <DisplayFilter />}
+        {!isSmallScreen && (
+          <Box>
+            <DisplayFilter />
+          </Box>
+        )}
       </Box>
     </>
   );

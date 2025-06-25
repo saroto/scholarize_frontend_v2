@@ -24,8 +24,8 @@ export default function RepositoryResearchLibrary() {
       <Box
         sx={{
           width: "100%",
+          flexShrink: 0,
           overflow: "hidden",
-          paddingBottom: "10px",
         }}
       >
         <SearchBar />
@@ -38,6 +38,7 @@ export default function RepositoryResearchLibrary() {
           height: "100%",
           marginBottom: "20px",
           gap: "10px",
+          // flexGrow: 1,
         }}
       >
         <ResearchPaperCard fetchType="all" />
