@@ -93,6 +93,7 @@ interface ViewPaperProps {
 //searchOptions
 export interface SearchOptions {
   search: string;
+  search_engine: string;
   sort: ASC | DESC;
   department: number[];
   year: string[];

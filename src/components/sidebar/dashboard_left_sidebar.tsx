@@ -57,19 +57,6 @@ export default function DashboardLeftSideBar({
             gap: "10px",
           }}
         >
-          {/* {isSmallScreen && (
-            <List
-              sx={{
-                backgroundColor: !isSmallScreen ? "white" : "none",
-                border: !isSmallScreen ? "1px solid " : "none",
-                borderColor: !isSmallScreen ? "#ddd" : "none",
-                borderRadius: "16px",
-                paddingInline: "20px",
-              }}
-            >
-              <HomeSection> {Sections}</HomeSection>
-            </List>
-          )} */}
           <List
             sx={{
               backgroundColor: !isSmallScreen ? "white" : "none",
@@ -83,38 +70,6 @@ export default function DashboardLeftSideBar({
             <ResearchRightSideBar />
           </List>
         </Box>
-
-        {/* <Box
-          sx={{
-            display: "flex",
-            color: "#3572EF",
-            width: "100%",
-          }}
-        >
-          <Button
-            fullWidth
-            sx={{
-              paddingRight: "2rem",
-              color: "#3572EF",
-
-              ":hover": {
-                backgroundColor: "rgba(0, 0, 0, 0.2)",
-              },
-            }}
-            href="/About-Scholarize"
-          >
-            <Box
-              sx={{
-                padding: "0.5rem",
-                display: "flex",
-                flexDirection: "row",
-              }}
-            >
-              <InfoIcon />
-            </Box>
-            About Scholarize
-          </Button>
-        </Box> */}
       </Box>
     </>
   );

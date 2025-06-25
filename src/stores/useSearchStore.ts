@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { SearchOptions } from "@/types";
 
 // Define the store's state including actions
-interface SearchStoreState {
+export interface SearchStoreState {
   filters: SearchOptions;
   updateFilters: (updates: Partial<SearchOptions>) => void;
   resetFilters: () => void;
@@ -12,6 +12,7 @@ interface SearchStoreState {
 const useSearchStore = create<SearchStoreState>((set) => ({
   filters: {
     search: "",
+    search_engine: "",
     sort: "ASC",
     department: [],
     year: [],
@@ -25,6 +26,7 @@ const useSearchStore = create<SearchStoreState>((set) => ({
     set({
       filters: {
         search: "",
+        search_engine: "",
         sort: "ASC",
         department: [],
         year: [],
