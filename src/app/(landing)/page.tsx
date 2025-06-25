@@ -20,10 +20,12 @@ export default function Home() {
           gap: "20px",
           alignItems: "center",
           justifyContent: "center",
+          height: "100vh",
         }}
       >
         <Box
           sx={{
+            flex: 1,
             display: "flex",
             flexDirection: "column",
             gap: "1rem",
@@ -61,24 +63,39 @@ export default function Home() {
             in repository. Chat with papers for insights, collaborate with
             advisors, manage tasks, and securely store all research documents.
           </Typography>
+          {/* <VideoFrame src={youtubeSrc} /> */}
+          <Image
+            src="/sho.png"
+            alt="Promotion Image"
+            width={400}
+            height={200}
+          />
+          <Button
+            variant="contained"
+            sx={{
+              borderRadius: "16px",
+              width: "fit-content",
+              boxShadow: 0,
+              textTransform: "none",
+            }}
+            onClick={() => {
+              router.push("/browse");
+            }}
+          >
+            Find A Research
+          </Button>
         </Box>
-        {/* <VideoFrame src={youtubeSrc} /> */}
-        <Image src="/sho.png" alt="Promotion Image" width={400} height={200} />
-        <Button
-          variant="contained"
+
+        <Box
           sx={{
-            borderRadius: "16px",
-            width: "fit-content",
-            boxShadow: 0,
-            textTransform: "none",
-          }}
-          onClick={() => {
-            router.push("/browse");
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            py: 3,
           }}
         >
-          Find A Research
-        </Button>
-        <LandingFooter />
+          <LandingFooter />
+        </Box>
       </Container>
     </>
   );

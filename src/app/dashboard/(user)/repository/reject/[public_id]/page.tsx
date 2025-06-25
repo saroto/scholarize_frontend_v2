@@ -239,7 +239,7 @@ export default function SubmitForm({ params }: { params: rejectProp }) {
   };
 
   return (
-    <Box sx={{ width: "100%", padding: 4 }}>
+    <Box sx={{ width: "100%", padding: 4, display: "flex", overflow: "auto" }}>
       <Box
         sx={{
           display: "flex",
@@ -254,7 +254,6 @@ export default function SubmitForm({ params }: { params: rejectProp }) {
             alignItems: "center",
             display: "flex",
             height: "auto",
-
             fontSize: "1rem",
             color: "#777777",
             ":hover": {

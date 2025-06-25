@@ -2,17 +2,23 @@ import { Box, Typography } from "@mui/material";
 
 export default function LandingFooter() {
   return (
-    <Box>
+    <Box
+      sx={{
+        width: "100%",
+        display: "flex",
+        justifyContent: "center",
+        py: 3,
+      }}
+    >
       <Typography
-        variant="h5"
+        variant="body2"
         sx={{
           textAlign: "center",
-          padding: "1rem",
           fontWeight: 300,
           color: "text.secondary",
         }}
       >
-        Copyright © All Rights Reserved. 2024, PARAGON International University
+        Copyright © All Rights Reserved. 2024, PARAGON International University.
         Powered by the Center for Applied Research and Development Initiative
         (RaDICe)
       </Typography>

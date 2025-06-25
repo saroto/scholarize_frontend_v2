@@ -17,6 +17,7 @@ export default function Promotion({ open, setIsOpen }: PromotionProps) {
         backgroundColor: "secondary.main",
         borderRadius: "16px",
         width: "100%",
+        height: "100%",
         display: "flex",
         flexDirection: "column",
         gap: "1rem",
@@ -46,7 +47,7 @@ export default function Promotion({ open, setIsOpen }: PromotionProps) {
         </Typography>
 
         {/* <VideoFrame src={youtubeSrc} /> */}
-        <Image src="/sho.png" alt="Promotion Image" width={400} height={200} />
+        <Image src="/sho.png" alt="Promotion Image" width={300} height={150} />
       </Box>
 
       <Box
