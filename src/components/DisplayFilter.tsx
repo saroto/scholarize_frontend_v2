@@ -96,7 +96,6 @@ export default function DisplayFilter() {
         gap: 4,
         flexWrap: "wrap",
         alignItems: "center",
-        mt: 2,
       }}
     >
       {selectedSearchEngine.length > 0 && (
