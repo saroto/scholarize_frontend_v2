@@ -37,14 +37,14 @@ export function PillRenderer({ labels }: { labels: string[] }) {
         sx={{
           px: 1.5,
           py: 0.5,
-          borderRadius: 10,
+          borderRadius: 1,
           backgroundColor: color,
           color: "grey.800",
           display: "inline-block",
           marginRight: "0.5rem",
         }}
       >
-        <Typography sx={{ fontWeight: 400, fontSize: "0.75rem" }}>
+        <Typography variant="body2" sx={{ fontWeight: 400 }}>
           {label}
         </Typography>
       </Box>
