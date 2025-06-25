@@ -115,7 +115,7 @@ export default function DashboardNavbar({
 }>) {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
-
+  const isLargeScreen = useMediaQuery(theme.breakpoints.down("lg"));
   if (isSmallScreen) {
     openDrawer = false;
   }
@@ -524,7 +524,7 @@ export default function DashboardNavbar({
                 {!isSmallScreen && (
                   <Credits open={openCredits} onClose={handleCloseCredits} />
                 )}
-                {!isSmallScreen && (
+                {!isLargeScreen && (
                   <Typography
                     variant="h6"
                     component="h6"

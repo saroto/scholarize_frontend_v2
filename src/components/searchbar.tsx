@@ -122,16 +122,8 @@ export default function PrimarySearchAppBar() {
 
   return (
     <>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          gap: "10px",
-          width: "100%",
-        }}
-      >
-        {" "}
-        <Box className="flex justify-center">
+      {isSmallScreen && (
+        <Box className="flex pb-2">
           <Box className="inline-flex rounded-2xl bg-gray-100 p-1">
             <button
               className={`rounded-xl px-4 py-2 text-sm font-medium transition-all ${
@@ -155,6 +147,42 @@ export default function PrimarySearchAppBar() {
             </button>
           </Box>
         </Box>
+      )}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          gap: "10px",
+          width: "100%",
+        }}
+      >
+        {" "}
+        {!isSmallScreen && (
+          <Box className="flex justify-center">
+            <Box className="inline-flex rounded-2xl bg-gray-100 p-1 gap-1">
+              <button
+                className={`rounded-xl px-4 py-1 text-sm font-medium transition-all ${
+                  searchEngine === "meilisearch"
+                    ? "bg-white text-blue-700 shadow-sm"
+                    : "bg-transparent text-gray-600 hover:bg-gray-50"
+                }`}
+                onClick={(e) => handleSearchEngineToggle(e, "meilisearch")}
+              >
+                Keyword
+              </button>
+              <button
+                className={`rounded-xl px-4 py-1 text-sm font-medium transition-all ${
+                  searchEngine === "semantic"
+                    ? "bg-white text-blue-700 shadow-sm"
+                    : "bg-transparent text-gray-600 hover:bg-gray-50"
+                }`}
+                onClick={(e) => handleSearchEngineToggle(e, "semantic")}
+              >
+                Semantic
+              </button>
+            </Box>
+          </Box>
+        )}
         <Box
           sx={{
             display: "flex",
