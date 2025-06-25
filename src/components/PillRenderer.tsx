@@ -37,7 +37,7 @@ export function PillRenderer({ labels }: { labels: string[] }) {
         sx={{
           px: 1.5,
           py: 0.5,
-          borderRadius: 2,
+          borderRadius: 10,
           backgroundColor: color,
           color: "grey.800",
           display: "inline-block",
