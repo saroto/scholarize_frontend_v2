@@ -2,7 +2,8 @@ import { useResearchPaperStore } from "@/stores/StoreResearchPaper";
 import useSearchStore, { SearchStoreState } from "@/stores/useSearchStore";
 import { Department, PaperType, ResearchPaper } from "@/types";
 import { Box, Typography } from "@mui/material";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { PillRenderer } from "./PillRenderer";
 
 export default function DisplayFilter() {
   const { filters, updateFilters } = useSearchStore();
@@ -110,7 +111,8 @@ export default function DisplayFilter() {
           <Typography variant="subtitle2" color="text.secondary">
             Search Engine:
           </Typography>
-          {renderPill(getSearchEngineLabel(selectedSearchEngine))}
+          {/* {renderPill(getSearchEngineLabel(selectedSearchEngine))} */}
+          <PillRenderer labels={[getSearchEngineLabel(selectedSearchEngine)]} />
         </Box>
       )}
 
@@ -126,7 +128,8 @@ export default function DisplayFilter() {
           <Typography variant="subtitle2" color="text.secondary">
             Sort By:
           </Typography>
-          {renderPill(selectedSort)}
+          {/* {renderPill(selectedSort)} */}
+          <PillRenderer labels={[selectedSort]} />
         </Box>
       )}
 
@@ -143,7 +146,10 @@ export default function DisplayFilter() {
             Types:
           </Typography>
           <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-            {selectedTypeLabels.map((label) => renderPill(label))}
+            {/* {selectedTypeLabels.map((label) => renderPill(label))} */}
+            <PillRenderer
+              labels={selectedTypeLabels.map((label) => String(label))}
+            />
           </Box>
         </Box>
       )}
@@ -161,7 +167,10 @@ export default function DisplayFilter() {
             Departments:
           </Typography>
           <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-            {selectedDepartmentLabels.map((label) => renderPill(label))}
+            {/* {selectedDepartmentLabels.map((label) => renderPill(label))} */}
+            <PillRenderer
+              labels={selectedDepartmentLabels.map((label) => String(label))}
+            />
           </Box>
         </Box>
       )}
@@ -179,48 +188,13 @@ export default function DisplayFilter() {
             Years:
           </Typography>
           <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-            {selectedYearLabels.map((year) => renderPill(String(year)))}
+            {/* {selectedYearLabels.map((year) => PillRenderer(String(year)))} */}
+            <PillRenderer
+              labels={selectedYearLabels.map((year) => String(year))}
+            />
           </Box>
         </Box>
       )}
     </Box>
   );
 }
-
-const generateRandomColor = () => {
-  const colors = [
-    "#e0f7fa",
-    "#e8f5e9",
-    "#f3e5f5",
-    "#fff3e0",
-    "#ede7f6",
-    "#fbe9e7",
-    "#e1f5fe",
-    "#f9fbe7",
-    "#fce4ec",
-    "#e8eaf6",
-  ];
-  return colors[Math.floor(Math.random() * colors.length)];
-};
-
-const renderPill = (label?: string) => (
-  <Box
-    key={label}
-    sx={{
-      px: 1.5,
-      py: 0.5,
-      borderRadius: 2,
-      backgroundColor: generateRandomColor(),
-      color: "black",
-    }}
-  >
-    <Typography
-      variant="body2"
-      sx={{
-        fontWeight: 400,
-      }}
-    >
-      {label}
-    </Typography>
-  </Box>
-);
