@@ -11,6 +11,7 @@ import {
 import ReactMarkdown from "react-markdown";
 import { useState, useEffect } from "react";
 import usePageStore from "@/stores/StorePageNumber";
+import "./ChatMarkDown.css";
 
 // Keyframes for the loading dots animation
 const loadingDots = keyframes`
@@ -53,6 +54,43 @@ interface TextMessageProps {
   shouldStream?: boolean;
   profileUrl?: string;
 }
+
+const a = `
+The main objective of the Alumnify project is to encourage alumni-university relationships by addressing the challenges alumni face after graduation. The project aims to achieve this by building an information system with several key features.
+
+### Key Objectives of the Alumnify Project
+
+The Alumnify project has specific objectives, including:
+
+- **Developing the Alumnify information system:** This involves creating a system equipped with essential features for alumni, such as digital yearbooks, career boards, and announcement boards.
+
+  - **Digital Yearbook:** Developing a main homepage that uses a digital yearbook concept to verify alumni and showcase their profile picture and short biography. The functionality for the digital yearbook (FR6) has passed system testing.
+
+  - **Career Board:** Developing a career board that displays published job announcements and related career events.
+
+  - **Announcement Board:** Developing an announcement board that displays university announcements, alumni achievements, milestones, and success stories.
+
+  - **Alumni Management Board:** Developing an alumni management board that facilitates data collection, data retrieval, and visualization of data on a dashboard.
+
+- **Completing functional and non-functional requirements:** Ensuring all requirements are met within the project timeframe.
+
+- **Conducting a user acceptance test:** Performing a user acceptance test and presenting the findings to ensure the system is well-received and effective. The user acceptance test showed positive perceptions of the system for job searching, the digital yearbook, and the announcement board.
+
+### Overarching Goals
+
+The project seeks to provide a digital platform where alumni can:
+
+- Access the Paragon.U alumni network via a web application.
+
+- Customize their professional profiles.
+
+- Browse yearbooks.
+
+- Explore career opportunities.
+
+- Check announcements and upcoming events.
+
+  `;
 
 export default function TextMessage({
   message,
@@ -256,11 +294,13 @@ export default function TextMessage({
               flexDirection: "column",
             }}
           >
-            <ReactMarkdown>
-              {typeof displayedMessage === "string"
-                ? displayedMessage
-                : JSON.stringify(displayedMessage)}
-            </ReactMarkdown>
+            <article className="markdown-body">
+              <ReactMarkdown>
+                {typeof displayedMessage === "string"
+                  ? displayedMessage
+                  : JSON.stringify(displayedMessage)}
+              </ReactMarkdown>
+            </article>
 
             {sender === "bot" && !isSmallScreen && (
               <Box sx={{ mb: 2 }}>
