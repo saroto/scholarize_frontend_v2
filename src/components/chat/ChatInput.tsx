@@ -50,6 +50,7 @@ export default function ChatInput({
         }}
         sx={{
           backgroundColor: "background.paper",
+          borderRadius: "16px",
           ...inputProps.sx,
         }}
       />
