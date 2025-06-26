@@ -44,7 +44,10 @@ export function PillRenderer({ labels }: { labels: string[] }) {
           marginRight: "0.5rem",
         }}
       >
-        <Typography variant="body2" sx={{ fontWeight: 400 }}>
+        <Typography
+          // variant="body2"
+          sx={{ fontWeight: 400, fontSize: "12px" }}
+        >
           {label}
         </Typography>
       </Box>

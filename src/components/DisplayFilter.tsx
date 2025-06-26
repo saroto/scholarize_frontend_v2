@@ -99,102 +99,54 @@ export default function DisplayFilter() {
         alignItems: "center",
       }}
     >
-      {selectedSearchEngine.length > 0 && (
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            gap: 1,
-            alignItems: "center",
-          }}
-        >
-          <Typography variant="subtitle2" color="text.secondary">
-            Search Engine:
-          </Typography>
-          {/* {renderPill(getSearchEngineLabel(selectedSearchEngine))} */}
-          <PillRenderer labels={[getSearchEngineLabel(selectedSearchEngine)]} />
-        </Box>
-      )}
-
-      {selectedSort.length > 0 && (
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            gap: 1,
-            alignItems: "center",
-          }}
-        >
-          <Typography variant="subtitle2" color="text.secondary">
-            Sort By:
-          </Typography>
-          {/* {renderPill(selectedSort)} */}
-          <PillRenderer labels={[selectedSort]} />
-        </Box>
-      )}
-
-      {selectedTypeLabels.length > 0 && (
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            gap: 1,
-            alignItems: "center",
-          }}
-        >
-          <Typography variant="subtitle2" color="text.secondary">
-            Types:
-          </Typography>
-          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-            {/* {selectedTypeLabels.map((label) => renderPill(label))} */}
-            <PillRenderer
-              labels={selectedTypeLabels.map((label) => String(label))}
-            />
-          </Box>
-        </Box>
-      )}
-
-      {selectedDepartmentLabels.length > 0 && (
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            gap: 1,
-            alignItems: "center",
-          }}
-        >
-          <Typography variant="subtitle2" color="text.secondary">
-            Departments:
-          </Typography>
-          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-            {/* {selectedDepartmentLabels.map((label) => renderPill(label))} */}
-            <PillRenderer
-              labels={selectedDepartmentLabels.map((label) => String(label))}
-            />
-          </Box>
-        </Box>
-      )}
-
-      {selectedYearLabels.length > 0 && (
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            gap: 1,
-            alignItems: "center",
-          }}
-        >
-          <Typography variant="subtitle2" color="text.secondary">
-            Years:
-          </Typography>
-          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-            {/* {selectedYearLabels.map((year) => PillRenderer(String(year)))} */}
-            <PillRenderer
-              labels={selectedYearLabels.map((year) => String(year))}
-            />
-          </Box>
-        </Box>
-      )}
+      <FilterGroup
+        title="Search Engine"
+        labels={[getSearchEngineLabel(selectedSearchEngine)]}
+      />
+      <FilterGroup title="Sort By" labels={[selectedSort]} />
+      <FilterGroup
+        title="Types"
+        labels={selectedTypeLabels.map((label) => String(label))}
+      />
+      <FilterGroup
+        title="Departments"
+        labels={selectedDepartmentLabels.map((label) => String(label))}
+      />
+      <FilterGroup
+        title="Years"
+        labels={selectedYearLabels.map((year) => String(year))}
+      />
     </Box>
   );
 }
+
+const FilterGroup = ({
+  title,
+  labels,
+}: {
+  title: string;
+  labels: string[];
+}) => {
+  if (labels.length === 0) return null;
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "row",
+        gap: 1,
+        alignItems: "center",
+      }}
+    >
+      <Typography
+        color="text.secondary"
+        sx={{ fontSize: "12px", fontWeight: 500 }}
+      >
+        {title}:
+      </Typography>
+      <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+        <PillRenderer labels={labels} />
+      </Box>
+    </Box>
+  );
+};
