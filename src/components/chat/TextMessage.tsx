@@ -11,6 +11,7 @@ import {
 import ReactMarkdown from "react-markdown";
 import { useState, useEffect } from "react";
 import usePageStore from "@/stores/StorePageNumber";
+import "./ChatMarkDown.css";
 
 // Keyframes for the loading dots animation
 const loadingDots = keyframes`
@@ -256,11 +257,21 @@ export default function TextMessage({
               flexDirection: "column",
             }}
           >
-            <ReactMarkdown>
-              {typeof displayedMessage === "string"
-                ? displayedMessage
-                : JSON.stringify(displayedMessage)}
-            </ReactMarkdown>
+            <article className="markdown-body">
+              <ReactMarkdown
+                components={{
+                  li: ({ node, children, ...props }) => (
+                    <li className="text-base mb-2" {...props}>
+                      {children}
+                    </li>
+                  ),
+                }}
+              >
+                {typeof displayedMessage === "string"
+                  ? displayedMessage
+                  : JSON.stringify(displayedMessage)}
+              </ReactMarkdown>
+            </article>
 
             {sender === "bot" && !isSmallScreen && (
               <Box sx={{ mb: 2 }}>
