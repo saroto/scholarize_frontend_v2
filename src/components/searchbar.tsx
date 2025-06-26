@@ -14,6 +14,7 @@ import {
   useMediaQuery,
   ToggleButtonGroup,
   ToggleButton,
+  IconButton,
 } from "@mui/material";
 import Box from "@mui/material/Box";
 import InputBase from "@mui/material/InputBase";
@@ -22,6 +23,9 @@ import { SelectChangeEvent } from "@mui/material/Select";
 import { useState, useEffect } from "react";
 import useSearchStore from "@/stores/useSearchStore";
 import DisplayFilter from "./DisplayFilter";
+import CustomPopper from "./CustomPopper";
+import HelpIcon from "@mui/icons-material/Help";
+import ToggleSwitchSearch from "./ToggleSwitchSearch";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -120,9 +124,26 @@ export default function PrimarySearchAppBar() {
     }
   };
 
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const id = open ? "info-popper" : undefined;
+  const handleMouseEnter = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMouseLeave = () => {
+    setAnchorEl(null);
+  };
+  // const handleSearchEngineToggle = (
+  //   _e: React.MouseEvent | null,
+  //   engine: "meilisearch" | "semantic"
+  // ) => {
+  //   setSearchEngine(engine);
+  // };
+
   return (
     <>
-      {isLargeScreen && (
+      {/* {isLargeScreen && (
         <Box className="flex pb-2">
           <Box className="inline-flex rounded-2xl bg-gray-100 p-1">
             <button
@@ -147,7 +168,8 @@ export default function PrimarySearchAppBar() {
             </button>
           </Box>
         </Box>
-      )}
+      )} */}
+
       <Box sx={{ display: "flex", flexDirection: "column", gap: "10px" }}>
         {" "}
         <Box
@@ -158,33 +180,6 @@ export default function PrimarySearchAppBar() {
             width: "100%",
           }}
         >
-          {" "}
-          {!isLargeScreen && (
-            <Box className="flex justify-center">
-              <Box className="inline-flex rounded-2xl bg-gray-100 p-1 gap-1">
-                <button
-                  className={`rounded-xl px-4 py-1 text-sm font-medium transition-all ${
-                    searchEngine === "meilisearch"
-                      ? "bg-white text-blue-700 shadow-sm"
-                      : "bg-transparent text-gray-600 hover:bg-gray-50"
-                  }`}
-                  onClick={(e) => handleSearchEngineToggle(e, "meilisearch")}
-                >
-                  Keyword
-                </button>
-                <button
-                  className={`rounded-xl px-4 py-1 text-sm font-medium transition-all ${
-                    searchEngine === "semantic"
-                      ? "bg-white text-blue-700 shadow-sm"
-                      : "bg-transparent text-gray-600 hover:bg-gray-50"
-                  }`}
-                  onClick={(e) => handleSearchEngineToggle(e, "semantic")}
-                >
-                  Semantic
-                </button>
-              </Box>
-            </Box>
-          )}
           <Box
             sx={{
               display: "flex",
@@ -259,12 +254,40 @@ export default function PrimarySearchAppBar() {
             </MenuItem>
           </Select>
         </Box>
+        <Box sx={{ display: "flex", flexDirection: "row", gap: "10px" }}>
+          <ToggleSwitchSearch
+            searchEngine={searchEngine}
+            onToggle={(e, engine) => handleSearchEngineToggle(e, engine)}
+            onHelpMouseEnter={handleMouseEnter}
+            onHelpMouseLeave={handleMouseLeave}
+          />
+        </Box>
         {!isSmallScreen && (
-          <Box>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              gap: "10px",
+              alignItems: "center",
+            }}
+          >
             <DisplayFilter />
           </Box>
         )}
       </Box>
+      <CustomPopper id={id} open={open} anchorEl={anchorEl}>
+        <div
+          style={{
+            padding: "8px",
+            maxWidth: "240px",
+            fontSize: "0.875rem",
+            color: "#555",
+          }}
+        >
+          Configure your result - semantic search power all the results with the
+          help of AI
+        </div>
+      </CustomPopper>
     </>
   );
 }
