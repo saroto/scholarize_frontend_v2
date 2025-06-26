@@ -1,26 +1,15 @@
-/** @format */
-
-import { withAuth } from "next-auth/middleware";
-import { NextResponse, NextRequest } from "next/server";
-
-const mockToken = {
-  id: "user123",
-  email: "test@example.com",
-  name: "Test User",
-  exp: Math.floor(Date.now() / 1000) + 60 * 60, // Expires in 1 hour
-};
-
+import { NextRequestWithAuth, withAuth } from "next-auth/middleware";
+import { getSession } from "next-auth/react";
+import { NextResponse } from "next/server";
 export default withAuth(
-  function middleware(request) {
-    const mockToken = {
-      id: "user123",
-      email: "test@example.com",
-      name: "Test User",
-      exp: Math.floor(Date.now() / 1000) + 60 * 60, // Expires in 1 hour
+  async function middleware(request: NextRequestWithAuth) {
+    const requestForNextAuth = {
+      headers: {
+        cookie: request.headers.get("cookie") ?? undefined,
+      },
     };
-
-    const token = request.nextauth.token;
-    if (!token) {
+    const session = await getSession({ req: requestForNextAuth });
+    if (!session) {
       return NextResponse.redirect(new URL("/auth/signin", request.url));
     } else {
       if (request.nextUrl.pathname === "/dashboard") {
@@ -33,23 +22,18 @@ export default withAuth(
   },
   {
     callbacks: {
-      authorized: ({ token }) => {
-        return !!token;
+      authorized: async ({ token, req }) => {
+        const requestForNextAuth = {
+          headers: {
+            cookie: req.headers.get("cookie") ?? undefined,
+          },
+        };
+        const session = await getSession({ req: requestForNextAuth });
+        return !!session?.user;
       },
     },
   }
 );
-
-// export function middleware(request: NextRequest) {
-//   if (mockToken) {
-//     if (request.nextUrl.pathname === "/dashboard") {
-//       return NextResponse.redirect(
-//         new URL("/dashboard/repository/research-library", request.url)
-//       );
-//     }
-//   }
-//   return NextResponse.next();
-// }
 
 export const config = {
   matcher: ["/dashboard/:path*"],

@@ -4,17 +4,21 @@
 import Button from "@mui/material/Button";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
+import { useTheme } from "@mui/material";
+import { useMediaQuery } from "@mui/material";
 export default function ErrorPage() {
   const router = useRouter();
-
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
+  const isLargeScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const handleSignIn = () => {
     router.push("/auth/signin");
   };
 
   return (
-    <div className="bg-gray-300 flex items-center justify-center min-h-screen">
+    <div className="bg-gray-300 flex items-center justify-center min-h-screen w-full">
       <div
-        className="border-[0.2rem] border-[#000] p-6 py-6 rounded-[2rem] w-[40%]
+        className="border-[0.2rem] border-[#000] p-6 py-6 rounded-[2rem] max-w-[600px] 
       bg-[#f5f5f5]
       "
       >

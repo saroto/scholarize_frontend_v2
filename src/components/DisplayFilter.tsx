@@ -1,9 +1,10 @@
 import { useResearchPaperStore } from "@/stores/StoreResearchPaper";
 import useSearchStore, { SearchStoreState } from "@/stores/useSearchStore";
 import { Department, PaperType, ResearchPaper } from "@/types";
-import { Box, Typography } from "@mui/material";
+import { Box, IconButton, Typography } from "@mui/material";
 import { useState, useEffect, useRef } from "react";
 import { PillRenderer } from "./PillRenderer";
+import ClearIcon from "@mui/icons-material/Clear";
 
 export default function DisplayFilter() {
   const { filters, updateFilters } = useSearchStore();
@@ -90,63 +91,105 @@ export default function DisplayFilter() {
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "row",
-        gap: 4,
-        flexWrap: "wrap",
-        alignItems: "center",
-      }}
-    >
-      <FilterGroup
+    <>
+      {selectedDepartmentLabels.length > 0 ||
+      selectedTypeLabels.length > 0 ||
+      selectedYearLabels.length > 0 ? (
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            // gap: 4,
+            flexWrap: "wrap",
+            alignItems: "center",
+          }}
+        >
+          {selectedDepartmentLabels.length > 0 ||
+          selectedTypeLabels.length > 0 ||
+          selectedYearLabels.length > 0 ? (
+            <Typography
+              color="text.secondary"
+              sx={{ fontSize: "12px", fontWeight: 500, mr: 1 }}
+            >
+              Active Filters:
+            </Typography>
+          ) : null}
+          {/* <FilterGroup
         title="Search Engine"
         labels={[getSearchEngineLabel(selectedSearchEngine)]}
-      />
-      <FilterGroup title="Sort By" labels={[selectedSort]} />
-      <FilterGroup
-        title="Types"
-        labels={selectedTypeLabels.map((label) => String(label))}
-      />
-      <FilterGroup
-        title="Departments"
-        labels={selectedDepartmentLabels.map((label) => String(label))}
-      />
-      <FilterGroup
-        title="Years"
-        labels={selectedYearLabels.map((year) => String(year))}
-      />
-    </Box>
+      /> */}
+          {/* <FilterGroup title="Sort By" labels={[selectedSort]} /> */}
+
+          <FilterGroup
+            // title="Types"
+            labels={selectedTypeLabels.map((label) => String(label))}
+            onDelete={(label) => {
+              // Find the id corresponding to the label
+              const typeToRemove = uniqueTypes.find(
+                (type) => type.name === label
+              );
+              if (!typeToRemove) return;
+              updateFilters({
+                research_type: selectedType.filter(
+                  (id) => id !== typeToRemove.id
+                ),
+              });
+            }}
+          />
+
+          <FilterGroup
+            // title="Departments"
+            labels={selectedDepartmentLabels.map((label) => String(label))}
+            onDelete={(label) => {
+              // Find the id corresponding to the label
+              const deptToRemove = uniqueDepartments.find(
+                (dept) => dept.department_tag === label
+              );
+              if (!deptToRemove) return;
+              updateFilters({
+                department: selectedDepartment.filter(
+                  (id) => id !== deptToRemove.id
+                ),
+              });
+            }}
+          />
+
+          <FilterGroup
+            // title="Years"
+            labels={selectedYearLabels.map((year) => String(year))}
+            onDelete={(label) =>
+              updateFilters({
+                year: selectedYearLabels
+                  .filter((l) => String(l) !== label)
+                  .map((l) => String(l)),
+              })
+            }
+          />
+          {/* {selectedDepartmentLabels.length > 0 ||
+      selectedTypeLabels.length > 0 ||
+      selectedYearLabels.length > 0 ? (
+        <IconButton>
+          <ClearIcon color="error" fontSize="small" onClick={handleDelete} />
+        </IconButton>
+      ) : null} */}
+        </Box>
+      ) : null}
+    </>
   );
 }
 
-const FilterGroup = ({
-  title,
+export const FilterGroup = ({
   labels,
+  onDelete,
 }: {
-  title: string;
   labels: string[];
+  onDelete?: (label: string) => void;
 }) => {
   if (labels.length === 0) return null;
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "row",
-        gap: 1,
-        alignItems: "center",
-      }}
-    >
-      <Typography
-        color="text.secondary"
-        sx={{ fontSize: "12px", fontWeight: 500 }}
-      >
-        {title}:
-      </Typography>
-      <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-        <PillRenderer labels={labels} />
-      </Box>
+    <Box sx={{ display: "flex", flexWrap: "wrap" }}>
+      <PillRenderer labels={labels} onDelete={onDelete} />
     </Box>
   );
 };

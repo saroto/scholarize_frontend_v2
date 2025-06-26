@@ -1,5 +1,7 @@
 import React, { useRef } from "react";
 import { Box, Typography } from "@mui/material";
+import IconButton from "@mui/material/IconButton";
+import ClearIcon from "@mui/icons-material/Clear";
 
 const colors = [
   "#e0f7fa",
@@ -14,8 +16,14 @@ const colors = [
   "#e8eaf6",
 ];
 
-export function PillRenderer({ labels }: { labels: string[] }) {
-  const labelColorMap = useRef<{ [label: string]: string }>({});
+export const PillRenderer = ({
+  labels,
+  onDelete,
+}: {
+  labels: string[];
+  onDelete?: (label: string) => void;
+}) => {
+  const labelColorMap = useRef<Record<string, string>>({});
 
   const getColorForLabel = (label: string) => {
     if (!labelColorMap.current[label]) {
@@ -35,24 +43,60 @@ export function PillRenderer({ labels }: { labels: string[] }) {
       <Box
         key={label}
         sx={{
+          display: "flex",
+          alignItems: "center",
           px: 1.5,
           py: 0.5,
           borderRadius: 1,
           backgroundColor: color,
-          color: "grey.800",
-          display: "inline-block",
+          fontSize: "12px",
+          fontWeight: 500,
+          color: "#333",
           marginRight: "0.5rem",
+          position: "relative",
+          maxWidth: "100%",
+          overflow: "hidden",
+          "&:hover .delete-btn": {
+            display: "inline-flex",
+          },
+          "&:hover .label-text": {
+            maxWidth: "calc(100% - 24px)",
+          },
         }}
       >
         <Typography
-          // variant="body2"
-          sx={{ fontWeight: 400, fontSize: "12px" }}
+          className="label-text"
+          sx={{
+            fontSize: "12px",
+            fontWeight: 400,
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            maxWidth: "100%",
+          }}
         >
           {label}
         </Typography>
+
+        {onDelete && (
+          <IconButton
+            className="delete-btn"
+            size="small"
+            sx={{
+              display: "none",
+              padding: 0,
+              marginLeft: "4px",
+              width: "20px",
+              height: "20px",
+            }}
+            onClick={() => onDelete(label)}
+          >
+            <ClearIcon fontSize="inherit" />
+          </IconButton>
+        )}
       </Box>
     );
   };
 
-  return <Box>{labels.map(renderPill)}</Box>;
-}
+  return <>{labels.map((label) => renderPill(label))}</>;
+};
