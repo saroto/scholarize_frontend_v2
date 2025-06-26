@@ -254,26 +254,14 @@ export default function PrimarySearchAppBar() {
             </MenuItem>
           </Select>
         </Box>
-        <Box sx={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <ToggleSwitchSearch
-            searchEngine={searchEngine}
-            onToggle={(e, engine) => handleSearchEngineToggle(e, engine)}
-            onHelpMouseEnter={handleMouseEnter}
-            onHelpMouseLeave={handleMouseLeave}
-          />
-        </Box>
-        {!isSmallScreen && (
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              gap: "10px",
-              alignItems: "center",
-            }}
-          >
-            <DisplayFilter />
-          </Box>
-        )}
+        <ToggleSwitchSearch
+          searchEngine={searchEngine}
+          onToggle={(e, engine) => handleSearchEngineToggle(e, engine)}
+          onHelpMouseEnter={handleMouseEnter}
+          onHelpMouseLeave={handleMouseLeave}
+        />
+      
+        <DisplayFilter />
       </Box>
       <CustomPopper id={id} open={open} anchorEl={anchorEl}>
         <div
