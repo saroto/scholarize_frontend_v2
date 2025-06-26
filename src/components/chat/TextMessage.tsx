@@ -258,7 +258,15 @@ export default function TextMessage({
             }}
           >
             <article className="markdown-body">
-              <ReactMarkdown>
+              <ReactMarkdown
+                components={{
+                  li: ({ node, children, ...props }) => (
+                    <li className="text-base mb-2" {...props}>
+                      {children}
+                    </li>
+                  ),
+                }}
+              >
                 {typeof displayedMessage === "string"
                   ? displayedMessage
                   : JSON.stringify(displayedMessage)}
