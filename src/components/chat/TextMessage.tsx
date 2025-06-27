@@ -11,7 +11,7 @@ import {
 import ReactMarkdown from "react-markdown";
 import { useState, useEffect } from "react";
 import usePageStore from "@/stores/StorePageNumber";
-import "./ChatMarkDown.css";
+import "./ChatMarkdown.css";
 
 // Keyframes for the loading dots animation
 const loadingDots = keyframes`
