@@ -96,7 +96,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
         />
         <Box sx={{ height: "100%", overflow: "auto", width: "100%" }}>
           {/* <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.0.279/build/pdf.worker.min.js"> */}
-          <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.179/build/pdf.worker.min.js">
+          <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
             <Viewer
               fileUrl={url ?? ""}
               plugins={[
