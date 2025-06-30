@@ -246,9 +246,12 @@ interface Approve {
   author: string;
   published_at: string;
 }
+interface ApproveWithEmail extends Approve {
+  approval_email: string;
+}
 
 interface ApproveDialogProps {
-  approve: Approve;
+  approve: ApproveWithEmail;
   open: boolean;
   onClose: () => void;
 }

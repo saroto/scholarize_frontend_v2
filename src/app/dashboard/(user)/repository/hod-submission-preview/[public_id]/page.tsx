@@ -41,6 +41,7 @@ export default function submissionPreview({
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
   const [approveData, setApproveData] = useState<any>();
   const [rejectData, setRejectData] = useState<any>();
+
   const handleApproveDialogClose = () => {
     setIsApprovalDialogOpen(false);
   };
@@ -75,6 +76,7 @@ export default function submissionPreview({
         research_type: submissionHodPaper?.paper?.research_type,
         author: submissionHodPaper?.paper?.author,
         published_at: submissionHodPaper?.paper?.published_at,
+        approval_email: session?.user.email,
       };
       setApproveData(approveData); // You need to have this state set up to hold the data
       setIsApprovalDialogOpen(true);
@@ -102,12 +104,12 @@ export default function submissionPreview({
   //   .join(", ");
   if (!submissionHodPaper)
     return (
-      <div className="p-5 flex justify-center">
+      <div className="flex justify-center p-5">
         <CircularProgress />
       </div>
     );
   return (
-    <div className="p-5 flex justify-center overflow-auto mb-4">
+    <div className="flex justify-center p-5 mb-4 overflow-auto">
       <Box
         sx={{
           width: isSmallScreen ? "100%" : "60%",

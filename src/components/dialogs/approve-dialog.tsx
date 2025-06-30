@@ -44,13 +44,15 @@ const ApproveDialogs: React.FC<ApproveDialogProps> = ({
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  console.log("approve", approve);
   const Approve = async () => {
     setIsLoading(true);
     try {
       const response = await approveResearchPaper(
         session?.user.token,
         approve.research_paper_id as any,
-        approve.approval_status as any
+        approve.approval_status as any,
+        approve.approval_email as any
       );
       if (response && response.success) {
         toast.success("Research Paper Approved Successfully");
