@@ -82,12 +82,12 @@ export default function ScheduleLeftSideBar({
                 whiteSpace: "nowrap",
                 overflow: "hidden",
                 width: "100%",
-                "& .MuiTypography-root": {
-                  fontWeight: "550",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                },
+                // "& .MuiTypography-root": {
+                //   fontWeight: "550",
+                //   textOverflow: "ellipsis",
+                //   whiteSpace: "nowrap",
+                //   overflow: "hidden",
+                // },
               }}
             />
           </Tooltip>

@@ -82,8 +82,11 @@ const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
 
   // Default for larger screens
   marginLeft:
-    open &&
-    window.location.pathname === "/dashboard/repository/research-library"
+    (open &&
+      window.location.pathname === "/dashboard/repository/research-library") ||
+    window.location.pathname.startsWith("/dashboard/collaboration") ||
+    window.location.pathname.startsWith("/dashboard/schedule") ||
+    window.location.pathname.startsWith("/dashboard/collaboration/group")
       ? `${DrawerWidth}px`
       : 0,
   // marginRight: open ? `${DrawerWidth}px` : 0,
@@ -147,6 +150,9 @@ export default function DashboardNavbar({
   const pathname = usePathname();
   const isRepository = pathname === "/dashboard/repository/research-library";
   const isCollaboration = pathname?.startsWith("/dashboard/collaboration");
+  const isInCollaborationGroup = pathname?.startsWith(
+    "/dashboard/collaboration/group"
+  );
   const isSchedule = pathname?.startsWith("/dashboard/schedule");
 
   useEffect(() => {
@@ -206,10 +212,22 @@ export default function DashboardNavbar({
   console.log("session", session);
 
   useEffect(() => {
-    if (!isRepository && !isSmallScreen) {
+    if (
+      !isRepository &&
+      !isCollaboration &&
+      !isInCollaborationGroup &&
+      !isSchedule &&
+      !isSmallScreen
+    ) {
       setDrawer(false);
     }
-  }, [isRepository]);
+  }, [
+    isRepository,
+    isCollaboration,
+    isInCollaborationGroup,
+    isSchedule,
+    isSmallScreen,
+  ]);
 
   return (
     <Box sx={{ flexGrow: 1, overflow: "hidden", height: "100%" }}>
@@ -611,7 +629,7 @@ export default function DashboardNavbar({
       </AppBar>
       {/* </Box> */}
 
-      {!isSmallScreen && isRepository && (
+      {/* {!isSmallScreen && isRepository && (
         <Drawer
           anchor="left"
           open={drawer}
@@ -634,7 +652,30 @@ export default function DashboardNavbar({
         >
           {leftSideBar}
         </Drawer>
-      )}
+      )} */}
+
+      <Drawer
+        anchor="left"
+        open={drawer}
+        variant="persistent"
+        PaperProps={{
+          sx(theme) {
+            return {
+              position: "fixed",
+              backgroundColor: "transparent",
+              border: 0,
+              marginLeft: "20px",
+              // zIndex below appBar by 1
+              zIndex: 1099,
+              width: DrawerWidth,
+              top: theme.spacing(8), // push content down to fix scrollbar position
+              height: `calc(100% - ${theme.spacing(8)})`, // subtract appbar height
+            };
+          },
+        }}
+      >
+        {leftSideBar}
+      </Drawer>
 
       {/* mobile drawer */}
       {isSmallScreen && (

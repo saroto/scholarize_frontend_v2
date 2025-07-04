@@ -12,6 +12,7 @@ import { SocketIOProvider } from "@/socketio/SocketIOProvider";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { getAllFolders } from "@/app/api/service/collab/file-storage/getAllFolders";
+import CollaborationGroupSidebar from "@/components/sidebar/collaboration_group_in_sidebar";
 import { Box } from "@mui/material";
 
 type Params = {
@@ -81,7 +82,7 @@ export default function CollaborationLayout({
       <SocketIOProvider>
         <DashboardNavbar
           leftSideBar={
-            <DashboardLeftSideBar sectionLists={inGroupSideBarLists} />
+            <CollaborationGroupSidebar sectionLists={inGroupSideBarLists} />
           }
           openDrawer={true}
         >
