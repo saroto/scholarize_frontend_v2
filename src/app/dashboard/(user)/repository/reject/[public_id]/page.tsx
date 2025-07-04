@@ -239,7 +239,15 @@ export default function SubmitForm({ params }: { params: rejectProp }) {
   };
 
   return (
-    <Box sx={{ width: "100%", padding: 4, display: "flex", overflow: "auto" }}>
+    <Box
+      sx={{
+        width: "100%",
+        padding: 4,
+        display: "flex",
+        overflow: "auto",
+        height: "100%",
+      }}
+    >
       <Box
         sx={{
           display: "flex",
