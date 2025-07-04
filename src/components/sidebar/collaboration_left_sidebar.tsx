@@ -99,11 +99,11 @@ function HeaderSection({
               textWrap: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
-              "& .MuiListItemText-primary": {
-                pl: 1,
-                fontWeight: "bold",
-                color: selected ? "#7200BB" : "black",
-              },
+              // "& .MuiListItemText-primary": {
+              //   pl: 1,
+              //   fontWeight: "bold",
+              //   color: selected ? "#7200BB" : "black",
+              // },
             }}
           />
           <ExpandMoreRotate
