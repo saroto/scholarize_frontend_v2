@@ -51,7 +51,7 @@ BrowserPaperCardProps) {
               border: "1px solid",
               borderColor: "#ddd",
               boxShadow: 0,
-              backgroundColor: "secondary.main",
+              backgroundColor: "white",
             }}
             key={paper.research_paper_id}
           >

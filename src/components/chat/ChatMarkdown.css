@@ -103,6 +103,7 @@
 }
 
 /* Inline code */
+
 .markdown-body code {
   background-color: #f6f8fa;
   padding: 0.2em 0.4em;
@@ -110,6 +111,7 @@
   font-size: 0.95em;
   font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
   border-radius: 3px;
+  white-space: break-spaces;
 }
 
 /* Code blocks */
@@ -118,10 +120,13 @@
   color: #f8f8f2;
   padding: 1rem;
   border-radius: 6px;
-  overflow-x: auto;
   font-size: 0.875rem;
   font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
   margin-bottom: 1rem;
+  overflow: visible;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: none;
 }
 
 /* Horizontal Rule */

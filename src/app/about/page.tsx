@@ -13,6 +13,7 @@ import {
 import type { Metadata } from "next";
 import juden from "../../../public/memberPic/1.png";
 import kimsinh from "../../../public/memberPic/4.png";
+import sak from "../../../public/memberPic/5.png";
 import pitou from "../../../public/memberPic/3.png";
 import jemmy from "../../../public/memberPic/2.png";
 import Logo from "../../../public/logo.png";
@@ -25,21 +26,21 @@ export const metadata: Metadata = {
 const developers = [
   {
     name: "Juden Ung",
-    role: "Project Manager",
+    roles: ["Project Manager"],
     image: juden,
     major: "B.Sc. in Computer Science",
     email: "ung.juden@gmail.com",
   },
   {
     name: "Jemmy Seang",
-    role: "Tech Lead",
+    roles: ["Tech Lead"],
     image: jemmy,
     major: "B.Sc. in Management of Information Systems",
     email: "jemmyloveu2@gmail.com",
   },
   {
     name: "Pitou Noun",
-    role: "Data Analyst",
+    roles: ["Data Analyst"],
     description: "Description of Developer 2",
     image: pitou,
     major: "B.Sc. in Computer Science",
@@ -47,10 +48,20 @@ const developers = [
   },
   {
     name: "Kimsinh Seang",
-    role: "Software Engineer",
+    roles: [
+      "Software Engineer for Scholarize",
+      "Tech Lead for Scholarize 2.0 (SPaRCS-AIM)",
+    ],
     image: kimsinh,
     major: "B.Sc. in Computer Science",
     email: "s.kimsinh@gmail.com",
+  },
+  {
+    name: "Sovannsak Yours",
+    roles: ["Project Manager for Scholarize 2.0 (SPaRCS-AIM)"],
+    image: sak,
+    major: "B.Sc. in Computer Science",
+    email: "sovannsakyoursafk@gmail.com",
   },
 ];
 
@@ -288,14 +299,17 @@ export default function AboutPage() {
                       >
                         {developer.email}
                       </Typography>
-                      <Typography
-                        variant="subtitle1"
-                        textAlign={"center"}
-                        color="#2F2F85"
-                        fontWeight={"550"}
-                      >
-                        {developer.role}
-                      </Typography>
+                      {developer.roles.map((role, index) => (
+                        <Typography
+                          key={index}
+                          variant="subtitle1"
+                          textAlign="center"
+                          color="#2F2F85"
+                          fontWeight="550"
+                        >
+                          {role}
+                        </Typography>
+                      ))}
 
                       <Typography
                         variant="subtitle1"
