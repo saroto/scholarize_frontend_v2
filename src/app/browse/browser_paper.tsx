@@ -12,13 +12,16 @@ import {
   Container,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { getBrowserPaper } from "@/app/api/service/browser-paper";
 import { Paper } from "@/types";
 import BrowserPaperCard from "./browser_paper_card";
 import Promotion from "./promotion";
 
 import Image from "next/image";
+import ToggleSwitchSearch from "@/components/ToggleSwitchSearch";
+import useSearchStore from "@/stores/useSearchStore";
+import CustomPopper from "@/components/CustomPopper";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -70,6 +73,11 @@ export default function BrowserPaper() {
   const [searchResult, setSearchResult] = useState<Paper[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isTryNow, setIsTryNow] = useState(true);
+  const { updateFilters } = useSearchStore();
+  const [searchEngine, setSearchEngine] = useState<"meilisearch" | "semantic">(
+    "meilisearch"
+  );
+
   const fetchPapers = async (term: string) => {
     if (term === "") {
       setSearchResult([]);
@@ -77,15 +85,26 @@ export default function BrowserPaper() {
       return;
     }
     setIsLoading(true);
-    const res = await getBrowserPaper(term);
+    const res = await getBrowserPaper(term, searchEngine);
     setSearchResult(res.papers);
     setIsLoading(false);
   };
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);
-    // debouncedFetchPapers(event.target.value);
+  useEffect(() => {
+    fetchPapers(searchTerm);
+  }, [searchEngine]);
+
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const id = open ? "info-popper" : undefined;
+  const handleMouseEnter = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
   };
+
+  const handleMouseLeave = () => {
+    setAnchorEl(null);
+  };
+
   const handleSearchClick = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (searchTerm.trim() !== "") {
@@ -93,6 +112,24 @@ export default function BrowserPaper() {
     }
   };
 
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+    // debouncedFetchPapers(event.target.value);
+  };
+
+  const handleSearchEngineChange = (value: "meilisearch" | "semantic") => {
+    setSearchEngine(value);
+    updateFilters({ search_engine: value });
+  };
+
+  const handleSearchEngineToggle = (
+    _: React.MouseEvent<HTMLElement>,
+    newValue: "meilisearch" | "semantic"
+  ) => {
+    if (newValue !== null) {
+      handleSearchEngineChange(newValue);
+    }
+  };
   // Extract the nested ternary operation into an independent statement
   let content;
   if (isLoading) {
@@ -214,6 +251,12 @@ export default function BrowserPaper() {
               </Search>
             </form>
           </div>
+          <ToggleSwitchSearch
+            searchEngine={searchEngine}
+            onToggle={(e, engine) => handleSearchEngineToggle(e, engine)}
+            onHelpMouseEnter={handleMouseEnter}
+            onHelpMouseLeave={handleMouseLeave}
+          />
 
           <div className="mt-4">{content}</div>
           {/* {!isTryNow ? (
@@ -256,6 +299,19 @@ export default function BrowserPaper() {
           )}
         </Box>
       </Box>
+      <CustomPopper id={id} open={open} anchorEl={anchorEl}>
+        <div
+          style={{
+            padding: "8px",
+            maxWidth: "240px",
+            fontSize: "0.875rem",
+            color: "#555",
+          }}
+        >
+          Configure your result - semantic search power all the results with the
+          help of AI
+        </div>
+      </CustomPopper>
     </>
   );
 }

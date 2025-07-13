@@ -2,15 +2,22 @@
 
 "use server";
 
-export async function getBrowserPaper(search: string) {
+import { SearchOptions } from "@/types";
+
+export async function getBrowserPaper(
+  search: string,
+  searchOptions: "meilisearch" | "semantic"
+) {
+  const url = new URL(`${process.env.API_URL}/browse?search=${search}`);
+  if (searchOptions) {
+    url.searchParams.append("search_engine", searchOptions);
+  }
+
   try {
-    const response = await fetch(
-      `${process.env.API_URL}/browse?search=${search}`,
-      {
-        cache: "no-cache",
-        method: "GET",
-      }
-    );
+    const response = await fetch(url, {
+      cache: "no-cache",
+      method: "GET",
+    });
     const data = await response.json();
 
     if (!response.ok) {
