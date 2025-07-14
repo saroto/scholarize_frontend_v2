@@ -29,16 +29,16 @@ interface ResearchPaperCardProps {
 const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
   const { data: session } = useSession();
   const [allPapers, setAllPapers] = useState<ResearchPaper[]>([]);
+  console.log("allPapers", allPapers);
   const [userPapers, setUserPapers] = useState<publicResearchPaper | null>(
     null
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  console.log("errorMessage", errorMessage);
 
   const [submission, setSubmission] = useState<SubmissionPaper | null>(null);
   const { filters } = useSearchStore();
-  console.log("filters", filters);
-
-  console.log("isloading", isLoading);
   const router = useRouter();
 
   const { setPapers } = useResearchPaperStore();
@@ -58,7 +58,6 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
                 setIsLoading(false);
                 setAllPapers([]);
                 setPapers([]);
-                // setAllPapers(mockResearchPapers);
                 return;
               }
 
@@ -67,7 +66,6 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
               setPapers(fetchPapers?.data.papers);
             } catch (error) {
               // throw new Error("Failed to fetch data" + error);
-
               setIsLoading(false);
             }
             break;
@@ -166,11 +164,21 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
     if (session?.user.token) {
       const fetchPapers = async () => {
         try {
+          setErrorMessage(null);
+          setIsLoading(true);
           const fetchedPapers = await getResearchPaperBySearch(
             session,
             filters
           );
-          setAllPapers(fetchedPapers); // Assuming you have a state called papers
+          if (fetchedPapers.success === false) {
+            setAllPapers([]);
+            setIsLoading(false);
+            setErrorMessage("Service is now sleeping. Please try again later.");
+            return;
+          }
+
+          setAllPapers(fetchedPapers);
+          setIsLoading(false);
         } catch (error) {
           console.error("Error fetching papers:", error);
         }
@@ -178,6 +186,7 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
       try {
         fetchPapers();
       } catch (error) {
+        setIsLoading(false);
         throw new Error("Failed to fetch data" + error);
       }
     }
@@ -199,17 +208,27 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
           />
         ))}
 
-      {fetchType === "all" &&
-        (allPapers && allPapers !== null ? (
-          allPapers.map((allPapers) => (
-            <Box
+      {!isLoading &&
+        fetchType === "all" &&
+        (errorMessage ? (
+          <Box sx={{ justifyContent: "center", textAlign: "center" }}>
+            <Typography
+              variant="h6"
               sx={{
-                display: "flex",
+                textAlign: "center",
+                color: "#777777",
+                fontStyle: "italic",
+                marginTop: 2,
               }}
             >
+              {errorMessage}
+            </Typography>
+          </Box>
+        ) : allPapers && allPapers.length > 0 ? (
+          allPapers.map((paper) => (
+            <Box key={paper.research_paper_id} sx={{ display: "flex" }}>
               <PaperCardComponent
-                key={allPapers.research_paper_id}
-                paper={allPapers}
+                paper={paper}
                 handleClick={handleClick}
                 handleDownload={handleDownload}
               />

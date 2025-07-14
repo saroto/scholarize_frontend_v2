@@ -654,28 +654,30 @@ export default function DashboardNavbar({
         </Drawer>
       )} */}
 
-      <Drawer
-        anchor="left"
-        open={drawer}
-        variant="persistent"
-        PaperProps={{
-          sx(theme) {
-            return {
-              position: "fixed",
-              backgroundColor: "transparent",
-              border: 0,
-              marginLeft: "20px",
-              // zIndex below appBar by 1
-              zIndex: 1099,
-              width: DrawerWidth,
-              top: theme.spacing(8), // push content down to fix scrollbar position
-              height: `calc(100% - ${theme.spacing(8)})`, // subtract appbar height
-            };
-          },
-        }}
-      >
-        {leftSideBar}
-      </Drawer>
+      {!isSmallScreen && (
+        <Drawer
+          anchor="left"
+          open={drawer}
+          variant="persistent"
+          PaperProps={{
+            sx(theme) {
+              return {
+                position: "fixed",
+                backgroundColor: "transparent",
+                border: 0,
+                marginLeft: "20px",
+                // zIndex below appBar by 1
+                zIndex: 1099,
+                width: DrawerWidth,
+                top: theme.spacing(8), // push content down to fix scrollbar position
+                height: `calc(100% - ${theme.spacing(8)})`, // subtract appbar height
+              };
+            },
+          }}
+        >
+          {leftSideBar}
+        </Drawer>
+      )}
 
       {/* mobile drawer */}
       {isSmallScreen && (
