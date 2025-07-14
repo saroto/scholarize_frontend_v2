@@ -72,23 +72,43 @@ export default function BrowserPaper() {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResult, setSearchResult] = useState<Paper[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isTryNow, setIsTryNow] = useState(true);
   const { updateFilters } = useSearchStore();
   const [searchEngine, setSearchEngine] = useState<"meilisearch" | "semantic">(
     "meilisearch"
   );
 
+  console.log("errorMessage", errorMessage);
   const fetchPapers = async (term: string) => {
     if (term === "") {
       setSearchResult([]);
+      setErrorMessage(null);
       setIsLoading(false);
       return;
     }
     setIsLoading(true);
-    const res = await getBrowserPaper(term, searchEngine);
-    setSearchResult(res.papers);
-    setIsLoading(false);
+    setErrorMessage(null);
+
+    try {
+      const res = await getBrowserPaper(term, searchEngine);
+
+      if (res.success === false) {
+        setSearchResult([]);
+        setErrorMessage("Service is now sleeping. Please try again later.");
+      } else {
+        setSearchResult(res.papers || []);
+        setErrorMessage(null);
+      }
+    } catch (error) {
+      setSearchResult([]);
+      setErrorMessage("Service is now sleeping. Please try again later.");
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  console.log("searchResult", searchResult);
 
   useEffect(() => {
     fetchPapers(searchTerm);
@@ -143,6 +163,22 @@ export default function BrowserPaper() {
         }}
       >
         <CircularProgress />
+      </Box>
+    );
+  } else if (errorMessage) {
+    content = (
+      <Box sx={{ justifyContent: "center", textAlign: "center" }}>
+        <Typography
+          variant="h6"
+          sx={{
+            textAlign: "center",
+            color: "#777777",
+            fontStyle: "italic",
+            marginTop: 4,
+          }}
+        >
+          {errorMessage}
+        </Typography>
       </Box>
     );
   } else if (searchResult && searchResult !== null) {
@@ -266,7 +302,9 @@ export default function BrowserPaper() {
             />
           ) : null} */}
 
-          {(searchResult && searchResult.length > 0) || isLoading ? null : (
+          {(searchResult && searchResult.length > 0) ||
+          errorMessage !== null ||
+          isLoading ? null : (
             <Container
               sx={{
                 display: "flex",

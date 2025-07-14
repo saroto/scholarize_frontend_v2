@@ -171,7 +171,7 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
           );
           if (fetchedPapers.success === false) {
             setAllPapers([]);
-            setErrorMessage("Service now is sleeping. Please try again later.");
+            setErrorMessage("Service is now sleeping. Please try again later.");
             return;
           }
 
