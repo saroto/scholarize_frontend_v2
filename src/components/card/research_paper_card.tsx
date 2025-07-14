@@ -35,9 +35,9 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  console.log("errorMessage", errorMessage);
 
   const [submission, setSubmission] = useState<SubmissionPaper | null>(null);
+
   const { filters } = useSearchStore();
   const router = useRouter();
 
@@ -288,66 +288,67 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
       </Box>
 
       {fetchType === "submitted" &&
-        (submission &&
-        submission.department !== null &&
-        submission.papers !== null ? (
-          submission.papers.map((submissionPapers) => {
-            return (
-              <Box
-                sx={{
-                  width: "100%",
-                  paddingBottom: "1rem",
-                }}
-              >
-                {" "}
-                <PaperCardComponent
+        (!isLoading ? (
+          Array.isArray(submission?.papers) ? (
+            submission.papers.length > 0 ? (
+              submission.papers.map((submissionPapers) => (
+                <Box
                   key={submissionPapers.research_paper_id}
-                  paper={submissionPapers}
-                  handleClick={handleClickSubmission}
-                  handleDownload={handleDownload}
-                />{" "}
+                  sx={{ width: "100%", paddingBottom: "1rem" }}
+                >
+                  <PaperCardComponent
+                    paper={submissionPapers}
+                    handleClick={handleClickSubmission}
+                    handleDownload={handleDownload}
+                  />
+                </Box>
+              ))
+            ) : (
+              <Box sx={{ textAlign: "center", width: "100%" }}>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    textAlign: "center",
+                    color: "#777777",
+                    fontStyle: "italic",
+                    marginTop: 2,
+                  }}
+                >
+                  No research paper found
+                </Typography>
               </Box>
-            );
-          })
-        ) : (
-          <Box
-            sx={{
-              justifyContent: "center",
-              textAlign: "center",
-              width: "100%",
-            }}
-          >
-            {!isLoading ? (
-              <Box>
-                {submission && submission.department === null ? (
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      textAlign: "center",
-                      color: "#777777",
-                      fontStyle: "italic",
-                      marginTop: 2,
-                    }}
-                  >
-                    You are not assigned to any department
-                  </Typography>
-                ) : (
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      textAlign: "center",
-                      color: "#777777",
-                      fontStyle: "italic",
-                      marginTop: 2,
-                    }}
-                  >
-                    No research paper found
-                  </Typography>
-                )}
-              </Box>
-            ) : null}
-          </Box>
-        ))}
+            )
+          ) : (
+            <Box sx={{ textAlign: "center", width: "100%" }}>
+              {submission?.department === null ? (
+                <Typography
+                  variant="h6"
+                  sx={{
+                    textAlign: "center",
+                    color: "#777777",
+                    fontStyle: "italic",
+                    marginTop: 2,
+                  }}
+                >
+                  You are not assigned to any department
+                </Typography>
+              ) : (
+                <Typography
+                  variant="h6"
+                  sx={{
+                    textAlign: "center",
+                    color: "#777777",
+                    fontStyle: "italic",
+                    marginTop: 2,
+                  }}
+                >
+                  Error fetching submitted papers
+                </Typography>
+              )}
+            </Box>
+          )
+        ) : null)}
+
       {/* {fetchType === "browser" &&(
           <Box sx={{ justifyContent: "center", textAlign: "center" }}>
             <Typography
