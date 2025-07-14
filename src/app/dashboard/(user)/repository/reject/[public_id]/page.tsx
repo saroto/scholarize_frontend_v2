@@ -8,6 +8,8 @@ import {
   SelectChangeEvent,
   Typography,
   Button,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
@@ -238,22 +240,27 @@ export default function SubmitForm({ params }: { params: rejectProp }) {
     setShowPdfPath(false); // Hide pdf_path when a file is chosen
   };
 
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
   return (
     <div className="p-5 flex justify-center overflow-auto mb-4">
       <Box
         sx={{
-          width: "100%",
-          padding: 4,
+          width: isSmallScreen ? "100%" : "100%",
           display: "flex",
-          overflow: "auto",
           height: "100%",
+          flexDirection: "column",
+          gap: "10px",
+          alignItems: "center",
         }}
       >
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
+            justifyContent: "space-between", // Distributes left and right properly
+            width: "100%", // Ensure it spans the full width
+            position: "relative", // For absolute positioning inside
           }}
         >
           <Button
@@ -262,7 +269,6 @@ export default function SubmitForm({ params }: { params: rejectProp }) {
               textDecoration: "none",
               alignItems: "center",
               display: "flex",
-              height: "auto",
               fontSize: "1rem",
               color: "#777777",
               ":hover": {
@@ -278,10 +284,9 @@ export default function SubmitForm({ params }: { params: rejectProp }) {
           <Typography
             variant="h4"
             sx={{
-              marginBottom: 3,
               textAlign: "center",
-              alignItems: "center",
-              fontWeight: "550",
+              fontWeight: 550,
+              margin: "0 auto", // Centered within flex
             }}
           >
             Rejected Submission
