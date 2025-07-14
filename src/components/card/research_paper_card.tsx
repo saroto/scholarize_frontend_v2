@@ -35,9 +35,9 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  console.log("errorMessage", errorMessage);
 
   const [submission, setSubmission] = useState<SubmissionPaper | null>(null);
+
   const { filters } = useSearchStore();
   const router = useRouter();
 
@@ -291,22 +291,25 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
         (submission &&
         submission.department !== null &&
         submission.papers !== null ? (
-          submission.papers.map((submissionPapers) => {
+          submission?.papers?.map((submissionPapers) => {
             return (
-              <Box
-                sx={{
-                  width: "100%",
-                  paddingBottom: "1rem",
-                }}
-              >
+              <>
                 {" "}
-                <PaperCardComponent
-                  key={submissionPapers.research_paper_id}
-                  paper={submissionPapers}
-                  handleClick={handleClickSubmission}
-                  handleDownload={handleDownload}
-                />{" "}
-              </Box>
+                <Box
+                  sx={{
+                    width: "100%",
+                    paddingBottom: "1rem",
+                  }}
+                >
+                  {" "}
+                  <PaperCardComponent
+                    key={submissionPapers.research_paper_id}
+                    paper={submissionPapers}
+                    handleClick={handleClickSubmission}
+                    handleDownload={handleDownload}
+                  />{" "}
+                </Box>
+              </>
             );
           })
         ) : (
