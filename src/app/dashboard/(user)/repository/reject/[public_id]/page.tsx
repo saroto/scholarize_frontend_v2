@@ -10,6 +10,7 @@ import {
   Button,
   useMediaQuery,
   useTheme,
+  Divider,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
@@ -293,7 +294,11 @@ export default function SubmitForm({ params }: { params: rejectProp }) {
           </Typography>
           <Box sx={{ flex: 1 }} /> {/* Spacer */}
         </Box>
-
+        <Divider
+          sx={{
+            width: "100%",
+          }}
+        />
         <Form
           reject={reject}
           formType="rejected"
