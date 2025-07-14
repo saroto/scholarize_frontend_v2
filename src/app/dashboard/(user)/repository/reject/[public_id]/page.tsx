@@ -8,6 +8,9 @@ import {
   SelectChangeEvent,
   Typography,
   Button,
+  useMediaQuery,
+  useTheme,
+  Divider,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
@@ -238,72 +241,81 @@ export default function SubmitForm({ params }: { params: rejectProp }) {
     setShowPdfPath(false); // Hide pdf_path when a file is chosen
   };
 
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
   return (
-    <Box
-      sx={{
-        width: "100%",
-        padding: 4,
-        display: "flex",
-        overflow: "auto",
-        height: "100%",
-      }}
-    >
+    <div className="p-5 flex justify-center overflow-auto mb-4">
       <Box
         sx={{
+          width: isSmallScreen ? "100%" : "100%",
           display: "flex",
+          height: "100%",
+          flexDirection: "column",
+          gap: "10px",
           alignItems: "center",
-          justifyContent: "space-between",
         }}
       >
-        <Button
-          href="/dashboard/repository/my-publications"
+        <Box
           sx={{
-            textDecoration: "none",
-            alignItems: "center",
             display: "flex",
-            height: "auto",
-            fontSize: "1rem",
-            color: "#777777",
-            ":hover": {
-              textDecoration: "none",
-              color: "black",
-            },
-          }}
-        >
-          <ArrowBackIcon sx={{ padding: 0, margin: 0 }}></ArrowBackIcon>
-          <Typography sx={{ display: "flex" }}>BACK</Typography>
-        </Button>
-        <Box sx={{ flex: 1 }} /> {/* Spacer */}
-        <Typography
-          variant="h4"
-          sx={{
-            marginBottom: 3,
-            textAlign: "center",
             alignItems: "center",
-            fontWeight: "550",
+            justifyContent: "space-between", // Distributes left and right properly
+            width: "100%", // Ensure it spans the full width
+            position: "relative", // For absolute positioning inside
           }}
         >
-          Rejected Submission
-        </Typography>
-        <Box sx={{ flex: 1 }} /> {/* Spacer */}
+          <Button
+            href="/dashboard/repository/my-publications"
+            sx={{
+              textDecoration: "none",
+              alignItems: "center",
+              display: "flex",
+              fontSize: "1rem",
+              color: "#777777",
+              ":hover": {
+                textDecoration: "none",
+                color: "black",
+              },
+            }}
+          >
+            <ArrowBackIcon sx={{ padding: 0, margin: 0 }}></ArrowBackIcon>
+            <Typography sx={{ display: "flex" }}>BACK</Typography>
+          </Button>
+          <Box sx={{ flex: 1 }} /> {/* Spacer */}
+          <Typography
+            variant="h4"
+            sx={{
+              textAlign: "center",
+              fontWeight: 550,
+              margin: "0 auto", // Centered within flex
+            }}
+          >
+            Rejected Submission
+          </Typography>
+          <Box sx={{ flex: 1 }} /> {/* Spacer */}
+        </Box>
+        <Divider
+          sx={{
+            width: "100%",
+          }}
+        />
+        <Form
+          reject={reject}
+          formType="rejected"
+          handleSubmit={handleSubmit}
+          formData={formData}
+          handleInputChange={handleInputChange}
+          handleSelectChange={handleSelectChange}
+          handleRichTextChange={handleRichTextChange}
+          handleFileChange={handleFileChange}
+          showChooseFile={showChooseFile}
+          handleShowButton={handleShowButton}
+          isLoading={isLoading}
+          setFile={setFile}
+          readonly={false}
+          uploading={uploading}
+        />
       </Box>
-
-      <Form
-        reject={reject}
-        formType="rejected"
-        handleSubmit={handleSubmit}
-        formData={formData}
-        handleInputChange={handleInputChange}
-        handleSelectChange={handleSelectChange}
-        handleRichTextChange={handleRichTextChange}
-        handleFileChange={handleFileChange}
-        showChooseFile={showChooseFile}
-        handleShowButton={handleShowButton}
-        isLoading={isLoading}
-        setFile={setFile}
-        readonly={false}
-        uploading={uploading}
-      />
-    </Box>
+    </div>
   );
 }

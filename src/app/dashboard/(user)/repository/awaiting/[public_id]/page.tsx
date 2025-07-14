@@ -10,6 +10,10 @@ import {
   Stack,
   Typography,
   Button,
+  useMediaQuery,
+  useTheme,
+  Divider,
+  IconButton,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { awaitPaper } from "@/app/api/service/publication/awaitingPaper";
@@ -51,51 +55,88 @@ export default function submissionPreview({
   //   .map((department) => department.department_name)
   //   .join(", ");
 
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
   return (
-    <Box sx={{ width: "100%", padding: 4, overflow: "auto" }}>
-      <FormControl fullWidth>
-        <Button
-          href="/dashboard/repository/my-publications"
+    <div className="p-5 flex justify-center overflow-auto mb-4">
+      <Box
+        sx={{
+          width: isSmallScreen ? "100%" : "60%",
+          display: "flex",
+          height: "100%",
+          flexDirection: "column",
+          gap: "10px",
+          alignItems: "center",
+        }}
+      >
+        <Box
           sx={{
-            textDecoration: "none",
-            alignItems: "center",
             display: "flex",
-            height: "auto",
-            position: "absolute",
-            fontSize: "1rem",
-            color: "#777777",
-            ":hover": {
-              textDecoration: "none",
-              color: "black",
-            },
-          }}
-        >
-          <ArrowBackIcon sx={{ padding: 0, margin: 0 }}></ArrowBackIcon>
-          <Typography sx={{ display: "flex" }}>BACK</Typography>
-        </Button>
-        <Typography
-          variant="h4"
-          sx={{
-            marginBottom: 3,
-            textAlign: "center",
             alignItems: "center",
-            fontWeight: "550",
+            justifyContent: "space-between", // Distributes left and right properly
+            width: "100%", // Ensure it spans the full width
+            position: "relative", // For absolute positioning inside
           }}
         >
-          Awaitng Approval Submission
-        </Typography>
-        {awaitingPaper && <ViewPaper viewPaper={awaitingPaper} />}
-      </FormControl>
+          {" "}
+          {!isSmallScreen && (
+            <Button
+              href="/dashboard/repository/my-publications"
+              sx={{
+                textDecoration: "none",
+                alignItems: "center",
+                display: "flex",
+                fontSize: "1rem",
+                color: "#777777",
+                ":hover": {
+                  textDecoration: "none",
+                  color: "black",
+                },
+              }}
+            >
+              {isSmallScreen && (
+                <IconButton
+                  href="/dashboard/repository/my-publications"
+                  size="small"
+                >
+                  <ArrowBackIcon sx={{ padding: 0, margin: 0 }} />
+                </IconButton>
+              )}
+              <ArrowBackIcon sx={{ padding: 0, margin: 0 }}></ArrowBackIcon>
+              <Typography sx={{ display: "flex" }}>BACK</Typography>
+            </Button>
+          )}
+          <Typography
+            variant="h4"
+            sx={{
+              textAlign: "center",
+              fontWeight: 550,
+              margin: "0 auto",
+            }}
+          >
+            Awaitng Approval Submission
+          </Typography>
+        </Box>
 
-      {/* <Stack direction="column">
+        <Divider
+          sx={{
+            width: "100%",
+          }}
+        />
+        <FormControl fullWidth>
+          {awaitingPaper && <ViewPaper viewPaper={awaitingPaper} />}
+        </FormControl>
+
+        {/* <Stack direction="column">
         <InputLabel id="rich-text" sx={{ color: "black", fontWeight: "550" }}>
           FULL TEXT
         </InputLabel>
       </Stack> */}
 
-      {/* <Stack direction="column" sx={{ marginTop: 2 }}>
+        {/* <Stack direction="column" sx={{ marginTop: 2 }}>
         <RichText rich_text={awaitingPaper?.full_text} />
       </Stack> */}
-    </Box>
+      </Box>
+    </div>
   );
 }
