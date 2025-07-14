@@ -239,71 +239,73 @@ export default function SubmitForm({ params }: { params: rejectProp }) {
   };
 
   return (
-    <Box
-      sx={{
-        width: "100%",
-        padding: 4,
-        display: "flex",
-        overflow: "auto",
-        height: "100%",
-      }}
-    >
+    <div className="p-5 flex justify-center overflow-auto mb-4">
       <Box
         sx={{
+          width: "100%",
+          padding: 4,
           display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
+          overflow: "auto",
+          height: "100%",
         }}
       >
-        <Button
-          href="/dashboard/repository/my-publications"
+        <Box
           sx={{
-            textDecoration: "none",
-            alignItems: "center",
             display: "flex",
-            height: "auto",
-            fontSize: "1rem",
-            color: "#777777",
-            ":hover": {
-              textDecoration: "none",
-              color: "black",
-            },
-          }}
-        >
-          <ArrowBackIcon sx={{ padding: 0, margin: 0 }}></ArrowBackIcon>
-          <Typography sx={{ display: "flex" }}>BACK</Typography>
-        </Button>
-        <Box sx={{ flex: 1 }} /> {/* Spacer */}
-        <Typography
-          variant="h4"
-          sx={{
-            marginBottom: 3,
-            textAlign: "center",
             alignItems: "center",
-            fontWeight: "550",
+            justifyContent: "space-between",
           }}
         >
-          Rejected Submission
-        </Typography>
-        <Box sx={{ flex: 1 }} /> {/* Spacer */}
-      </Box>
+          <Button
+            href="/dashboard/repository/my-publications"
+            sx={{
+              textDecoration: "none",
+              alignItems: "center",
+              display: "flex",
+              height: "auto",
+              fontSize: "1rem",
+              color: "#777777",
+              ":hover": {
+                textDecoration: "none",
+                color: "black",
+              },
+            }}
+          >
+            <ArrowBackIcon sx={{ padding: 0, margin: 0 }}></ArrowBackIcon>
+            <Typography sx={{ display: "flex" }}>BACK</Typography>
+          </Button>
+          <Box sx={{ flex: 1 }} /> {/* Spacer */}
+          <Typography
+            variant="h4"
+            sx={{
+              marginBottom: 3,
+              textAlign: "center",
+              alignItems: "center",
+              fontWeight: "550",
+            }}
+          >
+            Rejected Submission
+          </Typography>
+          <Box sx={{ flex: 1 }} /> {/* Spacer */}
+        </Box>
 
-      <Form
-        reject={reject}
-        formType="rejected"
-        handleSubmit={handleSubmit}
-        formData={formData}
-        handleInputChange={handleInputChange}
-        handleSelectChange={handleSelectChange}
-        handleRichTextChange={handleRichTextChange}
-        handleFileChange={handleFileChange}
-        showChooseFile={showChooseFile}
-        handleShowButton={handleShowButton}
-        isLoading={isLoading}
-        setFile={setFile}
-        readonly={false}
-        uploading={uploading}
-      />
-    </Box>
+        <Form
+          reject={reject}
+          formType="rejected"
+          handleSubmit={handleSubmit}
+          formData={formData}
+          handleInputChange={handleInputChange}
+          handleSelectChange={handleSelectChange}
+          handleRichTextChange={handleRichTextChange}
+          handleFileChange={handleFileChange}
+          showChooseFile={showChooseFile}
+          handleShowButton={handleShowButton}
+          isLoading={isLoading}
+          setFile={setFile}
+          readonly={false}
+          uploading={uploading}
+        />
+      </Box>
+    </div>
   );
 }
