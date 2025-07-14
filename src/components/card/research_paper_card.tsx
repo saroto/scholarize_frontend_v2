@@ -165,17 +165,20 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
       const fetchPapers = async () => {
         try {
           setErrorMessage(null);
+          setIsLoading(true);
           const fetchedPapers = await getResearchPaperBySearch(
             session,
             filters
           );
           if (fetchedPapers.success === false) {
             setAllPapers([]);
+            setIsLoading(false);
             setErrorMessage("Service is now sleeping. Please try again later.");
             return;
           }
 
           setAllPapers(fetchedPapers);
+          setIsLoading(false);
         } catch (error) {
           console.error("Error fetching papers:", error);
         }
@@ -183,6 +186,7 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
       try {
         fetchPapers();
       } catch (error) {
+        setIsLoading(false);
         throw new Error("Failed to fetch data" + error);
       }
     }
