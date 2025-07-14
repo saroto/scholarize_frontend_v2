@@ -188,7 +188,7 @@ export const FilterGroup = ({
   if (labels.length === 0) return null;
 
   return (
-    <Box sx={{ display: "flex", flexWrap: "wrap", marginBottom: "10px" }}>
+    <Box sx={{ display: "flex", flexWrap: "wrap", marginBlock: "4px" }}>
       <PillRenderer labels={labels} onDelete={onDelete} />
     </Box>
   );
