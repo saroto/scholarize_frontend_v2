@@ -288,67 +288,69 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
       </Box>
 
       {fetchType === "submitted" &&
-        (!isLoading ? (
-          Array.isArray(submission?.papers) ? (
-            submission.papers.length > 0 ? (
-              submission.papers.map((submissionPapers) => (
+        (submission &&
+        submission.department !== null &&
+        submission.papers !== null ? (
+          submission?.papers?.map((submissionPapers) => {
+            return (
+              <>
+                {" "}
                 <Box
-                  key={submissionPapers.research_paper_id}
-                  sx={{ width: "100%", paddingBottom: "1rem" }}
+                  sx={{
+                    width: "100%",
+                    paddingBottom: "1rem",
+                  }}
                 >
+                  {" "}
                   <PaperCardComponent
+                    key={submissionPapers.research_paper_id}
                     paper={submissionPapers}
                     handleClick={handleClickSubmission}
                     handleDownload={handleDownload}
-                  />
+                  />{" "}
                 </Box>
-              ))
-            ) : (
-              <Box sx={{ textAlign: "center", width: "100%" }}>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    textAlign: "center",
-                    color: "#777777",
-                    fontStyle: "italic",
-                    marginTop: 2,
-                  }}
-                >
-                  No research paper found
-                </Typography>
+              </>
+            );
+          })
+        ) : (
+          <Box
+            sx={{
+              justifyContent: "center",
+              textAlign: "center",
+              width: "100%",
+            }}
+          >
+            {!isLoading ? (
+              <Box>
+                {submission && submission.department === null ? (
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      textAlign: "center",
+                      color: "#777777",
+                      fontStyle: "italic",
+                      marginTop: 2,
+                    }}
+                  >
+                    You are not assigned to any department
+                  </Typography>
+                ) : (
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      textAlign: "center",
+                      color: "#777777",
+                      fontStyle: "italic",
+                      marginTop: 2,
+                    }}
+                  >
+                    No research paper found
+                  </Typography>
+                )}
               </Box>
-            )
-          ) : (
-            <Box sx={{ textAlign: "center", width: "100%" }}>
-              {submission?.department === null ? (
-                <Typography
-                  variant="h6"
-                  sx={{
-                    textAlign: "center",
-                    color: "#777777",
-                    fontStyle: "italic",
-                    marginTop: 2,
-                  }}
-                >
-                  You are not assigned to any department
-                </Typography>
-              ) : (
-                <Typography
-                  variant="h6"
-                  sx={{
-                    textAlign: "center",
-                    color: "#777777",
-                    fontStyle: "italic",
-                    marginTop: 2,
-                  }}
-                >
-                  Error fetching submitted papers
-                </Typography>
-              )}
-            </Box>
-          )
-        ) : null)}
-
+            ) : null}
+          </Box>
+        ))}
       {/* {fetchType === "browser" &&(
           <Box sx={{ justifyContent: "center", textAlign: "center" }}>
             <Typography
