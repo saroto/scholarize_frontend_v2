@@ -43,7 +43,12 @@ export default function ChatContainer() {
   const theme = useTheme();
   const { data: session } = useSession();
   const searchParam = useSearchParams();
-  const chatSessions = sessionStorage.getItem("chatSession");
+  const [chatSessions, setChatSessions] = useState<string | null>(null);
+
+  useEffect(() => {
+    const storedSession = sessionStorage.getItem("chatSession");
+    setChatSessions(storedSession);
+  }, []);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [openSaveModal, setOpenSaveModal] = useState(false);
   const [isLoadingModal, setLoadingModal] = useState(false);

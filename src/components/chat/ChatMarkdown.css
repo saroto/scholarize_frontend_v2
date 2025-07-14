@@ -104,7 +104,7 @@
 
 /* Inline code */
 
-.markdown-body code {
+/* .markdown-body code {
   background-color: #f6f8fa;
   padding: 0.2em 0.4em;
   margin: 0 0.2em;
@@ -112,10 +112,10 @@
   font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
   border-radius: 3px;
   white-space: break-spaces;
-}
+} */
 
 /* Code blocks */
-.markdown-body pre {
+/* .markdown-body pre {
   background-color: #2d2d2d;
   color: #f8f8f2;
   padding: 1rem;
@@ -127,7 +127,7 @@
   white-space: pre-wrap;
   word-break: break-word;
   max-height: none;
-}
+} */
 
 /* Horizontal Rule */
 .markdown-body hr {

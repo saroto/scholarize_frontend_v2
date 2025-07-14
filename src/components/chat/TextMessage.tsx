@@ -258,7 +258,7 @@ export default function TextMessage({
             }}
           >
             <article className="markdown-body">
-              <ReactMarkdown
+              {/* <ReactMarkdown
                 components={{
                   li: ({ node, children, ...props }) => (
                     <li className="text-base mb-2" {...props}>
@@ -270,10 +270,19 @@ export default function TextMessage({
                 {typeof displayedMessage === "string"
                   ? displayedMessage
                   : JSON.stringify(displayedMessage)}
-              </ReactMarkdown>
+              </ReactMarkdown> */}
+              <MessageWithClickableRefs
+                message={
+                  typeof displayedMessage === "string"
+                    ? displayedMessage
+                    : JSON.stringify(displayedMessage)
+                }
+                onPageClick={handlePageClick}
+                selectedPage={selectedPage === null ? undefined : selectedPage}
+              />
             </article>
 
-            {sender === "bot" && !isSmallScreen && (
+            {/* {sender === "bot" && !isSmallScreen && (
               <Box sx={{ mb: 2 }}>
                 <Stack direction="row" spacing={1} flexWrap="wrap">
                   {pageNumbers.map((pageNumber) => (
@@ -316,7 +325,7 @@ export default function TextMessage({
                   ))}
                 </Stack>
               </Box>
-            )}
+            )} */}
 
             {/* Show blinking cursor while typing */}
             {isTyping && !isUser && (
@@ -340,3 +349,140 @@ export default function TextMessage({
     </Box>
   );
 }
+
+interface MessageWithClickableRefsProps {
+  message: string;
+  onPageClick: (pageNumber: number) => void;
+  selectedPage?: number;
+}
+const preprocessMessageWithPageRefs = ({
+  message,
+  onPageClick,
+}: MessageWithClickableRefsProps) => {
+  const pageRefRegex = /\[(\d+(?:,\s*\d+)*)\]/g;
+  const parts = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = pageRefRegex.exec(message)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push({
+        type: "text",
+        content: message.substring(lastIndex, match.index),
+      });
+    }
+
+    const pageNumbers = match[1].split(",").map((num) => parseInt(num.trim()));
+
+    parts.push({
+      type: "pageRef",
+      pageNumbers: pageNumbers,
+      originalText: match[0],
+    });
+
+    lastIndex = match.index + match[0].length;
+  }
+
+  if (lastIndex < message.length) {
+    parts.push({
+      type: "text",
+      content: message.substring(lastIndex),
+    });
+  }
+
+  return parts;
+};
+
+const MessageWithClickableRefs = ({
+  message,
+  onPageClick,
+  selectedPage,
+}: MessageWithClickableRefsProps) => {
+  const parts = preprocessMessageWithPageRefs({
+    message,
+    onPageClick,
+    selectedPage,
+  });
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
+
+  return (
+    <div>
+      {parts.map((part, index) => {
+        if (part.type === "pageRef") {
+          return (
+            <>
+              {!isSmallScreen && (
+                <span key={index} className="inline-flex items-center mx-1">
+                  <span className="px-1 text-gray-600">[</span>
+                  {Array.isArray(part.pageNumbers) &&
+                    part.pageNumbers.map((pageNumber, pageIndex) => (
+                      <span
+                        key={pageIndex}
+                        className="inline-flex items-center"
+                      >
+                        <IconButton
+                          onClick={() => onPageClick(pageNumber)}
+                          size="small"
+                          sx={{
+                            backgroundColor:
+                              selectedPage === pageNumber
+                                ? "primary.main"
+                                : "grey.100",
+                            color:
+                              selectedPage === pageNumber
+                                ? "white"
+                                : "primary.main",
+                            border: 1,
+                            borderColor:
+                              selectedPage === pageNumber
+                                ? "primary.main"
+                                : "grey.300",
+                            "&:hover": {
+                              backgroundColor:
+                                selectedPage === pageNumber
+                                  ? "primary.dark"
+                                  : "primary.light",
+                              color: "white",
+                            },
+                            width: 24,
+                            height: 24,
+                            padding: 0,
+                            fontSize: "10px",
+                            fontWeight: 600,
+                            borderRadius: "50%",
+                          }}
+                        >
+                          {pageNumber}
+                        </IconButton>
+                        {Array.isArray(part.pageNumbers) &&
+                          pageIndex < part.pageNumbers.length - 1 && (
+                            <span className="mx-1 text-gray-400">,</span>
+                          )}
+                      </span>
+                    ))}
+                  <span className="px-1 text-gray-600">]</span>
+                </span>
+              )}
+            </>
+          );
+        } else {
+          return (
+            <ReactMarkdown
+              key={index}
+              components={{
+                li: ({ node, children, ...props }) => (
+                  <li className="text-base mb-2" {...props}>
+                    {children}
+                  </li>
+                ),
+              }}
+            >
+              {part.content}
+            </ReactMarkdown>
+          );
+        }
+      })}
+    </div>
+  );
+};
