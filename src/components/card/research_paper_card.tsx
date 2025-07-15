@@ -29,7 +29,6 @@ interface ResearchPaperCardProps {
 const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
   const { data: session } = useSession();
   const [allPapers, setAllPapers] = useState<ResearchPaper[]>([]);
-  console.log("allPapers", allPapers);
   const [userPapers, setUserPapers] = useState<publicResearchPaper | null>(
     null
   );
@@ -170,7 +169,7 @@ const ResearchPaperCard: React.FC<ResearchPaperCardProps> = ({ fetchType }) => {
             session,
             filters
           );
-          if (fetchedPapers.success === false) {
+          if (fetchedPapers && fetchedPapers?.success === false) {
             setAllPapers([]);
             setIsLoading(false);
             setErrorMessage("Service is now sleeping. Please try again later.");

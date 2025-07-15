@@ -41,7 +41,7 @@ export async function getResearchPaperBySearch(
     },
   });
   const data = await response.json();
-  console.log("data", data);
+  console.debug("data", data);
   if (!response.ok) {
     if (data && data.error === "Token invalid! Please login again!") {
       redirect("/auth/sessionexpire");
