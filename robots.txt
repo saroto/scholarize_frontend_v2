@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Allow: /browse
+Allow: /browse/viewpaper/
+
+Sitemap: https://scholarize.paragoniu.app/sitemap.xml
