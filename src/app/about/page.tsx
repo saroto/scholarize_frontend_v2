@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   title: "Scholarize - About",
 };
 
-const developers = [
+const developers_scholarize = [
   {
     name: "Juden Ung",
     roles: ["Project Manager"],
@@ -48,14 +48,14 @@ const developers = [
   },
   {
     name: "Kimsinh Seang",
-    roles: [
-      "Software Engineer for Scholarize",
-      "Tech Lead for Scholarize 2.0 (SPaRCS-AIM)",
-    ],
+    roles: ["Software Engineer for Scholarize"],
     image: kimsinh,
     major: "B.Sc. in Computer Science",
     email: "s.kimsinh@gmail.com",
   },
+];
+
+const developers_sparcs = [
   {
     name: "Sovannsak Yours",
     roles: ["Project Manager for Scholarize 2.0 (SPaRCS-AIM)"],
@@ -63,9 +63,15 @@ const developers = [
     major: "B.Sc. in Computer Science",
     email: "sovannsakyoursafk@gmail.com",
   },
+  {
+    name: "Kimsinh Seang",
+    roles: ["Tech Lead for Scholarize 2.0 (SPaRCS-AIM)"],
+    image: kimsinh,
+    major: "B.Sc. in Computer Science",
+    email: "s.kimsinh@gmail.com",
+  },
 ];
-
-const features = [
+const scholarize_features = [
   {
     title: "Repository",
     description:
@@ -91,11 +97,26 @@ const features = [
     image: "/features/4.png",
   },
 ];
+const sparcs_features = [
+  {
+    title: "Semantic Search",
+    description:
+      "Leverage advanced semantic search to explore the research repository using natural language queries. Results are ranked by relevance and contextual understanding, making it easier to find exactly what you're looking for.",
+    image: "/features/5.png",
+  },
+  {
+    title: "Chat with Research Paper",
+    description:
+      "Interact with individual research papers using AI-powered chat. Ask questions, get instant summaries, and extract insights without reading the entire document manually.",
+    image: "/features/6.png",
+  },
+];
 
 export default function AboutPage() {
   return (
     <>
       <Navbar />
+      {/* Scholarize */}
       <div className="p-4 pt-[5.125rem]">
         <Box
           sx={{
@@ -177,7 +198,7 @@ export default function AboutPage() {
               />
 
               <Grid container spacing={2}>
-                {features?.map((feature, index) => (
+                {scholarize_features?.map((feature, index) => (
                   <Grid item xs={12} sm={6} md={3} key={index}>
                     <Card>
                       <img
@@ -266,7 +287,7 @@ export default function AboutPage() {
               }}
             />
             <Grid container>
-              {developers.map((developer, index) => (
+              {developers_scholarize.map((developer, index) => (
                 <Grid item xs={12} sm={6} md={3} key={index}>
                   <Card
                     sx={{
@@ -332,6 +353,171 @@ export default function AboutPage() {
                 my: 3,
               }}
             />
+            {/* <div className="text-center text-[1.25rem] font-sans">
+              Find out more about us at our{" "}
+              <a
+                className="text-[1.25rem] font-sans underline hover:cursor-pointer hover:text-[#2F2F85] hover:font-bold"
+                href="https://sites.google.com/paragoniu.edu.kh/scholarize/home"
+                target="_blank"
+              >
+                Google Site
+              </a>
+            </div> */}
+          </Box>
+        </Box>
+      </div>
+      {/* Sparcs */}
+      <div className="p-4 pt-[5.125rem]">
+        <Box
+          sx={{
+            width: "100%",
+            justifyContent: "center",
+            margin: "auto",
+            display: "flex",
+          }}
+        >
+          <Box
+            sx={{
+              margin: "auto",
+              p: 4,
+              backgroundColor: "secondary.main",
+              borderRadius: "12px",
+              boxShadow: 2,
+              width: "100%",
+              maxWidth: "1400px",
+            }}
+          >
+            {/* Scholarize Logo */}
+            <Box sx={{ justifyContent: "center", display: "flex", mb: 2 }}>
+              <img src={Logo.src} alt="Scholarize" width={100} height={100} />
+            </Box>
+
+            {/* Section: About */}
+            <Typography
+              variant="h4"
+              gutterBottom
+              sx={{ fontWeight: "600" }}
+              align="center"
+            >
+              About SPaRCS-AIM
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{ paddingBlock: "10px", color: "text.secondary" }}
+              align="left"
+            >
+              <b>SPaRCS-AIM</b> is an AI-powered semantic search system
+              integrated into Scholarize to improve how students access research
+              papers. Unlike traditional keyword-based search, it understands
+              the meaning behind queries and allows users to interact with
+              papers through natural language questions. This helps students at
+              Paragon International University find relevant academic content
+              more effectively and comprehend it faster. The system also uses
+              summarization and generative AI to enhance the research
+              experience.
+            </Typography>
+
+            {/* Section: Features */}
+            <Box sx={{ paddingBlock: "20px" }}>
+              <Typography
+                variant="h5"
+                sx={{ fontWeight: "600" }}
+                align="center"
+                color={"#000"}
+              >
+                Key Features of SPaRCS-AIM
+              </Typography>
+              <Divider sx={{ mt: 1, mb: 3 }} />
+
+              <Grid container spacing={2} justifyContent="center">
+                {sparcs_features?.map((feature, index) => (
+                  <Grid item xs={12} sm={6} md={3} key={index}>
+                    <Card>
+                      <img
+                        src={feature.image}
+                        alt="Repository"
+                        className="w-full h-full"
+                      />
+                      <CardContent sx={{ height: "100%" }}>
+                        <Typography
+                          variant="h6"
+                          gutterBottom
+                          sx={{ fontWeight: "bold" }}
+                        >
+                          {feature.title}
+                        </Typography>
+                        <Typography variant="subtitle1" gutterBottom>
+                          {feature.description}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            </Box>
+
+            {/* Section: Team */}
+            <Typography
+              variant="h5"
+              gutterBottom
+              sx={{ fontWeight: "600", mt: 4 }}
+              align="center"
+              color={"#000"}
+            >
+              Meet the Team
+            </Typography>
+            <Divider sx={{ mt: 1, mb: 3 }} />
+
+            <Grid container spacing={2} justifyContent="center">
+              {developers_sparcs.map((developer, index) => (
+                <Grid item xs={12} sm={6} md={3} key={index}>
+                  <Card sx={{ boxShadow: 0, bgcolor: "transparent" }}>
+                    <CardContent>
+                      <Avatar
+                        alt={developer.name}
+                        src={developer.image.src}
+                        sx={{
+                          width: 200,
+                          height: 200,
+                          margin: "auto",
+                          marginBottom: "20px",
+                        }}
+                      />
+                      <Typography
+                        variant="h6"
+                        sx={{ fontWeight: "bold", textAlign: "center" }}
+                      >
+                        {developer.name}
+                      </Typography>
+                      <Typography variant="subtitle2" textAlign="center" mb={1}>
+                        {developer.email}
+                      </Typography>
+                      {developer.roles.map((role, index) => (
+                        <Typography
+                          key={index}
+                          variant="subtitle1"
+                          textAlign="center"
+                          color="#2F2F85"
+                          fontWeight="550"
+                        >
+                          {role}
+                        </Typography>
+                      ))}
+                      <Typography
+                        variant="subtitle1"
+                        textAlign="center"
+                        fontStyle="italic"
+                      >
+                        {developer.major}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+
+            {/* Section: External link */}
+            <Divider sx={{ my: 3 }} />
             <div className="text-center text-[1.25rem] font-sans">
               Find out more about us at our{" "}
               <a
@@ -345,6 +531,7 @@ export default function AboutPage() {
           </Box>
         </Box>
       </div>
+
       <Footer />
     </>
   );

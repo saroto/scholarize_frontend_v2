@@ -1,6 +1,5 @@
-// /app/browse/viewpaper/[id]/metadata.ts
 import { Metadata } from "next";
-import { GetPublicPaperDetailById } from "@/app/api/service/getPublicPaperDetailById"; // adjust path
+import { GetPublicPaperDetailById } from "@/app/api/service/getPublicPaperDetailById";
 import { redirect } from "next/navigation";
 
 interface ViewPaperParams {

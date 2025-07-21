@@ -35,6 +35,7 @@ interface ViewPaperParams {
 }
 export default function PaperDetail({ params }: { params: ViewPaperParams }) {
   const { data: session } = useSession();
+  console.log("session", session);
   const [eachPaper, setEachPaper] = useState<Eachpaper>();
   const id = params.public_id;
   const [isLoading, setIsLoading] = useState(false);
