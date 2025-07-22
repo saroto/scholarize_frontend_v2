@@ -100,7 +100,6 @@ export default function ViewPapers({ params }: { params: ViewPaperParams }) {
   const id = params.public_id;
   const [isLoading, setIsLoading] = useState(false);
 
-  console.log("eachPaper", eachPaper);
   const handleDownload = async (path: string, eachPaper: Eachpaper) => {
     setIsLoading(true);
 

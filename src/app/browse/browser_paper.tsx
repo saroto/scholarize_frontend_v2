@@ -81,13 +81,14 @@ export default function BrowserPaper() {
 
   console.log("errorMessage", errorMessage);
   const fetchPapers = async (term: string) => {
-    if (term === "") {
-      setSearchResult([]);
-      setErrorMessage(null);
-      setIsLoading(false);
-      return;
-    }
+    // if (term === "") {
+    //   setSearchResult([]);
+    //   setErrorMessage(null);
+    //   setIsLoading(false);
+    //   return;
+    // }
     setIsLoading(true);
+    setSearchResult([]);
     setErrorMessage(null);
 
     try {
@@ -113,6 +114,9 @@ export default function BrowserPaper() {
   useEffect(() => {
     fetchPapers(searchTerm);
   }, [searchEngine]);
+  // useEffect(() => {
+  //   fetchPapers();
+  // });
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -302,7 +306,7 @@ export default function BrowserPaper() {
             />
           ) : null} */}
 
-          {(searchResult && searchResult.length > 0) ||
+          {/* {(searchResult && searchResult.length > 0) ||
           errorMessage !== null ||
           isLoading ? null : (
             <Container
@@ -334,7 +338,7 @@ export default function BrowserPaper() {
                 )}
               </Box>
             </Container>
-          )}
+          )} */}
         </Box>
       </Box>
       <CustomPopper id={id} open={open} anchorEl={anchorEl}>

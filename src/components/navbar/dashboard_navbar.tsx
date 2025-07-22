@@ -288,17 +288,30 @@ export default function DashboardNavbar({
                     height={30}
                   />
 
-                  <Typography
-                    variant="h5"
-                    component="h5"
-                    sx={{
-                      color: "black",
-                      fontWeight: "500",
-                      fontFamily: "poppins, -apple-system",
-                    }}
-                  >
-                    Scholarize
-                  </Typography>
+                  <Box>
+                    <Typography
+                      variant="h5"
+                      component="h5"
+                      sx={{
+                        color: "black",
+                        fontWeight: "500",
+                        fontFamily: "poppins, -apple-system",
+                      }}
+                    >
+                      Scholarize
+                    </Typography>
+                    <Typography
+                      component="h5"
+                      sx={{
+                        fontSize: "6px",
+                        color: "black",
+                        fontWeight: "500",
+                        fontFamily: "poppins, -apple-system",
+                      }}
+                    >
+                      Powered by SPaRCS-AIM
+                    </Typography>
+                  </Box>
                 </Stack>
                 {!isSmallScreen && (
                   <Stack alignItems={"center"} fontWeight={"bold"}>

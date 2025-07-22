@@ -16,6 +16,8 @@ import PersonIcon from "@mui/icons-material/Person";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { GetPaperById } from "../api/service/getPaperById";
+import { GetPublicPaperDetailById } from "../api/service/getPublicPaperDetailById";
 interface BrowserPaperCardProps {
   paper: ResearchPaper;
 }
@@ -26,19 +28,31 @@ BrowserPaperCardProps) {
   const { data: session } = useSession();
   const router = useRouter();
   const [showFullAbstract, setShowFullAbstract] = useState(false);
-  const handleClick = (public_id: string) => {
-    if (!session) {
-      //   router.push("auth/signin");
-      const url = new URL("/auth/signin", window.location.origin);
-      url.searchParams.append(
-        "callbackUrl",
-        `/dashboard/repository/viewpaper/${public_id}`
-      );
-      router.replace(url.toString());
-    } else {
-      router.push(`/dashboard/repository/viewpaper/${public_id}`);
+  // const handleClick = (public_id: string) => {
+  //   if (!session) {
+  //     //   router.push("auth/signin");
+  //     const url = new URL("/auth/signin", window.location.origin);
+  //     url.searchParams.append(
+  //       "callbackUrl",
+  //       `/dashboard/repository/viewpaper/${public_id}`
+  //     );
+  //     router.replace(url.toString());
+  //   } else {
+  //     router.push(`/dashboard/repository/viewpaper/${public_id}`);
+  //   }
+  // };
+
+  const handleClick = async (public_id: string) => {
+    console.log("public_id", public_id);
+    try {
+      await GetPublicPaperDetailById(public_id);
+      // setResearchPaperId(id);
+      router.push(`/browse/viewpaper/${public_id}`);
+    } catch (error) {
+      console.error("Failed to get paper:", error);
     }
   };
+
   return (
     <>
       {paper && paper !== null && (

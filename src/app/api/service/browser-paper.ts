@@ -2,8 +2,6 @@
 
 "use server";
 
-import { SearchOptions } from "@/types";
-
 export async function getBrowserPaper(
   search: string,
   searchOptions: "meilisearch" | "semantic"
