@@ -102,13 +102,13 @@ const sparcs_features = [
     title: "Semantic Search",
     description:
       "Leverage advanced semantic search to explore the research repository using natural language queries. Results are ranked by relevance and contextual understanding, making it easier to find exactly what you're looking for.",
-    image: "/features/5.png",
+    image: "/features/6.png",
   },
   {
     title: "Chat with Research Paper",
     description:
       "Interact with individual research papers using AI-powered chat. Ask questions, get instant summaries, and extract insights without reading the entire document manually.",
-    image: "/features/6.png",
+    image: "/features/5.png",
   },
 ];
 
