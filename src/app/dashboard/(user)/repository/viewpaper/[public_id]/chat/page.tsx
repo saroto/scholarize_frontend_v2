@@ -18,7 +18,6 @@ export default function ChatPage({ params }: { params: ViewPaperParams }) {
   const paperURL = `${process.env.NEXT_PUBLIC_CDN_URL}/api/view-pdf/${id}`;
   const paperTitle = searchParam?.get("title") ?? "No Title Found";
   const sessionId = searchParam?.get("sessionId") ?? "No Session ID Found";
-  console.log("sessionId", sessionId);
   const leftPanelRef = useRef<HTMLDivElement>(null);
   const [pdfWidth, setPdfWidth] = useState(0);
 
@@ -41,7 +40,6 @@ export default function ChatPage({ params }: { params: ViewPaperParams }) {
     return () => resizeObserver.disconnect();
   }, []);
 
-  console.log("pdf ", pdfWidth);
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
 

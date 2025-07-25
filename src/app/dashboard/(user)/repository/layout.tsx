@@ -11,6 +11,10 @@ import { useSession } from "next-auth/react";
 import ScrollTop from "@/components/scroll-to-top";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { Box, Fab } from "@mui/material";
+import { getPaperByHODById } from "@/app/api/service/getPaperByHOD";
+import { useEffect } from "react";
+import { toast } from "react-toastify";
+import { GetProgresPaperById } from "@/app/api/service/getProgressPaperById";
 export default function RepositoryLayout({
   children,
 }: {
@@ -50,6 +54,83 @@ export default function RepositoryLayout({
         Icon: <FileDownloadIcon />,
       });
     }
+
+    // Your existing sidebar and permission logic...
+
+    useEffect(() => {
+      if (!session?.user.token) return;
+
+      const checkApprovalStatus = async (paperId: string, title: string) => {
+        try {
+          const result = await GetProgresPaperById(session, paperId);
+          if (!result?.success) return;
+
+          const status = result.data?.data?.ResearchPaperStatus;
+          switch (status) {
+            case "published":
+            case "published": {
+              const raw = localStorage.getItem("pendingPaper");
+              if (raw) {
+                try {
+                  const item = JSON.parse(raw);
+                  item.status = "published";
+                  localStorage.setItem("pendingPaper", JSON.stringify(item));
+                } catch (err) {
+                  console.error("Failed to update pendingPaper status", err);
+                }
+              }
+              toast.success(`Research Paper "${title}" approved successfully!`);
+              break;
+            }
+
+            case "rejected":
+              localStorage.removeItem("pendingPaper");
+              toast.error(`Approval failed for "${title}".`);
+              break;
+
+            case "unpublished":
+              toast.info(`Research Paper "${title}" is currently unpublished.`);
+              break;
+
+            case "pending":
+            case "awaiting":
+            case "in_progress":
+              // Still waiting — do nothing
+              break;
+
+            default:
+              console.warn(`Unknown status "${status}" for "${title}".`);
+          }
+        } catch (error) {
+          console.error("Failed to check paper status", error);
+        }
+      };
+
+      const interval = setInterval(() => {
+        const itemRaw = localStorage.getItem("pendingPaper");
+        if (!itemRaw) return;
+
+        try {
+          const item = JSON.parse(itemRaw);
+
+          if (["pending", "awaiting", "in_progress"].includes(item?.status)) {
+            checkApprovalStatus(item.id, item.title || "Research Paper");
+
+            // Extend duration to allow more time for checking
+            const updatedDuration = (item.duration || 20) + 1;
+            localStorage.setItem(
+              "pendingPaper",
+              JSON.stringify({ ...item, duration: updatedDuration })
+            );
+          }
+        } catch (err) {
+          console.error("Invalid JSON in localStorage: pendingPaper", err);
+          localStorage.removeItem("pendingPaper"); // cleanup if corrupted
+        }
+      }, 2000); // check every 10s
+
+      return () => clearInterval(interval);
+    }, [session?.user.token]);
 
     return (
       <>

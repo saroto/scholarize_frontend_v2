@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   Link,
@@ -18,11 +18,13 @@ import ApproveDialog from "@/components/dialogs/approve-dialog";
 import { getPaperByHODById } from "@/app/api/service/getPaperByHOD";
 import { useSession } from "next-auth/react";
 import { submissionsHodPaper } from "@/types";
-
+import Progressbar from "@/components/Progressbar";
 import RichText from "@/components/rich-text/rich-text-preview";
 
 import CircularProgress from "@mui/material/CircularProgress";
+import ApproveProgress from "@/components/dialogs/approve-progress";
 import ViewPaper from "@/components/viewPaper";
+import { redirect, useRouter } from "next/navigation";
 interface submissionPropParam {
   public_id: string;
 }
@@ -70,6 +72,7 @@ export default function submissionPreview({
     if (submissionHodPaper) {
       const approveData = {
         research_paper_id: submissionHodPaper?.paper?.research_paper_id,
+        public_id: submissionHodPaper?.paper?.public_id,
         approval_status: "approve", // Assuming "approve" is a status you need to pass
         research_title: submissionHodPaper?.paper?.research_title,
         departments: submissionHodPaper?.paper?.departments,
@@ -97,6 +100,47 @@ export default function submissionPreview({
     }
   }, [session?.user.token, id]);
 
+  const [progress, setProgress] = useState(0);
+  const rawPendingPaperData = localStorage.getItem("pendingPaper");
+  const pending = JSON.parse(rawPendingPaperData || "{}");
+  const maxProgressRef = useRef(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const raw = localStorage.getItem("pendingPaper");
+      if (!raw) return;
+
+      try {
+        const item = JSON.parse(raw || "{}");
+
+        if (item.status === "published") {
+          // If completed, force progress to 100%
+          maxProgressRef.current = 100;
+          setProgress(100);
+          return; // no need to continue with elapsed time calc
+        }
+
+        if (item.createdAt && item.duration) {
+          const now = Date.now();
+          const elapsedSeconds = (now - item.createdAt) / 1000;
+          const value = Math.min(100, (elapsedSeconds / item.duration) * 100);
+
+          // Prevent progress from going backward
+          if (value >= maxProgressRef.current) {
+            maxProgressRef.current = value;
+            setProgress(value);
+          } else {
+            setProgress(maxProgressRef.current);
+          }
+        }
+      } catch (err) {
+        console.error("Invalid pendingPaper in localStorage", err);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
   // const dept = submissionHodPaper?.paper.departments
@@ -109,139 +153,169 @@ export default function submissionPreview({
       </div>
     );
   return (
-    <div className="flex justify-center p-5 mb-4 overflow-auto">
-      <Box
-        sx={{
-          width: isSmallScreen ? "100%" : "60%",
-          display: "flex",
-          height: "100%",
-          flexDirection: "column",
-          gap: "10px",
-          alignItems: "center",
-        }}
-      >
+    <>
+      {" "}
+      <div className="p-5 flex justify-center overflow-auto mb-4">
         <Box
           sx={{
+            width: isSmallScreen ? "100%" : "60%",
             display: "flex",
+            height: "100%",
+            flexDirection: "column",
+            gap: "10px",
             alignItems: "center",
-            justifyContent: "space-between", // Distributes left and right properly
-            width: "100%", // Ensure it spans the full width
-            position: "relative", // For absolute positioning inside
           }}
         >
-          {!isSmallScreen && (
-            <Button
-              href="/dashboard/repository/hod-submission"
-              sx={{
-                textDecoration: "none",
-                alignItems: "center",
-                display: "flex",
-                fontSize: "1rem",
-                color: "#777777",
-                ":hover": {
-                  textDecoration: "none",
-                  color: "black",
-                },
-              }}
-            >
-              <ArrowBackIcon sx={{ padding: 0, margin: 0 }} />
-              <Typography sx={{ display: "flex" }}>BACK</Typography>
-            </Button>
-          )}
-
-          {isSmallScreen && (
-            <IconButton
-              href="/dashboard/repository/hod-submission"
-              size="small"
-            >
-              <ArrowBackIcon sx={{ padding: 0, margin: 0 }} />
-            </IconButton>
-          )}
-
-          <Typography
-            variant="h4"
+          <Box
             sx={{
-              textAlign: "center",
-              fontWeight: 550,
-              margin: "0 auto", // Centered within flex
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between", // Distributes left and right properly
+              width: "100%",
+              position: "relative", // For absolute positioning inside
             }}
           >
-            Submission Preview
-          </Typography>
+            {!isSmallScreen && (
+              <Button
+                href="/dashboard/repository/hod-submission"
+                sx={{
+                  textDecoration: "none",
+                  alignItems: "center",
+                  display: "flex",
+                  fontSize: "1rem",
+                  color: "#777777",
+                  ":hover": {
+                    textDecoration: "none",
+                    color: "black",
+                  },
+                }}
+              >
+                <ArrowBackIcon sx={{ padding: 0, margin: 0 }} />
+                <Typography sx={{ display: "flex" }}>BACK</Typography>
+              </Button>
+            )}
 
-          {/* Optional: Placeholder to balance space */}
-          <Box sx={{ width: "80px" }}></Box>
-        </Box>
+            {isSmallScreen && (
+              <IconButton
+                href="/dashboard/repository/hod-submission"
+                size="small"
+              >
+                <ArrowBackIcon sx={{ padding: 0, margin: 0 }} />
+              </IconButton>
+            )}
 
-        <Divider
-          sx={{
-            width: "100%",
-          }}
-        />
-        <FormControl fullWidth>
-          <ViewPaper viewPaper={submissionHodPaper} />
-        </FormControl>
+            <Typography
+              variant="h4"
+              sx={{
+                textAlign: "center",
+                fontWeight: 550,
+                margin: "0 auto", // Centered within flex
+              }}
+            >
+              Submission Preview
+            </Typography>
 
-        {/* <Stack direction="column">
+            {/* Optional: Placeholder to balance space */}
+            <Box sx={{ width: "80px" }}></Box>
+          </Box>
+
+          <Divider
+            sx={{
+              width: "100%",
+            }}
+          />
+          <FormControl fullWidth>
+            <ViewPaper viewPaper={submissionHodPaper} />
+          </FormControl>
+
+          {/* <Stack direction="column">
         <InputLabel id="rich-text" sx={{ color: "black", fontWeight: "550" }}>
           FULL TEXT
         </InputLabel>
       </Stack> */}
 
-        {/* <Stack direction="column" sx={{ marginTop: 2 }} width={"100%"}>
+          {/* <Stack direction="column" sx={{ marginTop: 2 }} width={"100%"}>
         <RichText rich_text={submissionHodPaper?.full_text} />
       </Stack> */}
+          {pending &&
+            Object.keys(pending).length > 0 &&
+            pending?.status !== "published" &&
+            pending?.id !== id && (
+              <Progressbar
+                value={progress}
+                step={3}
+                intervalMs={1000}
+                title={pending.title}
+                index={1}
+              />
+            )}
 
-        <Box
-          sx={{
-            justifyContent: "center",
-            display: "flex",
-            marginTop: 3,
-            marginBottom: 4,
-          }}
-        >
-          <Button
-            type="submit"
-            variant="contained"
-            color="success"
-            onClick={handleOpenApproveDialog}
+          <Box
             sx={{
-              borderRadius: "16px",
-              color: "white",
-              boxShadow: "none",
+              justifyContent: "center",
+              display: "flex",
+              marginTop: 3,
+              marginBottom: 4,
             }}
           >
-            Approve
-          </Button>
-          <Button
-            type="submit"
-            variant="contained"
-            color="error"
-            sx={{
-              borderRadius: "16px",
-              marginLeft: 2,
-              boxShadow: "none",
-            }}
-            onClick={handleOpenRejectDialog}
-          >
-            Reject
-          </Button>
-          {isApprovalDialogOpen && approveData && (
-            <ApproveDialog
-              open={isApprovalDialogOpen}
-              onClose={handleApproveDialogClose}
-              approve={approveData}
-            />
-          )}
-          {isRejectDialogOpen && rejectData && (
-            <RejectDialog
-              open={isRejectDialogOpen}
-              onClose={handleRejectDialogClose}
-              reject={rejectData}
-            />
-          )}
+            <Button
+              type="submit"
+              variant="contained"
+              color="success"
+              onClick={handleOpenApproveDialog}
+              disabled={
+                pending &&
+                Object.keys(pending).length > 0 &&
+                pending.status !== "published"
+                  ? true
+                  : false
+              }
+              sx={{
+                borderRadius: "16px",
+                color: "white",
+                boxShadow: "none",
+              }}
+            >
+              Approve
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              color="error"
+              sx={{
+                borderRadius: "16px",
+                marginLeft: 2,
+                boxShadow: "none",
+              }}
+              disabled={
+                pending &&
+                Object.keys(pending).length > 0 &&
+                pending.status !== "published"
+                  ? true
+                  : false
+              }
+              onClick={handleOpenRejectDialog}
+            >
+              Reject
+            </Button>
+            {isApprovalDialogOpen && approveData && (
+              <ApproveDialog
+                open={isApprovalDialogOpen}
+                onClose={handleApproveDialogClose}
+                approve={approveData}
+              />
+            )}
+            {isRejectDialogOpen && rejectData && (
+              <RejectDialog
+                open={isRejectDialogOpen}
+                onClose={handleRejectDialogClose}
+                reject={rejectData}
+              />
+            )}
+          </Box>
         </Box>
-      </Box>
-    </div>
+      </div>
+      {/* <ApproveProgress value={10} isLoading={true} /> */}
+    </>
   );
 }

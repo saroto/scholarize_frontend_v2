@@ -241,6 +241,7 @@ interface Approve {
   public_id: string;
   approval_status: string;
   research_title: string;
+  approval_email: string;
   departments: Department[];
   research_type: ResearchType;
   author: string;
