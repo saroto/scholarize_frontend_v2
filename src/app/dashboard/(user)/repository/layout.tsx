@@ -91,9 +91,21 @@ export default function RepositoryLayout({
             case "unpublished":
               toast.info(`Research Paper "${title}" is currently unpublished.`);
               break;
-
+            case "awaiting": {
+              const raw = localStorage.getItem("pendingPaper");
+              if (raw) {
+                try {
+                  const item = JSON.parse(raw);
+                  item.status = "awaiting";
+                  localStorage.setItem("pendingPaper", JSON.stringify(item));
+                } catch (err) {
+                  console.error("Failed to update pendingPaper status", err);
+                }
+              }
+              // toast.info(`Research Paper "${title}" is awaiting approval.`);
+              break;
+            }
             case "pending":
-            case "awaiting":
             case "in_progress":
               // Still waiting — do nothing
               break;

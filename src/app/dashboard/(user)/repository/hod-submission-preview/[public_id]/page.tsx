@@ -20,7 +20,7 @@ import { useSession } from "next-auth/react";
 import { submissionsHodPaper } from "@/types";
 import Progressbar from "@/components/Progressbar";
 import RichText from "@/components/rich-text/rich-text-preview";
-
+import ErrorProgressPaper from "@/components/ErrorProgressPaper";
 import CircularProgress from "@mui/material/CircularProgress";
 import ApproveProgress from "@/components/dialogs/approve-progress";
 import ViewPaper from "@/components/viewPaper";
@@ -117,6 +117,10 @@ export default function submissionPreview({
           // If completed, force progress to 100%
           maxProgressRef.current = 100;
           setProgress(100);
+          return; // no need to continue with elapsed time calc
+        } else if (item.status === "awaiting") {
+          maxProgressRef.current = 0;
+          setProgress(0);
           return; // no need to continue with elapsed time calc
         }
 
@@ -240,6 +244,7 @@ export default function submissionPreview({
           {pending &&
             Object.keys(pending).length > 0 &&
             pending?.status !== "published" &&
+            pending?.status !== "awaiting" &&
             pending?.id !== id && (
               <Progressbar
                 value={progress}
@@ -249,6 +254,14 @@ export default function submissionPreview({
                 index={1}
               />
             )}
+
+          {pending && pending?.status === "awaiting" && (
+            <ErrorProgressPaper
+              id={pending?.id}
+              title={pending?.title}
+              index={1}
+            />
+          )}
 
           <Box
             sx={{
@@ -266,7 +279,8 @@ export default function submissionPreview({
               disabled={
                 pending &&
                 Object.keys(pending).length > 0 &&
-                pending.status !== "published"
+                pending.status !== "published" &&
+                pending.status !== "awaiting"
                   ? true
                   : false
               }
@@ -290,7 +304,8 @@ export default function submissionPreview({
               disabled={
                 pending &&
                 Object.keys(pending).length > 0 &&
-                pending.status !== "published"
+                pending.status !== "published" &&
+                pending.status !== "awaiting"
                   ? true
                   : false
               }
