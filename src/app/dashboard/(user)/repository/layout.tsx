@@ -117,7 +117,7 @@ export default function RepositoryLayout({
             checkApprovalStatus(item.id, item.title || "Research Paper");
 
             // Extend duration to allow more time for checking
-            const updatedDuration = (item.duration || 20) + 2;
+            const updatedDuration = (item.duration || 20) + 1;
             localStorage.setItem(
               "pendingPaper",
               JSON.stringify({ ...item, duration: updatedDuration })
