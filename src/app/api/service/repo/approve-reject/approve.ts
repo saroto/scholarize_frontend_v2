@@ -5,11 +5,13 @@ import { redirect } from "next/navigation";
 export async function approveResearchPaper(
   token: any,
   paperId: string,
-  status: string
+  status: string,
+  approval_email: string
 ) {
   const formdata = new FormData();
   formdata.append("research_paper_id", paperId);
   formdata.append("approval_status", status);
+  formdata.append("approval_email", approval_email);
   try {
     const response = await fetch(
       `${process.env.API_URL}/repository/submissions/${paperId}`,

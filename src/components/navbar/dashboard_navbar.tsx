@@ -209,8 +209,6 @@ export default function DashboardNavbar({
     return r * 0.299 + g * 0.587 + b * 0.114 > 186 ? "black" : "white";
   }
 
-  console.log("session", session);
-
   useEffect(() => {
     if (
       !isRepository &&

@@ -16,13 +16,15 @@ import PermIdentityIcon from "@mui/icons-material/PermIdentity";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import * as React from "react";
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { approveResearchPaper } from "@/app/api/service/repo/approve-reject/approve";
 import { ApproveDialogProps } from "@/types";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import PersonIcon from "@mui/icons-material/Person";
 import ErrorIcon from "@mui/icons-material/Error";
+import ApproveProgress from "./approve-progress";
+import Progressbar from "../Progressbar";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialog-paper": {
@@ -43,35 +45,110 @@ const ApproveDialogs: React.FC<ApproveDialogProps> = ({
 }) => {
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(false);
+  console.log("approve", approve);
   const router = useRouter();
   const Approve = async () => {
     setIsLoading(true);
     try {
+      const researchPaperId = approve.research_paper_id as any;
+      const researchPaperPublicId = approve.public_id as any;
+      const approvalStatus = approve.approval_status as any;
+      const approveTitle = approve.research_title as any;
+
+      const now = Date.now();
+      const expiresAt = now + 20_000;
+
+      const pendingPaper = {
+        id: researchPaperPublicId,
+        title: approveTitle,
+        status: "in_progress",
+        createdAt: now,
+        duration: 20,
+        expiresAt: expiresAt,
+      };
+
+      localStorage.setItem("pendingPaper", JSON.stringify(pendingPaper));
+
+      //Optimistic navigation BEFORE backend response
+      setTimeout(() => {
+        router.replace("/dashboard/repository/hod-submission");
+      }, 100);
+      onClose();
+      setIsLoading(false);
+
+      // Call the actual backend approval in the background
       const response = await approveResearchPaper(
         session?.user.token,
-        approve.research_paper_id as any,
-        approve.approval_status as any
+        researchPaperId,
+        approvalStatus,
+        approve.approval_email
       );
+
+      //  Update localStorage status after approval is confirmed
       if (response && response.success) {
-        toast.success("Research Paper Approved Successfully");
-        setIsLoading(false);
-        onClose();
-        router.replace("/dashboard/repository/hod-submission");
+        const updated = {
+          ...pendingPaper,
+          status: "published",
+          completedAt: Date.now(),
+        };
+        localStorage.setItem("pendingPaper", JSON.stringify(updated));
+        localStorage.removeItem(`approval-${researchPaperId}`);
       } else {
         toast.error("Failed to Approve Research Paper");
-        setIsLoading(false);
-        return;
       }
     } catch (error) {
       toast.error("Failed to Approve Research Paper");
       setIsLoading(false);
-      return;
     }
   };
 
   const handleClose = () => {
     onClose();
   };
+
+  const [progress, setProgress] = useState(0);
+
+  const rawPendingPaperData = localStorage.getItem("pendingPaper");
+  const pending = JSON.parse(rawPendingPaperData || "{}");
+  const maxProgressRef = useRef(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const raw = localStorage.getItem("pendingPaper");
+
+      if (!raw) return;
+
+      try {
+        const item = JSON.parse(raw || "{}");
+
+        if (item.status === "published") {
+          // If completed, force progress to 100%
+          maxProgressRef.current = 100;
+          setProgress(100);
+          return; // no need to continue with elapsed time calc
+        }
+
+        if (item.createdAt && item.duration) {
+          const now = Date.now();
+          const elapsedSeconds = (now - item.createdAt) / 1000;
+          const value = Math.min(100, (elapsedSeconds / item.duration) * 100);
+
+          // Prevent progress from going backward
+          if (value >= maxProgressRef.current) {
+            maxProgressRef.current = value;
+            setProgress(value);
+          } else {
+            setProgress(maxProgressRef.current);
+          }
+        }
+      } catch (err) {
+        console.error("Invalid pendingPaper in localStorage", err);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <BootstrapDialog
       onClose={onClose}
@@ -147,32 +224,19 @@ const ApproveDialogs: React.FC<ApproveDialogProps> = ({
             </Stack>
           </Stack>
         </div>
-        <Box
-          sx={{
-            backgroundColor: "rgba(0, 102, 204, 0.1)",
-            padding: "8px",
-            borderRadius: "8px",
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            {" "}
-            <ErrorIcon />
-            <Typography
-              variant="h5"
-              sx={{
-                fontWeight: 500,
-              }}
-            >
-              Noted
-            </Typography>
-          </Box>
-          <Typography variant="h5" sx={{ marginTop: "8px" }}>
-            After your paper is approved, please allow 5–7 minutes for
-            processing. You will be notified via email when the search is
-            successful or if any issues occur.
-          </Typography>
-        </Box>
+        {pending &&
+          Object.keys(pending).length > 0 &&
+          pending.status !== "published" && (
+            <Progressbar
+              value={progress}
+              step={3}
+              intervalMs={1000}
+              title={pending.title}
+              index={0}
+            />
+          )}
       </DialogContent>
+
       <DialogActions>
         <Button
           autoFocus
