@@ -25,6 +25,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import ErrorIcon from "@mui/icons-material/Error";
 import ApproveProgress from "./approve-progress";
 import Progressbar from "../Progressbar";
+import ErrorProgressPaper from "../ErrorProgressPaper";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialog-paper": {
@@ -127,6 +128,10 @@ const ApproveDialogs: React.FC<ApproveDialogProps> = ({
           maxProgressRef.current = 100;
           setProgress(100);
           return; // no need to continue with elapsed time calc
+        } else if (item.status === "awaiting") {
+          maxProgressRef.current = 0;
+          setProgress(0);
+          return; // no need to continue with elapsed time calc
         }
 
         if (item.createdAt && item.duration) {
@@ -227,15 +232,39 @@ const ApproveDialogs: React.FC<ApproveDialogProps> = ({
         </div>
         {pending &&
           Object.keys(pending).length > 0 &&
-          pending.status !== "published" && (
+          pending?.status !== "published" &&
+          pending?.status !== "awaiting" &&
+          pending?.id !== approve.public_id && (
             <Progressbar
               value={progress}
               step={3}
               intervalMs={1000}
               title={pending.title}
-              index={0}
+              index={1}
             />
           )}
+
+        {pending &&
+          Object.keys(pending).length > 0 &&
+          pending?.status !== "published" &&
+          pending?.status !== "awaiting" &&
+          pending?.id !== approve?.public_id && (
+            <Progressbar
+              value={progress}
+              step={3}
+              intervalMs={1000}
+              title={pending.title}
+              index={1}
+            />
+          )}
+
+        {pending && pending?.status === "awaiting" && (
+          <ErrorProgressPaper
+            id={pending?.id}
+            title={pending?.title}
+            index={1}
+          />
+        )}
       </DialogContent>
 
       <DialogActions>
