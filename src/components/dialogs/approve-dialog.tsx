@@ -47,6 +47,7 @@ const ApproveDialogs: React.FC<ApproveDialogProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   console.log("approve", approve);
   const router = useRouter();
+  console.log("approve", approve);
   const Approve = async () => {
     setIsLoading(true);
     try {
