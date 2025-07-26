@@ -64,6 +64,7 @@ const ApproveDialogs: React.FC<ApproveDialogProps> = ({
         id: researchPaperPublicId,
         title: approveTitle,
         status: "in_progress",
+        isApproved: false,
         createdAt: now,
         duration: 20,
         expiresAt: expiresAt,
@@ -91,8 +92,12 @@ const ApproveDialogs: React.FC<ApproveDialogProps> = ({
         const updated = {
           ...pendingPaper,
           status: "published",
+          isApproved: true,
           completedAt: Date.now(),
         };
+        toast.success(
+          `Research Paper "${approveTitle}" approved successfully!`
+        );
         localStorage.setItem("pendingPaper", JSON.stringify(updated));
         localStorage.removeItem(`approval-${researchPaperId}`);
       } else {

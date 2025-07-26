@@ -65,21 +65,26 @@ export default function RepositoryLayout({
           const result = await GetProgresPaperById(session, paperId);
           if (!result?.success) return;
 
-          const status = result.data?.data?.ResearchPaperStatus;
+          const status = result?.data?.data?.ResearchPaperStatus;
+          const raw = localStorage.getItem("pendingPaper");
+          const item = JSON.parse(raw || "{}");
           switch (status) {
-            case "published":
             case "published": {
-              const raw = localStorage.getItem("pendingPaper");
-              if (raw) {
-                try {
-                  const item = JSON.parse(raw);
-                  item.status = "published";
-                  localStorage.setItem("pendingPaper", JSON.stringify(item));
-                } catch (err) {
-                  console.error("Failed to update pendingPaper status", err);
+              try {
+                const wasApproved = item.isApproved;
+
+                item.status = "published";
+                item.isApproved = true;
+                localStorage.setItem("pendingPaper", JSON.stringify(item));
+
+                if (!wasApproved) {
+                  toast.success(
+                    `Research Paper "${title}" approved successfully!`
+                  );
                 }
+              } catch (err) {
+                console.error("Failed to update pendingPaper status");
               }
-              toast.success(`Research Paper "${title}" approved successfully!`);
               break;
             }
 
@@ -92,15 +97,11 @@ export default function RepositoryLayout({
               toast.info(`Research Paper "${title}" is currently unpublished.`);
               break;
             case "awaiting": {
-              const raw = localStorage.getItem("pendingPaper");
-              if (raw) {
-                try {
-                  const item = JSON.parse(raw);
-                  item.status = "awaiting";
-                  localStorage.setItem("pendingPaper", JSON.stringify(item));
-                } catch (err) {
-                  console.error("Failed to update pendingPaper status", err);
-                }
+              try {
+                item.status = "awaiting";
+                localStorage.setItem("pendingPaper", JSON.stringify(item));
+              } catch (err) {
+                console.error("Failed to update pendingPaper status", err);
               }
               // toast.info(`Research Paper "${title}" is awaiting approval.`);
               break;
@@ -139,7 +140,7 @@ export default function RepositoryLayout({
           console.error("Invalid JSON in localStorage: pendingPaper", err);
           localStorage.removeItem("pendingPaper"); // cleanup if corrupted
         }
-      }, 2000); // check every 10s
+      }, 1000); // check every 10s
 
       return () => clearInterval(interval);
     }, [session?.user.token]);
