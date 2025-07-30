@@ -46,7 +46,7 @@ import PublishIcon from "@mui/icons-material/Publish";
 import GetAppIcon from "@mui/icons-material/GetApp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-
+import CloseIcon from "@mui/icons-material/Close";
 // add margin and transition when opening the drawer
 // refer to this docs: https://mui.com/material-ui/react-drawer/#persistent-drawer
 // const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
@@ -715,6 +715,17 @@ export default function DashboardNavbar({
             },
           }}
         >
+          <Box
+            display="flex"
+            justifyContent="flex-start"
+            sx={{
+              paddingInline: "20px",
+            }}
+          >
+            <IconButton onClick={() => setDrawer(false)}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
           {leftSideBar}
         </Drawer>
       )}
