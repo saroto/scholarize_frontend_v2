@@ -4,7 +4,7 @@ import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
 export default withAuth(
-  function middleware(request) {
+  function proxy(request) {
     const token = request.nextauth.token;
     if (!token) {
       return NextResponse.redirect(new URL("/auth/signin", request.url));
